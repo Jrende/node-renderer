@@ -103,7 +103,9 @@ class SvgRenderer extends React.Component {
         }
         parent = parent.parentElement;
       }
-      console.log(`create connection from ${this.state.dragNodeId} to ${nodeId}`);
+      if(nodeId != -1 && nodeId != this.state.dragNodeId) {
+        console.log(`create connection from ${this.state.dragNodeId} to ${nodeId}`);
+      }
     }
     this.onMouseUp();
   }
@@ -136,7 +138,7 @@ class SvgRenderer extends React.Component {
     });
     let connectorLine = null;
     if(this.state.dragMode === "connector") {
-      connectorLine = <line x1={dragFrom[0]} y1={dragFrom[1]} x2={dragTo[0]} y2={dragTo[1]} stroke="black" strokeWidth="2" />
+      connectorLine = <line className="connector-line" x1={dragFrom[0]} y1={dragFrom[1]} x2={dragTo[0]} y2={dragTo[1]} stroke="black" strokeWidth="2" />
     }
     let w = 200;
     let viewBox = `-${w} -${w} ${w*2} ${w*2}`;
