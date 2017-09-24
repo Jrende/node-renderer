@@ -63,10 +63,20 @@ let initialTypes = [
         type: "Color",
       }
     },
+    input: {
+      input: "FrameBuffer"
+    },
     output: {
       out: "FrameBuffer"
     }
   },
+  {
+    id: 6,
+    name: "Output",
+    input: {
+      finalResult: "FrameBuffer"
+    }
+  }
 ]
 const types = (state = initialTypes, action) => {
   return state;

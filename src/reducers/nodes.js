@@ -84,10 +84,22 @@ let initialState = {
 }
 */
 
+//TODO: Read on how to init between reducers properly
 let initialState = {
-  graph: []
+  graph: [
+    {
+      id: 0,
+      pos: [0, 0],
+      type: {
+        id: 6,
+        name: "Output",
+        input: {
+          finalResult: "FrameBuffer"
+        }
+      }
+    }
+  ]
 }
-
 
 function replaceNode(graph, node) {
   let ret = [];
@@ -135,7 +147,6 @@ const nodes = (state = initialState, action) => {
     }
     case "MOVE_NODE": {
       let newGraph = replaceNode(state.graph, {id: action.id, pos: action.pos});
-      console.log(`Move node to ${action.pos}`); 
       return {
         graph: newGraph
       }

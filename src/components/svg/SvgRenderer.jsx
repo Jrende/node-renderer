@@ -3,43 +3,28 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import './SvgRenderer.less';
 import { SvgNode } from './SvgNode';
-import { findNode } from '../../utils/NodeUtils'
+import { findNode, addInSvgSpace, transformPointToSvgSpace } from '../../utils/NodeUtils'
 
 class SvgRenderer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      isDragging: false,
-      dragNodeId: null
-    };
-
+      dragMode: null,
+    }
     this.handleDrop = this.handleDrop.bind(this);
     this.setSvg = this.setSvg.bind(this);
     this.onElementMouseDown = this.onElementMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
+    this.onConnectorMouseUp = this.onConnectorMouseUp.bind(this);
+    this.onConnectorMouseDown = this.onConnectorMouseDown.bind(this);
   }
 
   componentDidMount() {
-    let width = this.svg.width.baseVal.value;
-    let height = this.svg.height.baseVal.value;
-    this.setState({
-      x: width/2.0,
-      y: height/2.0,
-      width: width/2.0,
-      height: height/2.0,
-      lastX: 0,
-      lastY: 0
-    });
   }
 
   handleDrop(event) {
     event.preventDefault();
-    console.log("Item dropped");
     let type = JSON.parse(event.dataTransfer.getData("text/plain"));
     this.point.x = event.clientX;
     this.point.y = event.clientY;
@@ -52,9 +37,34 @@ class SvgRenderer extends React.Component {
     this.props.createNewNode(newNode);
   }
 
+  onConnectorMouseDown(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    let c = transformPointToSvgSpace([event.clientX, event.clientY], this.svg);
+
+    let nodeId = -1;
+    let parent = event.target.parentElement;
+    while(!(parent instanceof SVGSVGElement)) {
+      if(parent.hasAttribute("data-node-id")) {
+        nodeId = parent.getAttribute("data-node-id");
+        break;
+      }
+      parent = parent.parentElement;
+    }
+
+    this.setState({
+      dragMode: "connector",
+      dragNodeId: nodeId,
+      dragTo: c,
+      dragFrom: c,
+      lastX: event.clientX,
+      lastY: event.clientY
+    });
+  }
+
   onElementMouseDown(event, node) {
     this.setState({
-      isDragging: true,
+      dragMode: "element",
       dragNodeId: node.id,
       lastX: event.clientX,
       lastY: event.clientY
@@ -62,27 +72,45 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseMove(event) {
-    if(this.state.isDragging) {
+    if(this.state.dragMode != null) {
       let dx = event.clientX - this.state.lastX;
       let dy = event.clientY - this.state.lastY;
       this.setState({
         lastX: event.clientX,
         lastY: event.clientY
       });
-      let node = findNode(this.props.graph, this.state.dragNodeId);
-      this.point.x = node.pos[0];
-      this.point.y = node.pos[1];
-      let oldCoords = this.point.matrixTransform(this.svg.getScreenCTM());
-      this.point.x = oldCoords.x + dx;
-      this.point.y = oldCoords.y + dy;
-      let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
-      this.props.setNodeLocation(this.state.dragNodeId, [newCoords.x, newCoords.y]);
+
+      if(this.state.dragMode === "element") {
+        let node = findNode(this.props.graph, this.state.dragNodeId);
+        let newPos = addInSvgSpace(node.pos, [dx, dy], this.svg)
+        this.props.setNodeLocation(this.state.dragNodeId, newPos);
+      } else if(this.state.dragMode === "connector") {
+        let dragTo = addInSvgSpace(this.state.dragTo, [dx, dy], this.svg)
+        this.setState({ dragTo });
+      }
     }
+  }
+
+  onConnectorMouseUp(event) {
+    let target = event.target;
+    if(target.hasAttribute("data-input-name")) {
+      let nodeId = -1;
+      let parent = target.parentElement;
+      while(!(parent instanceof SVGSVGElement)) {
+        if(parent.hasAttribute("data-node-id")) {
+          nodeId = parent.getAttribute("data-node-id");
+          break;
+        }
+        parent = parent.parentElement;
+      }
+      console.log(`create connection from ${this.state.dragNodeId} to ${nodeId}`);
+    }
+    this.onMouseUp();
   }
 
   onMouseUp(event) {
     this.setState({
-      isDragging: false,
+      dragMode: null,
       dragNodeId: null
     })
   }
@@ -98,21 +126,26 @@ class SvgRenderer extends React.Component {
 
   render() {
     let { graph, nodes, connections } = this.props;
-    let { x, y, width, height } = this.state;
-    let circles = nodes.map(node => <SvgNode key={node.id} node={node} onElementMouseDown={(event) => this.onElementMouseDown(event, node)} onMouseUp={this.onMouseUp} />);
+    let { dragTo, dragFrom } = this.state;
+    let circles = nodes.map(node => <SvgNode key={node.id} node={node}  onConnectorMouseUp={this.onConnectorMouseUp} onConnectorMouseDown={this.onConnectorMouseDown} onElementMouseDown={(event) => this.onElementMouseDown(event, node)}/>);
     let lines = connections.map(connection => {
       let node1 = nodes[connection[0]];
       let node2 = nodes[connection[1]];
       let key = `${node1.pos[0]}${node1.pos[1]}${node2.pos[0]}${node2.pos[1]}`;
       return <line key={key} x1={node1.pos[0]} y1={node1.pos[1]} x2={node2.pos[0]} y2={node2.pos[1]} strokeWidth="2" stroke="black"/>
     });
+    let connectorLine = null;
+    if(this.state.dragMode === "connector") {
+      connectorLine = <line x1={dragFrom[0]} y1={dragFrom[1]} x2={dragTo[0]} y2={dragTo[1]} stroke="black" strokeWidth="2" />
+    }
     let w = 200;
     let viewBox = `-${w} -${w} ${w*2} ${w*2}`;
     //TODO: Set svg viewBox depending on svg size
     return (
       <svg ref={this.setSvg} onDrop={this.handleDrop} onDragOver={this.preventEvent} onDragEnter={this.preventEvent} onMouseMove={this.onMouseMove} onMouseUp={this.onMouseUp} viewBox={viewBox}>
-      {circles}
-      {lines}
+        {circles}
+        {lines}
+        {connectorLine}
       </svg>
     );
   }
