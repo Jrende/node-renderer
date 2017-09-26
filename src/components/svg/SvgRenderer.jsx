@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import './SvgRenderer.less';
 import { SvgNode } from './SvgNode';
-import { findNode } from '../../utils/NodeUtils'
 import { addInSvgSpace, transformPointToSvgSpace } from '../../utils/SvgUtils'
 
 class SvgRenderer extends React.Component {
