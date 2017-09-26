@@ -1,6 +1,6 @@
 let initialTypes = [
   {
-    id: 0,
+    id: 1,
     name: "Blur",
     data: {
       radius: {
@@ -17,7 +17,7 @@ let initialTypes = [
     }
   },
   {
-    id: 1,
+    id: 2,
     name: "Mix",
     data: {
       factor: {
@@ -35,28 +35,28 @@ let initialTypes = [
     }
   },
   {
-    id: 2,
+    id: 3,
     name: "Noise",
     output: {
       out: "FrameBuffer"
     }
   },
   {
-    id: 3,
+    id: 4,
     name: "Clouds",
     output: {
       out: "FrameBuffer"
     }
   },
   {
-    id: 4,
+    id: 5,
     name: "Checker",
     output: {
       out: "FrameBuffer"
     }
   },
   {
-    id: 5,
+    id: 6,
     name: "ColorMix",
     data: {
       color: {
@@ -70,13 +70,6 @@ let initialTypes = [
       out: "FrameBuffer"
     }
   },
-  {
-    id: 6,
-    name: "Output",
-    input: {
-      finalResult: "FrameBuffer"
-    }
-  }
 ]
 const types = (state = initialTypes, action) => {
   return state;

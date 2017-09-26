@@ -14,3 +14,11 @@ export function moveNode(id, pos) {
     pos
   }
 }
+
+export function connectNodes(from, to) {
+  return {
+    type: "CONNECT_NODES",
+    from,
+    to
+  }
+}

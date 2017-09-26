@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import './SvgRenderer.less';
 import { SvgNode } from './SvgNode';
-import { findNode, addInSvgSpace, transformPointToSvgSpace } from '../../utils/NodeUtils'
+import { findNode } from '../../utils/NodeUtils'
+import { addInSvgSpace, transformPointToSvgSpace } from '../../utils/SvgUtils'
 
 class SvgRenderer extends React.Component {
   constructor(props) {
@@ -47,15 +48,12 @@ class SvgRenderer extends React.Component {
     event.stopPropagation();
     let c = transformPointToSvgSpace([event.clientX, event.clientY], this.svg);
 
+    let grabNodeOutput = event.target.getAttribute("data-output-name");
     let grabNodeId = -1;
-    let grabNodeOutput = null;
     let parent = event.target.parentElement;
     while(!(parent instanceof SVGSVGElement)) {
-      if(parent.hasAttribute("data-output-name")) {
-        grabNodeOutput = parent.getAttribute("data-output-name");
-      }
       if(parent.hasAttribute("data-node-id")) {
-        grabNodeId = parent.getAttribute("data-node-id");
+        grabNodeId = parent.getAttribute("data-node-id")|0;
         break;
       }
       parent = parent.parentElement;
@@ -88,7 +86,7 @@ class SvgRenderer extends React.Component {
       });
 
       if(this.state.grabMode === "element") {
-        let node = findNode(this.props.graph, this.state.grabNodeId);
+        let node = this.props.graph.find(node => node.id === this.state.grabNodeId);
         let newPos = addInSvgSpace(node.pos, [dx, dy], this.svg)
         this.props.setNodeLocation(this.state.grabNodeId, newPos);
       } else if(this.state.grabMode === "connector") {
@@ -103,16 +101,25 @@ class SvgRenderer extends React.Component {
     if(target.hasAttribute("data-input-name")) {
       let nodeId = -1;
       let parent = target.parentElement;
+      let inputName = target.getAttribute("data-input-name");
       while(!(parent instanceof SVGSVGElement)) {
         if(parent.hasAttribute("data-node-id")) {
-          nodeId = parent.getAttribute("data-node-id");
+          nodeId = parent.getAttribute("data-node-id")|0;
           break;
         }
         parent = parent.parentElement;
       }
-      //this.connectNodes(
-      if(nodeId != -1 && nodeId != this.state.dragNodeId) {
-        console.log(`create connection from ${this.state.dragNodeId} to ${nodeId}`);
+      if(nodeId != -1 && nodeId != this.state.grabNodeId) {
+        this.props.connectNodes(
+          {
+            id: this.state.grabNodeId,
+            name: this.state.grabNodeOutput
+          },
+          {
+            id: nodeId,
+            name: inputName
+          }
+        );
       }
     }
     this.onMouseUp();
@@ -135,12 +142,12 @@ class SvgRenderer extends React.Component {
   }
 
   render() {
-    let { graph, nodes, connections } = this.props;
+    let { graph, connections } = this.props;
     let { grabTo, grabFrom } = this.state;
-    let circles = nodes.map(node => <SvgNode key={node.id} node={node}  onConnectorMouseUp={this.onConnectorMouseUp} onConnectorMouseDown={this.onConnectorMouseDown} onElementMouseDown={(event) => this.onElementMouseDown(event, node)}/>);
+    let circles = graph.map(node => <SvgNode key={node.id} node={node}  onConnectorMouseUp={this.onConnectorMouseUp} onConnectorMouseDown={this.onConnectorMouseDown} onElementMouseDown={(event) => this.onElementMouseDown(event, node)}/>);
     let lines = connections.map(connection => {
-      let node1 = nodes[connection[0]];
-      let node2 = nodes[connection[1]];
+      let node1 = graph.find(node => node.id === connection[0]);
+      let node2 = graph.find(node => node.id === connection[1]);
       let key = `${node1.pos[0]}${node1.pos[1]}${node2.pos[0]}${node2.pos[1]}`;
       return <line key={key} x1={node1.pos[0]} y1={node1.pos[1]} x2={node2.pos[0]} y2={node2.pos[1]} strokeWidth="2" stroke="black"/>
     });
@@ -163,10 +170,10 @@ class SvgRenderer extends React.Component {
 
 SvgRenderer.propTypes = {
   graph: PropTypes.array.isRequired,
-  nodes: PropTypes.array.isRequired,
   connections: PropTypes.array.isRequired,
   createNewNode: PropTypes.func.isRequired,
-  setNodeLocation: PropTypes.func.isRequired
+  setNodeLocation: PropTypes.func.isRequired,
+  connectNodes: PropTypes.func.isRequired
 }
 
 export default SvgRenderer;
