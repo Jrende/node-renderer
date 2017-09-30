@@ -10,10 +10,16 @@ let initialTypes = [
       }
     },
     input: {
-      in: 'FrameBuffer',
+      in: {
+        type: 'FrameBuffer',
+        name: 'Input'
+      }
     },
     output: {
-      out: 'FrameBuffer'
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
     }
   },
   {
@@ -27,11 +33,20 @@ let initialTypes = [
       }
     },
     input: {
-      left: 'FrameBuffer',
-      right: 'FrameBuffer',
+      left: {
+        type: 'FrameBuffer',
+        name: 'Left'
+      },
+      right: {
+        type: 'FrameBuffer',
+        name: 'Right'
+      },
     },
     output: {
-      out: 'FrameBuffer'
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
     }
   },
   {
@@ -39,7 +54,10 @@ let initialTypes = [
     name: 'Noise',
     input: {},
     output: {
-      out: 'FrameBuffer'
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
     }
   },
   {
@@ -47,7 +65,10 @@ let initialTypes = [
     name: 'Clouds',
     input: {},
     output: {
-      out: 'FrameBuffer'
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
     }
   },
   {
@@ -55,7 +76,10 @@ let initialTypes = [
     name: 'Checker',
     input: {},
     output: {
-      out: 'FrameBuffer'
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
     }
   },
   {
@@ -67,10 +91,16 @@ let initialTypes = [
       }
     },
     input: {
-      input: 'FrameBuffer'
+      input: {
+        type: 'FrameBuffer',
+        name: 'Input'
+      },
     },
     output: {
-      out: 'FrameBuffer'
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
     }
   },
   {
@@ -82,10 +112,16 @@ let initialTypes = [
       }
     },
     input: {
-      'This node needs input to work properly': 'FrameBuffer'
+      in: {
+        type: 'FrameBuffer',
+        name: 'Input'
+      },
     },
     output: {
-      'This is the output of the computation': 'FrameBuffer'
+      out: {
+        type: 'FrameBuffer',
+        name: '???'
+      },
     }
   }
 ]

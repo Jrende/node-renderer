@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgRenderer.less';
 import SvgNode from './SvgNode';
-import { addInSvgSpace, transformPointToSvgSpace } from '../../utils/SvgUtils';
+import { addInSvgSpace, transformPointToSvgSpace, transformPointFromSvgSpace } from '../../utils/SvgUtils';
 
 /* globals SVGSVGElement */
 class SvgRenderer extends React.Component {
@@ -26,6 +26,7 @@ class SvgRenderer extends React.Component {
 
   componentDidMount() {
   }
+
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -129,13 +130,14 @@ class SvgRenderer extends React.Component {
     let offset = 40;
     let sideMargin = 10;
     return (name) => {
+      let output = [0, 0];
       if(node.type.input[name] != null) {
-        return [sideMargin, inputs.indexOf(name) * lineHeight + offset];
+        output = [sideMargin, inputs.indexOf(name) * lineHeight + offset];
       }
       if(node.type.output[name] != null) {
-        return [width-sideMargin, outputs.indexOf(name) * lineHeight + offset];
+        output = [width-sideMargin, outputs.indexOf(name) * lineHeight + offset];
       }
-      return [0, 0];
+      return output;
     };
   }
 
@@ -151,7 +153,6 @@ class SvgRenderer extends React.Component {
     let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
     let newNode = {
       type,
-      name: type.name,
       pos: [newCoords.x, newCoords.y]
     };
     this.props.createNewNode(newNode);
@@ -174,11 +175,11 @@ class SvgRenderer extends React.Component {
     let lines = connections.map((connection) => {
       let node1 = graph.find(node => node.id === connection.from.id);
       let fromPos = this.getConnectorPosFunc(node1)(connection.from.name);
-      fromPos[0] += node1.pos[0] - 40;
+      fromPos[0] += node1.pos[0] - 12.5;
       fromPos[1] += node1.pos[1] - 5;
       let node2 = graph.find(node => node.id === connection.to.id);
       let toPos = this.getConnectorPosFunc(node2)(connection.to.name);
-      toPos[0] += node2.pos[0] - 20;
+      toPos[0] += node2.pos[0] + 15;
       toPos[1] += node2.pos[1] - 5;
       let key = `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`;
       return (

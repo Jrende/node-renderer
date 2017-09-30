@@ -60,9 +60,12 @@ let initialState = {
       pos: [0, 0],
       type: {
         id: 0,
-        name: "Output",
+        name: 'Output',
         input: {
-          finalResult: "FrameBuffer"
+          finalResult: {
+            type: 'FrameBuffer',
+            name: 'Final result'
+          },
         },
         output: {}
       }
