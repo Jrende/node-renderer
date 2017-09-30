@@ -63,7 +63,8 @@ let initialState = {
         name: "Output",
         input: {
           finalResult: "FrameBuffer"
-        }
+        },
+        output: {}
       }
     }
   ]
@@ -88,21 +89,19 @@ const nodes = (state = initialState, action) => {
         graph: newGraph
       }
     }
-    //TODO: Later
     case "CONNECT_NODES": {
-      let newGraph = [];
-      state.graph.forEach(node => {
+      let newGraph = state.graph.map(node => {
         if(node.id === action.to.id) {
-          node = Object.assign({}, node, {
-            input: {
+          return Object.assign({}, node, {
+            input: Object.assign({}, node.input, {
               [action.to.name]: {
                 id: action.from.id,
                 name: action.from.name
               }
-            }
+            })
           });
         }
-        newGraph.push(node);
+        return node;
       });
       return {
         graph: newGraph
