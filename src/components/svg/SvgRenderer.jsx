@@ -190,7 +190,7 @@ class SvgRenderer extends React.Component {
   render() {
     let { graph, connections } = this.props;
     let { grabTo, grabFrom } = this.state;
-    let circles = graph.map(node => (
+    let nodes = graph.map(node => (
       <SvgNode
         key={node.id}
         node={node}
@@ -238,9 +238,13 @@ class SvgRenderer extends React.Component {
     }
     let w = 200;
     let viewBox = `-${w} -${w} ${w*2} ${w*2}`;
+    let style = {
+      zIndex: this.state.grabMode == null ? 0 : 2
+    }
     //TODO: Set svg viewBox depending on svg size
     return (
       <svg
+        style={style}
         ref={this.setSvg}
         onDrop={this.handleDrop}
         onDragOver={this.preventEvent}
@@ -250,9 +254,9 @@ class SvgRenderer extends React.Component {
         onKeyDown={this.onKeyDown}
         viewBox={viewBox}
       >
-        {circles}
         {lines}
         {connectorLine}
+        {nodes}
       </svg>
     );
   }

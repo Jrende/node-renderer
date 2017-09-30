@@ -3,9 +3,20 @@ import SvgRenderer from '../containers/SvgRenderer'
 import ToolBox from '../containers/ToolBox'
 import './App.less';
 
-const App = () => [
-  <SvgRenderer key="a" />,
-  <ToolBox key="b" />
-]
+export default class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      listenToInput: false
+    }
+  }
 
-export default App
+  render() {
+    return [
+      <SvgRenderer key="a" />,
+      <div />,
+      <ToolBox key="b" />
+    ]
+  }
+}
+
