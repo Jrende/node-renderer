@@ -24,15 +24,12 @@ class SvgRenderer extends React.Component {
     this.onConnectorMouseDown = this.onConnectorMouseDown.bind(this);
   }
 
-  componentDidMount() {
-  }
-
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
     let c = transformPointToSvgSpace([event.clientX, event.clientY], this.svg);
 
-    let grabNodeOutput = event.target.getAttribute('data-output-name');
+    let grabNodeName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
     let grabNodeId = -1;
     let parent = event.target.parentElement;
     while(!(parent instanceof SVGSVGElement)) {
@@ -45,8 +42,9 @@ class SvgRenderer extends React.Component {
 
     this.setState({
       grabNodeId,
-      grabNodeOutput,
+      grabNodeName,
       grabMode: 'connector',
+      grabType: event.target.hasAttribute('data-output-name') ? 'output' : 'input',
       grabTo: c,
       grabFrom: c,
       lastPos: [event.clientX, event.clientY]
@@ -82,10 +80,10 @@ class SvgRenderer extends React.Component {
 
   onConnectorMouseUp(event) {
     let target = event.target;
-    if(target.hasAttribute('data-input-name')) {
+    if(target.hasAttribute('data-input-name') || target.hasAttribute('data-output-name')) {
       let nodeId = -1;
       let parent = target.parentElement;
-      let inputName = target.getAttribute('data-input-name');
+      let inputName = target.getAttribute('data-input-name') || target.getAttribute('data-output-name');
       while(!(parent instanceof SVGSVGElement)) {
         if(parent.hasAttribute('data-node-id')) {
           nodeId = parent.getAttribute('data-node-id')|0;
@@ -94,16 +92,20 @@ class SvgRenderer extends React.Component {
         parent = parent.parentElement;
       }
       if(nodeId !== -1 && nodeId !== this.state.grabNodeId) {
-        this.props.connectNodes(
-          {
-            id: this.state.grabNodeId,
-            name: this.state.grabNodeOutput
-          },
-          {
-            id: nodeId,
-            name: inputName
-          }
-        );
+        let from = {
+          id: this.state.grabNodeId,
+          name: this.state.grabNodeName
+        };
+        let to = {
+          id: nodeId,
+          name: inputName
+        };
+        if(this.state.grabType === "input") {
+          let temp = to;
+          to = from;
+          from = temp;
+        }
+        this.props.connectNodes(from, to);
       }
     }
     this.onMouseUp();
@@ -175,7 +177,7 @@ class SvgRenderer extends React.Component {
     let lines = connections.map((connection) => {
       let node1 = graph.find(node => node.id === connection.from.id);
       let fromPos = this.getConnectorPosFunc(node1)(connection.from.name);
-      fromPos[0] += node1.pos[0] - 12.5;
+      fromPos[0] += node1.pos[0] - 15;
       fromPos[1] += node1.pos[1] - 5;
       let node2 = graph.find(node => node.id === connection.to.id);
       let toPos = this.getConnectorPosFunc(node2)(connection.to.name);

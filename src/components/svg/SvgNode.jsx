@@ -22,7 +22,7 @@ export default function SvgNode({
       return (
         <g key={key} transform={`translate(${pos[0]} ${pos[1]})`} >
           <rect
-            transform="translate(-20 -10)"
+            transform="translate(-25 -10)"
             width="20"
             height="10"
             rx="2"
