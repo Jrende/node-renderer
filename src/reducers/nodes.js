@@ -58,6 +58,7 @@ let initialState = {
     {
       id: 0,
       pos: [0, 0],
+      input: {},
       type: {
         id: 0,
         name: 'Output',
@@ -75,7 +76,7 @@ let initialState = {
 const nodes = (state = initialState, action) => {
   switch (action.type) {
     case "CREATE_NODE": {
-      let newNode = Object.assign({}, action.node, {id: action.id})
+      let newNode = Object.assign({}, action.node, {id: action.id, input: {}})
       return {
         graph: [...state.graph, newNode]
       }
@@ -95,6 +96,8 @@ const nodes = (state = initialState, action) => {
     case "CONNECT_NODES": {
       let newGraph = state.graph.map(node => {
         if(node.id === action.to.id) {
+          let fromNode = state.graph.find(n => n.id === action.from.id);
+          let toNode = state.graph.find(n => n.id === action.to.id);
           return Object.assign({}, node, {
             input: Object.assign({}, node.input, {
               [action.to.name]: {
@@ -106,6 +109,51 @@ const nodes = (state = initialState, action) => {
         }
         return node;
       });
+      return {
+        graph: newGraph
+      }
+    }
+    case "REMOVE_CONNECTION": {
+      let node = state.graph.find(node => node.id === action.id);
+      let newNode = JSON.parse(JSON.stringify(node));
+      delete newNode.input[action.connectionName];
+      let newGraph = state.graph.map(node => {
+        if(node.id === newNode.id) {
+          return newNode;
+        }
+        return node;
+      });
+      return {
+        graph: newGraph
+      }
+    }
+    case "REMOVE_NODE": {
+      let newGraph = state.graph
+        .filter(node => node.id !== action.id)
+        .map(node => {
+          let outputs = [];
+          if(node.output != null) {
+            outputs = Object.keys(node.output);
+          }
+          outputs = outputs.filter(key => {
+            return node.output[key].id === action.id
+          });
+          let inputs = Object.keys(node.input);
+          inputs = inputs.filter(key => {
+            return node.input[key].id === action.id
+          });
+          if(outputs.length > 0 || inputs.length > 0) {
+            let newNode = JSON.parse(JSON.stringify(node));
+            outputs.forEach(thing => {
+              delete newNode.output[thing];
+            });
+            inputs.forEach(thing => {
+              delete newNode.input[thing];
+            });
+            return newNode;
+          }
+          return node;
+        });
       return {
         graph: newGraph
       }

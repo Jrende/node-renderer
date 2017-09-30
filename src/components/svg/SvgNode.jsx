@@ -64,7 +64,7 @@ export default function SvgNode({
   height += Math.max(inputs.length, outputs.length) * 25;
 
   return (
-    <g className="svg-node" transform={`translate(${node.pos[0]} ${node.pos[1]})`} onMouseDown={onElementMouseDown} onMouseUp={onMouseUp} data-node-id={node.id}>
+    <g tabindex="0" className="svg-node" transform={`translate(${node.pos[0]} ${node.pos[1]})`} onMouseDown={onElementMouseDown} onMouseUp={onMouseUp} data-node-id={node.id}>
       <rect width={width} height={height} rx="5" ry="5" fill="#d4d4d4" />
       <text className="title" transform="translate(5 16)">{node.type.name}</text>
       <line x1="0" y1="20" x2={width} y2="20" />

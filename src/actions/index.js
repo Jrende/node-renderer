@@ -22,3 +22,18 @@ export function connectNodes(from, to) {
     to
   }
 }
+
+export function removeConnection(nodeId, connectionName) {
+  return {
+    type: "REMOVE_CONNECTION",
+    id: nodeId,
+    connectionName
+  }
+}
+
+export function removeNode(nodeId) {
+  return {
+    type: "REMOVE_NODE",
+    id: nodeId,
+  }
+}

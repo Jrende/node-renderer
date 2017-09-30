@@ -40,6 +40,12 @@ const mapDispatchToProps = dispatch => (
     },
     connectNodes: (from, to) => {
       dispatch(actions.connectNodes(from, to));
+    },
+    removeConnection: (nodeId, connectionName) => {
+      dispatch(actions.removeConnection(nodeId, connectionName));
+    },
+    removeNode: (nodeId, connectionName) => {
+      dispatch(actions.removeNode(nodeId));
     }
   }
 );

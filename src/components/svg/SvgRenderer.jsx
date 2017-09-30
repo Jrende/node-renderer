@@ -22,12 +22,25 @@ class SvgRenderer extends React.Component {
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onConnectorMouseUp = this.onConnectorMouseUp.bind(this);
     this.onConnectorMouseDown = this.onConnectorMouseDown.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
+  }
+
+  onKeyDown(event) {
+    console.log(event.key);
+    if(event.key === "Delete") {
+      if(document.activeElement != null) {
+        let activeNodeId = document.activeElement.getAttribute('data-node-id')|0;
+        this.props.removeNode(activeNodeId);
+      }
+    }
   }
 
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
     let c = transformPointToSvgSpace([event.clientX, event.clientY], this.svg);
+    let grabTo = c;
+    let grabFrom = c;
 
     let grabNodeName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
     let grabNodeId = -1;
@@ -40,13 +53,27 @@ class SvgRenderer extends React.Component {
       parent = parent.parentElement;
     }
 
+    let grabType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
+    if(grabType === "input") {
+      let node = this.props.graph.find(n => n.id === grabNodeId);
+      if(node.input[grabNodeName] != undefined) {
+        let outputNode = this.props.graph.find(n => n.id === node.input[grabNodeName].id);
+        this.props.removeConnection(grabNodeId, grabNodeName)
+        grabNodeId = outputNode.id;
+        grabNodeName = node.input[grabNodeName].name;
+        grabType = "output";
+        grabFrom = this.getConnectorPosFunc(outputNode)(grabNodeName);
+        grabFrom[0] += outputNode.pos[0] + 15;
+        grabFrom[1] += outputNode.pos[1] - 5;
+      }
+    }
     this.setState({
       grabNodeId,
       grabNodeName,
       grabMode: 'connector',
-      grabType: event.target.hasAttribute('data-output-name') ? 'output' : 'input',
-      grabTo: c,
-      grabFrom: c,
+      grabType,
+      grabTo,
+      grabFrom,
       lastPos: [event.clientX, event.clientY]
     });
   }
@@ -80,7 +107,7 @@ class SvgRenderer extends React.Component {
 
   onConnectorMouseUp(event) {
     let target = event.target;
-    if(target.hasAttribute('data-input-name') || target.hasAttribute('data-output-name')) {
+    if(target.hasAttribute('data-input-name') || (target.hasAttribute('data-output-name') && this.state.grabType !== 'output')) {
       let nodeId = -1;
       let parent = target.parentElement;
       let inputName = target.getAttribute('data-input-name') || target.getAttribute('data-output-name');
@@ -187,6 +214,7 @@ class SvgRenderer extends React.Component {
       return (
         <line
           key={key}
+          className="connector-line"
           x1={fromPos[0]}
           y1={fromPos[1]}
           x2={toPos[0]}
@@ -219,6 +247,7 @@ class SvgRenderer extends React.Component {
         onDragEnter={this.preventEvent}
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
+        onKeyDown={this.onKeyDown}
         viewBox={viewBox}
       >
         {circles}
@@ -233,6 +262,8 @@ SvgRenderer.propTypes = {
   graph: PropTypes.array.isRequired,
   connections: PropTypes.array.isRequired,
   createNewNode: PropTypes.func.isRequired,
+  removeConnection: PropTypes.func.isRequired,
+  removeNode: PropTypes.func.isRequired,
   setNodeLocation: PropTypes.func.isRequired,
   connectNodes: PropTypes.func.isRequired
 };
