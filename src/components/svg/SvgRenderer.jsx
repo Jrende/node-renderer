@@ -15,17 +15,33 @@ class SvgRenderer extends React.Component {
       grabMode: null,
       grabNodeId: -1,
       lastPos: [0, 0],
-      pan: [0, 0]
+      pan: [0, 0],
+      zoom: 0
     };
-    this.handleDrop = this.handleDrop.bind(this);
-    this.setSvg = this.setSvg.bind(this);
-    this.onElementMouseDown = this.onElementMouseDown.bind(this);
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
-    this.onConnectorMouseUp = this.onConnectorMouseUp.bind(this);
-    this.onConnectorMouseDown = this.onConnectorMouseDown.bind(this);
-    this.onKeyDown = this.onKeyDown.bind(this);
-    this.onCanvasMouseDown = this.onCanvasMouseDown.bind(this);
+
+    [
+      "handleDrop",
+      "setSvg",
+      "onElementMouseDown",
+      "onMouseMove",
+      "onMouseUp",
+      "onConnectorMouseUp",
+      "onConnectorMouseDown",
+      "onKeyDown",
+      "onCanvasMouseDown",
+      "onWheel"
+    ].forEach(name => this[name] = this[name].bind(this));
+  }
+
+  //Wheee!
+  //TODO: Zoom towards mouse pointer
+  onWheel(event) {
+    let zoom = this.state.zoom + event.deltaY;
+    if(zoom > -200) {
+      this.setState({
+        zoom
+      })
+    }
   }
 
   onKeyDown(event) {
@@ -216,7 +232,7 @@ class SvgRenderer extends React.Component {
 
   render() {
     let { graph, connections } = this.props;
-    let { grabTo, grabFrom, pan } = this.state;
+    let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
     let nodes = graph.map(node => (
       <SvgNode
         key={node.id}
@@ -252,7 +268,7 @@ class SvgRenderer extends React.Component {
       );
     });
     let connectorLine = null;
-    if(this.state.grabMode === 'connector') {
+    if(grabMode === 'connector') {
       connectorLine = (<line
         className="connector-line"
         x1={grabFrom[0]}
@@ -263,7 +279,7 @@ class SvgRenderer extends React.Component {
         strokeWidth="2"
       />);
     }
-    let w = 200;
+    let w = 200 + zoom;
     let style = {
       zIndex: this.state.grabMode == null ? 0 : 2
     }
@@ -280,6 +296,7 @@ class SvgRenderer extends React.Component {
         onMouseUp={this.onMouseUp}
         onMouseDown={this.onCanvasMouseDown}
         onKeyDown={this.onKeyDown}
+        onWheel={this.onWheel}
         viewBox={viewBox}
       >
         {lines}
