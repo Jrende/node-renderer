@@ -11,7 +11,7 @@ class NumberInput extends React.Component {
   }
 
   onChange(event) {
-    this.props.onChange(event.target.value|0);
+    parseFloat(this.props.onChange(event.target.value));
   }
 
   render() {
