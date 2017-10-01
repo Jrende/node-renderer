@@ -37,3 +37,11 @@ export function removeNode(nodeId) {
     id: nodeId,
   }
 }
+
+export function changeValue(nodeId, value) {
+  return {
+    type: "CHANGE_VALUE",
+    id: nodeId,
+    value
+  }
+}

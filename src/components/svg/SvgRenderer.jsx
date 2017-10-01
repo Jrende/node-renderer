@@ -45,7 +45,6 @@ class SvgRenderer extends React.Component {
   }
 
   onKeyDown(event) {
-    console.log(event.key);
     if(event.key === "Delete") {
       if(document.activeElement != null) {
         let activeNodeId = document.activeElement.getAttribute('data-node-id')|0;
@@ -126,7 +125,6 @@ class SvgRenderer extends React.Component {
         case 'canvas':
           let pan = addInSvgSpace(this.state.pan, [dx, dy], this.svg);
           this.setState({ pan });
-          console.log("pan: ", pan);
           break;
         default:
       }
@@ -218,7 +216,7 @@ class SvgRenderer extends React.Component {
   onCanvasMouseDown(event) {
     if(event.target == this.svg) {
       event.stopPropagation();
-      event.preventDefault();
+      this.props.onSelectNode(undefined);
       let clientPos = [event.clientX, event.clientY];
       let transformedPos = transformPointToSvgSpace(clientPos, this.svg);
       this.setState({
@@ -237,6 +235,8 @@ class SvgRenderer extends React.Component {
       <SvgNode
         key={node.id}
         node={node}
+        onFocus={() => {this.props.onSelectNode(node)}}
+        onBlur={() => {this.props.onSelectNode(undefined)}}
         connectorPosFunc={this.getConnectorPosFunc(node)}
         onConnectorMouseUp={this.onConnectorMouseUp}
         onConnectorMouseDown={this.onConnectorMouseDown}
@@ -314,7 +314,8 @@ SvgRenderer.propTypes = {
   removeConnection: PropTypes.func.isRequired,
   removeNode: PropTypes.func.isRequired,
   setNodeLocation: PropTypes.func.isRequired,
-  connectNodes: PropTypes.func.isRequired
+  connectNodes: PropTypes.func.isRequired,
+  onSelectNode: PropTypes.func
 };
 
 export default SvgRenderer;

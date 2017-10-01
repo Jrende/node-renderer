@@ -2,9 +2,10 @@ let initialTypes = [
   {
     id: 1,
     name: 'Blur',
-    data: {
+    values: {
       radius: {
-        type: 'Number',
+        name: 'Radius',
+        type: 'number',
         max: 10,
         min: 0
       }
@@ -25,9 +26,11 @@ let initialTypes = [
   {
     id: 2,
     name: 'Mix',
-    data: {
+    values: {
       factor: {
-        type: 'Number',
+        name: 'Factor',
+        type: 'number',
+        default: 0.5,
         max: 1,
         min: 0
       }
@@ -84,10 +87,11 @@ let initialTypes = [
   },
   {
     id: 6,
-    name: 'ColorMix',
-    data: {
+    name: 'colorMix',
+    values: {
       color: {
-        type: 'Color',
+        name: 'Color',
+        type: 'color'
       }
     },
     input: {
@@ -106,9 +110,10 @@ let initialTypes = [
   {
     id: 7,
     name: 'Test node with a long name',
-    data: {
+    values: {
       color: {
-        type: 'Color',
+        name: 'Color',
+        type: 'color'
       }
     },
     input: {
@@ -120,7 +125,7 @@ let initialTypes = [
     output: {
       out: {
         type: 'FrameBuffer',
-        name: '???'
+        name: '﷽'
       },
     }
   }

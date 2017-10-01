@@ -2,14 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgNode.less';
 
-export default function SvgNode({
-  node,
-  onElementMouseDown,
-  onConnectorMouseDown,
-  connectorPosFunc,
-  onConnectorMouseUp,
-  onMouseUp
-}) {
+export default function SvgNode(props) {
+  let {
+    node,
+    onElementMouseDown,
+    onConnectorMouseDown,
+    connectorPosFunc,
+    onConnectorMouseUp,
+    onMouseUp,
+    onFocus,
+    onBlur
+  } = props;
   let height = 20;
   let width = 100;
   let offset = 40;
@@ -64,7 +67,15 @@ export default function SvgNode({
   height += Math.max(inputs.length, outputs.length) * 25;
 
   return (
-    <g tabindex="0" className="svg-node" transform={`translate(${node.pos[0]} ${node.pos[1]})`} onMouseDown={onElementMouseDown} onMouseUp={onMouseUp} data-node-id={node.id}>
+    <g
+      tabindex="0"
+      onFocus={onFocus}
+      className="svg-node"
+      transform={`translate(${node.pos[0]} ${node.pos[1]})`}
+      onMouseDown={onElementMouseDown}
+      onMouseUp={onMouseUp}
+      data-node-id={node.id}
+    >
       <rect width={width} height={height} rx="5" ry="5" fill="#d4d4d4" />
       <text className="title" transform="translate(5 16)">{node.type.name}</text>
       <line x1="0" y1="20" x2={width} y2="20" />
@@ -84,5 +95,6 @@ SvgNode.propTypes = {
   onConnectorMouseDown: PropTypes.func,
   connectorPosFunc: PropTypes.func,
   onConnectorMouseUp: PropTypes.func,
-  onMouseUp: PropTypes.func
+  onMouseUp: PropTypes.func,
+  onFocus: PropTypes.func
 }

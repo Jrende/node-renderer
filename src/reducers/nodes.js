@@ -1,57 +1,3 @@
-/*
-graph: [
-  {
-    id: 0,
-    name: "final output",
-    pos: "...",
-    input: {
-      final: {
-	node: 1,
-	output: "output"
-      }
-    }
-  },
-  {
-    id: 1,
-    name: "mix",
-    pos: "...",
-    input: {
-      left: {
-	node: 2,
-	output: "output"
-      }
-      right: {
-	node: 3,
-	output: "output"
-      }
-    }
-  },
-  {
-    id: 2,
-    name: "blur",
-    input: {
-      in: {
-	node: 3,
-	output: "output"
-      }
-    }
-  },
-  {
-    id: 3,
-    name: "color map",
-    input: {
-      in: {
-	node: 4,
-	output: "color"
-      }
-    }
-  },
-  {
-    id: 4,
-    name: "voronoi"
-  }
-]
- */
 //TODO: Read on how to init between reducers properly
 let initialState = {
   graph: [
@@ -59,6 +5,7 @@ let initialState = {
       id: 0,
       pos: [0, 0],
       input: {},
+      values: {},
       type: {
         id: 0,
         name: 'Output',
@@ -68,15 +15,39 @@ let initialState = {
             name: 'Final result'
           },
         },
-        output: {}
+        output: {},
+        values: {}
       }
     }
   ]
 }
+
+function getDefault(value) {
+  if(value.default !== undefined) {
+    return value.default;
+  }
+
+  switch(value.type) {
+    case "number":
+      return 0;
+    case "color":
+      return "Black";
+    default:
+      return null;
+  }
+}
+
 const nodes = (state = initialState, action) => {
   switch (action.type) {
     case "CREATE_NODE": {
-      let newNode = Object.assign({}, action.node, {id: action.id, input: {}})
+      let newNode = Object.assign({}, action.node, {
+        id: action.id,
+        input: {},
+        values: {}
+      })
+      Object.keys(newNode.type.values).forEach(key => {
+        newNode.values[key] = getDefault(newNode.type.values[key]);
+      });
       return {
         graph: [...state.graph, newNode]
       }
@@ -151,6 +122,19 @@ const nodes = (state = initialState, action) => {
               delete newNode.input[thing];
             });
             return newNode;
+          }
+          return node;
+        });
+      return {
+        graph: newGraph
+      }
+    }
+    case "CHANGE_VALUE": {
+      let newGraph = state.graph
+        .map(node => {
+          if(node.id === action.id) {
+            node = JSON.parse(JSON.stringify(node));
+            Object.assign(node.values, action.value);
           }
           return node;
         });
