@@ -14,8 +14,8 @@ export default class App extends React.Component {
   render() {
     return [
       <SvgRenderer key="a" />,
-      <div />,
-      <ToolBox key="b" />
+      <div key="b" />,
+      <ToolBox key="c" />
     ]
   }
 }

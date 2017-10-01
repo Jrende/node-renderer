@@ -10,10 +10,12 @@ class SvgRenderer extends React.Component {
     super(props);
     this.state = {
       grabFrom: [0, 0],
+      grabConnectorType: null,
       grabTo: [0, 0],
       grabMode: null,
       grabNodeId: -1,
-      lastPos: [0, 0]
+      lastPos: [0, 0],
+      pan: [0, 0]
     };
     this.handleDrop = this.handleDrop.bind(this);
     this.setSvg = this.setSvg.bind(this);
@@ -23,6 +25,7 @@ class SvgRenderer extends React.Component {
     this.onConnectorMouseUp = this.onConnectorMouseUp.bind(this);
     this.onConnectorMouseDown = this.onConnectorMouseDown.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
+    this.onCanvasMouseDown = this.onCanvasMouseDown.bind(this);
   }
 
   onKeyDown(event) {
@@ -53,15 +56,15 @@ class SvgRenderer extends React.Component {
       parent = parent.parentElement;
     }
 
-    let grabType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
-    if(grabType === "input") {
+    let grabConnectorType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
+    if(grabConnectorType === "input") {
       let node = this.props.graph.find(n => n.id === grabNodeId);
       if(node.input[grabNodeName] != undefined) {
         let outputNode = this.props.graph.find(n => n.id === node.input[grabNodeName].id);
         this.props.removeConnection(grabNodeId, grabNodeName)
         grabNodeId = outputNode.id;
         grabNodeName = node.input[grabNodeName].name;
-        grabType = "output";
+        grabConnectorType = "output";
         grabFrom = this.getConnectorPosFunc(outputNode)(grabNodeName);
         grabFrom[0] += outputNode.pos[0] + 15;
         grabFrom[1] += outputNode.pos[1] - 5;
@@ -71,7 +74,7 @@ class SvgRenderer extends React.Component {
       grabNodeId,
       grabNodeName,
       grabMode: 'connector',
-      grabType,
+      grabConnectorType,
       grabTo,
       grabFrom,
       lastPos: [event.clientX, event.clientY]
@@ -94,20 +97,29 @@ class SvgRenderer extends React.Component {
         lastPos: [event.clientX, event.clientY]
       });
 
-      if(this.state.grabMode === 'element') {
-        let node = this.props.graph.find(item => item.id === this.state.grabNodeId);
-        let newPos = addInSvgSpace(node.pos, [dx, dy], this.svg);
-        this.props.setNodeLocation(this.state.grabNodeId, newPos);
-      } else if(this.state.grabMode === 'connector') {
-        let grabTo = addInSvgSpace(this.state.grabTo, [dx, dy], this.svg);
-        this.setState({ grabTo });
+      switch(this.state.grabMode) {
+        case 'element':
+          let node = this.props.graph.find(item => item.id === this.state.grabNodeId);
+          let newPos = addInSvgSpace(node.pos, [dx, dy], this.svg);
+          this.props.setNodeLocation(this.state.grabNodeId, newPos);
+          break;
+        case 'connector':
+          let grabTo = addInSvgSpace(this.state.grabTo, [dx, dy], this.svg);
+          this.setState({ grabTo });
+          break;
+        case 'canvas':
+          let pan = addInSvgSpace(this.state.pan, [dx, dy], this.svg);
+          this.setState({ pan });
+          console.log("pan: ", pan);
+          break;
+        default:
       }
     }
   }
 
   onConnectorMouseUp(event) {
     let target = event.target;
-    if(target.hasAttribute('data-input-name') || (target.hasAttribute('data-output-name') && this.state.grabType !== 'output')) {
+    if(target.hasAttribute('data-input-name') || (target.hasAttribute('data-output-name') && this.state.grabConnectorType !== 'output')) {
       let nodeId = -1;
       let parent = target.parentElement;
       let inputName = target.getAttribute('data-input-name') || target.getAttribute('data-output-name');
@@ -127,7 +139,7 @@ class SvgRenderer extends React.Component {
           id: nodeId,
           name: inputName
         };
-        if(this.state.grabType === "input") {
+        if(this.state.grabConnectorType === "input") {
           let temp = to;
           to = from;
           from = temp;
@@ -187,9 +199,24 @@ class SvgRenderer extends React.Component {
     this.props.createNewNode(newNode);
   }
 
+  onCanvasMouseDown(event) {
+    if(event.target == this.svg) {
+      event.stopPropagation();
+      event.preventDefault();
+      let clientPos = [event.clientX, event.clientY];
+      let transformedPos = transformPointToSvgSpace(clientPos, this.svg);
+      this.setState({
+        grabMode: 'canvas',
+        grabTo: transformedPos,
+        grabFrom: transformedPos,
+        lastPos: clientPos
+      });
+    }
+  }
+
   render() {
     let { graph, connections } = this.props;
-    let { grabTo, grabFrom } = this.state;
+    let { grabTo, grabFrom, pan } = this.state;
     let nodes = graph.map(node => (
       <SvgNode
         key={node.id}
@@ -237,10 +264,10 @@ class SvgRenderer extends React.Component {
       />);
     }
     let w = 200;
-    let viewBox = `-${w} -${w} ${w*2} ${w*2}`;
     let style = {
       zIndex: this.state.grabMode == null ? 0 : 2
     }
+    let viewBox = `${-w - pan[0]} ${-w - pan[1]} ${w*2} ${w*2}`;
     //TODO: Set svg viewBox depending on svg size
     return (
       <svg
@@ -251,6 +278,7 @@ class SvgRenderer extends React.Component {
         onDragEnter={this.preventEvent}
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
+        onMouseDown={this.onCanvasMouseDown}
         onKeyDown={this.onKeyDown}
         viewBox={viewBox}
       >
