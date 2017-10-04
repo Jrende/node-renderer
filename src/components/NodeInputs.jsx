@@ -19,7 +19,7 @@ class NodeInputs extends React.Component {
     let { selectedNode } = this.props;
 
     let inputs = [];
-    if(selectedNode !== undefined) {
+    if(selectedNode !== undefined && selectedNode.type.values != undefined) {
       inputs = Object.keys(selectedNode.type.values).map(key => {
         let value = selectedNode.type.values[key];
         if(value.type === "number") {

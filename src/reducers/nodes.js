@@ -45,7 +45,7 @@ const nodes = (state = initialState, action) => {
         input: {},
         values: {}
       })
-      if(newNode.type.values != undefined) {
+      if(newNode.type.values !== undefined) {
         Object.keys(newNode.type.values).forEach(key => {
           newNode.values[key] = getDefault(newNode.type.values[key]);
         });
@@ -136,8 +136,9 @@ const nodes = (state = initialState, action) => {
       let newGraph = state.graph
         .map(node => {
           if(node.id === action.id) {
-            node = JSON.parse(JSON.stringify(node));
-            Object.assign(node.values, action.value);
+            let newNode = Object.assign({}, node)
+            newNode.values = Object.assign({}, node.values, action.value);
+            return newNode;
           }
           return node;
         });
