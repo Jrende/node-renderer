@@ -12,19 +12,19 @@ class NodeInputs extends React.Component {
 
   onValueChange(name, value) {
     console.log(`Change ${name} to ${value}`);
-    this.props.changeValue(this.props.node.id, {[name]: value});
+    this.props.changeValue(this.props.selectedNode.id, {[name]: value});
   }
 
   render() {
-    let { node } = this.props;
+    let { selectedNode } = this.props;
 
     let inputs = [];
-    if(node !== undefined) {
-      inputs = Object.keys(node.type.values).map(key => {
-        let value = node.type.values[key];
+    if(selectedNode !== undefined) {
+      inputs = Object.keys(selectedNode.type.values).map(key => {
+        let value = selectedNode.type.values[key];
         if(value.type === "number") {
           return (
-            <NumberInput key={key} name={key} type={value} value={node.values[key]} onChange={(value) => this.onValueChange(key, value)} />
+            <NumberInput key={key} name={key} type={value} value={selectedNode.values[key]} onChange={(value) => this.onValueChange(key, value)} />
           )
         }
       });
@@ -39,7 +39,7 @@ class NodeInputs extends React.Component {
 }
 
 NodeInputs.propTypes = {
-  node: PropTypes.object,
+  selectedNode: PropTypes.object,
   changeValue: PropTypes.func
 }
 

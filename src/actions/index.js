@@ -45,3 +45,10 @@ export function changeValue(nodeId, value) {
     value
   }
 }
+
+export function selectNode(nodeId) {
+  return {
+    type: "SELECT_NODE",
+    id: nodeId,
+  }
+}

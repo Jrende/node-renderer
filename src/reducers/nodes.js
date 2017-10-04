@@ -1,5 +1,6 @@
 //TODO: Read on how to init between reducers properly
 let initialState = {
+  selectedNode: -1,
   graph: [
     {
       id: 0,
@@ -26,7 +27,6 @@ function getDefault(value) {
   if(value.default !== undefined) {
     return value.default;
   }
-
   switch(value.type) {
     case "number":
       return 0;
@@ -45,12 +45,14 @@ const nodes = (state = initialState, action) => {
         input: {},
         values: {}
       })
-      Object.keys(newNode.type.values).forEach(key => {
-        newNode.values[key] = getDefault(newNode.type.values[key]);
-      });
-      return {
-        graph: [...state.graph, newNode]
+      if(newNode.type.values != undefined) {
+        Object.keys(newNode.type.values).forEach(key => {
+          newNode.values[key] = getDefault(newNode.type.values[key]);
+        });
       }
+      return Object.assign({}, state, {
+        graph: [...state.graph, newNode]
+      });
     }
     case "MOVE_NODE": {
       let newGraph = [];
@@ -60,9 +62,10 @@ const nodes = (state = initialState, action) => {
         }
         newGraph.push(node);
       });
-      return {
+      let newState = Object.assign({}, state, {
         graph: newGraph
-      }
+      });
+      return newState;
     }
     case "CONNECT_NODES": {
       let newGraph = state.graph.map(node => {
@@ -80,9 +83,9 @@ const nodes = (state = initialState, action) => {
         }
         return node;
       });
-      return {
+      return Object.assign({}, state, {
         graph: newGraph
-      }
+      });
     }
     case "REMOVE_CONNECTION": {
       let node = state.graph.find(node => node.id === action.id);
@@ -94,9 +97,9 @@ const nodes = (state = initialState, action) => {
         }
         return node;
       });
-      return {
+      return Object.assign({}, state, {
         graph: newGraph
-      }
+      });
     }
     case "REMOVE_NODE": {
       let newGraph = state.graph
@@ -125,9 +128,9 @@ const nodes = (state = initialState, action) => {
           }
           return node;
         });
-      return {
+      return Object.assign({}, state, {
         graph: newGraph
-      }
+      });
     }
     case "CHANGE_VALUE": {
       let newGraph = state.graph
@@ -138,9 +141,15 @@ const nodes = (state = initialState, action) => {
           }
           return node;
         });
-      return {
+      return Object.assign({}, state, {
         graph: newGraph
-      }
+      });
+    }
+    case "SELECT_NODE": {
+      console.log("Select node " + action.id);
+      return Object.assign({}, state, {
+        selectedNode: action.id
+      });
     }
     default:
   }

@@ -46,6 +46,9 @@ const mapDispatchToProps = dispatch => (
     },
     removeNode: (nodeId, connectionName) => {
       dispatch(actions.removeNode(nodeId));
+    },
+    selectNode: (nodeId, value) => {
+      dispatch(actions.selectNode(nodeId));
     }
   }
 );

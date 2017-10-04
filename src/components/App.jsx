@@ -7,23 +7,12 @@ import './App.less';
 export default class App extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      selectedNode: undefined
-    };
-    this.onSelectNode = this.onSelectNode.bind(this);
-  }
-
-  onSelectNode(node) {
-    this.setState({
-      selectedNode: node
-    });
   }
 
   render() {
-    let { selectedNode } = this.state;
     return [
-      <NodeInputs key="NodeInputs" node={selectedNode} />,
-      <SvgRenderer onSelectNode={this.onSelectNode} key="SvgRenderer" />,
+      <NodeInputs key="NodeInputs" />,
+      <SvgRenderer key="SvgRenderer" />,
       <div key="blank" />,
       <ToolBox key="ToolBox" />
     ]

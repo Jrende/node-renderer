@@ -97,6 +97,7 @@ class SvgRenderer extends React.Component {
   }
 
   onElementMouseDown(event, node) {
+    this.props.selectNode(node.id);
     this.setState({
       grabMode: 'element',
       grabNodeId: node.id,
@@ -216,7 +217,6 @@ class SvgRenderer extends React.Component {
   onCanvasMouseDown(event) {
     if(event.target == this.svg) {
       event.stopPropagation();
-      this.props.onSelectNode(undefined);
       let clientPos = [event.clientX, event.clientY];
       let transformedPos = transformPointToSvgSpace(clientPos, this.svg);
       this.setState({
@@ -235,8 +235,6 @@ class SvgRenderer extends React.Component {
       <SvgNode
         key={node.id}
         node={node}
-        onFocus={() => {this.props.onSelectNode(node)}}
-        onBlur={() => {this.props.onSelectNode(undefined)}}
         connectorPosFunc={this.getConnectorPosFunc(node)}
         onConnectorMouseUp={this.onConnectorMouseUp}
         onConnectorMouseDown={this.onConnectorMouseDown}
@@ -315,7 +313,7 @@ SvgRenderer.propTypes = {
   removeNode: PropTypes.func.isRequired,
   setNodeLocation: PropTypes.func.isRequired,
   connectNodes: PropTypes.func.isRequired,
-  onSelectNode: PropTypes.func
+  selectNode: PropTypes.func
 };
 
 export default SvgRenderer;
