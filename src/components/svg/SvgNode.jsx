@@ -7,21 +7,19 @@ export default function SvgNode(props) {
     node,
     onElementMouseDown,
     onConnectorMouseDown,
-    connectorPosFunc,
+    nodeLayout,
     onConnectorMouseUp,
     onMouseUp,
     onFocus,
     onBlur
   } = props;
-  let height = 20;
-  let width = 100;
-  let offset = 40;
-  let sideMargin = 10;
+  let height = nodeLayout.height;
+  let width = nodeLayout.width;
   let inputs = [];
   if(node.type.input != null) {
     inputs = Object.keys(node.type.input).map(key => {
       let name = node.type.input[key].name;
-      let pos = connectorPosFunc(key);
+      let pos = nodeLayout.getConnectorPos(key);
       return (
         <g key={key} transform={`translate(${pos[0]} ${pos[1]})`} >
           <rect
@@ -44,7 +42,7 @@ export default function SvgNode(props) {
   if(node.type.output != null) {
     outputs = Object.keys(node.type.output).map(key => {
       let name = node.type.output[key].name;
-      let pos = connectorPosFunc(key);
+      let pos = nodeLayout.getConnectorPos(key);
       return (
         <g key={key} transform={`translate(${pos[0]} ${pos[1]})`}>
           <rect
@@ -76,9 +74,9 @@ export default function SvgNode(props) {
       onMouseUp={onMouseUp}
       data-node-id={node.id}
     >
-      <rect width={width} height={height} rx="5" ry="5" fill="#d4d4d4" />
+      <rect className="node-body" width={width} height={height} rx="5" ry="5" fill="#d4d4d4" />
       <text className="title" transform="translate(5 16)">{node.type.name}</text>
-      <line x1="0" y1="20" x2={width} y2="20" />
+      <line className="underline" x1="0" y1="20" x2={width} y2="20" />
       <g className="inputs">
         {inputs}
       </g>
@@ -91,9 +89,9 @@ export default function SvgNode(props) {
 
 SvgNode.propTypes = {
   node: PropTypes.object.isRequired,
+  nodeLayout: PropTypes.object,
   onElementMouseDown: PropTypes.func,
   onConnectorMouseDown: PropTypes.func,
-  connectorPosFunc: PropTypes.func,
   onConnectorMouseUp: PropTypes.func,
   onMouseUp: PropTypes.func,
   onFocus: PropTypes.func

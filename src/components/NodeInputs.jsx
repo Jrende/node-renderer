@@ -24,7 +24,12 @@ class NodeInputs extends React.Component {
         let value = selectedNode.type.values[key];
         if(value.type === "number") {
           return (
-            <NumberInput key={key} name={key} type={value} value={selectedNode.values[key]} onChange={(value) => this.onValueChange(key, value)} />
+            <NumberInput
+              key={key}
+              name={key}
+              type={value}
+              value={selectedNode.values[key]}
+              onChange={(value) => this.onValueChange(key, value)} />
           )
         }
       });

@@ -80,7 +80,7 @@ class SvgRenderer extends React.Component {
         grabNodeId = outputNode.id;
         grabNodeName = node.input[grabNodeName].name;
         grabConnectorType = "output";
-        grabFrom = this.getConnectorPosFunc(outputNode)(grabNodeName);
+        grabFrom = this.getNodeLayout(outputNode).getConnectorPos(grabNodeName);
         grabFrom[0] += outputNode.pos[0] + 15;
         grabFrom[1] += outputNode.pos[1] - 5;
       }
@@ -175,26 +175,31 @@ class SvgRenderer extends React.Component {
   setSvg(svg) {
     this.svg = svg;
     this.point = svg.createSVGPoint();
+    svg.addEventListener("drop", event => this.handleDrop(event));
   }
 
-  getConnectorPosFunc(node) {
-    let inputs = Object.keys(node.type.input);
-    let outputs = Object.keys(node.type.output);
-    //let height = 20 + Math.max(inputs.length, outputs.length) * 25;
+  getNodeLayout(type) {
+    let inputs = Object.keys(type.input||[]);
+    let outputs = Object.keys(type.output||[]);
+    let height = 20 + Math.max(inputs.length, outputs.length) * 25;
     let lineHeight = 20;
     let width = 100;
     let offset = 40;
     let sideMargin = 10;
-    return (name) => {
-      let output = [0, 0];
-      if(node.type.input[name] != null) {
-        output = [sideMargin, inputs.indexOf(name) * lineHeight + offset];
-      }
-      if(node.type.output[name] != null) {
-        output = [width-sideMargin, outputs.indexOf(name) * lineHeight + offset];
-      }
-      return output;
-    };
+    return {
+      getConnectorPos(name) {
+        let output = [0, 0];
+        if(type.input != null && type.input[name] != null) {
+          output = [sideMargin, inputs.indexOf(name) * lineHeight + offset];
+        }
+        if(type.output != null && type.output[name] != null) {
+          output = [width-sideMargin, outputs.indexOf(name) * lineHeight + offset];
+        }
+        return output;
+      },
+      width,
+      height
+    }
   }
 
   preventEvent(event) {
@@ -203,15 +208,23 @@ class SvgRenderer extends React.Component {
 
   handleDrop(event) {
     event.preventDefault();
-    let type = JSON.parse(event.dataTransfer.getData('text/plain'));
+    let type = event.detail.type;
+    let nodeLayout = this.getNodeLayout(type)
     this.point.x = event.clientX;
     this.point.y = event.clientY;
     let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
     let newNode = {
       type,
-      pos: [newCoords.x, newCoords.y]
+      pos: [
+        newCoords.x - nodeLayout.width / 2.0,
+        newCoords.y - nodeLayout.height / 2.0
+      ]
     };
     this.props.createNewNode(newNode);
+  }
+
+  handleDragEnter() {
+    console.log("dragenter");
   }
 
   onCanvasMouseDown(event) {
@@ -219,6 +232,7 @@ class SvgRenderer extends React.Component {
       event.stopPropagation();
       let clientPos = [event.clientX, event.clientY];
       let transformedPos = transformPointToSvgSpace(clientPos, this.svg);
+      this.props.selectNode(-1);
       this.setState({
         grabMode: 'canvas',
         grabTo: transformedPos,
@@ -235,7 +249,7 @@ class SvgRenderer extends React.Component {
       <SvgNode
         key={node.id}
         node={node}
-        connectorPosFunc={this.getConnectorPosFunc(node)}
+        nodeLayout={this.getNodeLayout(node.type)}
         onConnectorMouseUp={this.onConnectorMouseUp}
         onConnectorMouseDown={this.onConnectorMouseDown}
         onElementMouseDown={event => this.onElementMouseDown(event, node)}
@@ -244,11 +258,11 @@ class SvgRenderer extends React.Component {
 
     let lines = connections.map((connection) => {
       let node1 = graph.find(node => node.id === connection.from.id);
-      let fromPos = this.getConnectorPosFunc(node1)(connection.from.name);
+      let fromPos = this.getNodeLayout(node1.type).getConnectorPos(connection.from.name);
       fromPos[0] += node1.pos[0] - 15;
       fromPos[1] += node1.pos[1] - 5;
       let node2 = graph.find(node => node.id === connection.to.id);
-      let toPos = this.getConnectorPosFunc(node2)(connection.to.name);
+      let toPos = this.getNodeLayout(node2.type).getConnectorPos(connection.to.name);
       toPos[0] += node2.pos[0] + 15;
       toPos[1] += node2.pos[1] - 5;
       let key = `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`;
@@ -278,18 +292,17 @@ class SvgRenderer extends React.Component {
       />);
     }
     let w = 200 + zoom;
-    let style = {
-      zIndex: this.state.grabMode == null ? 0 : 2
+    let zIndex = 0;
+    if(grabMode !== null && grabMode !== 'canvas') {
+      zIndex = 2;
     }
+    let style = { zIndex };
     let viewBox = `${-w - pan[0]} ${-w - pan[1]} ${w*2} ${w*2}`;
     //TODO: Set svg viewBox depending on svg size
     return (
       <svg
         style={style}
         ref={this.setSvg}
-        onDrop={this.handleDrop}
-        onDragOver={this.preventEvent}
-        onDragEnter={this.preventEvent}
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
         onMouseDown={this.onCanvasMouseDown}
@@ -297,6 +310,19 @@ class SvgRenderer extends React.Component {
         onWheel={this.onWheel}
         viewBox={viewBox}
       >
+        <defs>
+          <filter id="shadow" height="180%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/> 
+            <feOffset dx="4" dy="4" result="offsetblur"/>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.2"/>
+            </feComponentTransfer>
+            <feMerge> 
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/> 
+            </feMerge>
+          </filter>
+        </defs>
         {lines}
         {connectorLine}
         {nodes}

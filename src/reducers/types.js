@@ -55,7 +55,26 @@ let initialTypes = [
   {
     id: 3,
     name: 'Noise',
-    input: {},
+    values: {
+      scale: {
+        name: 'Scale',
+        type: 'number',
+        max: 200,
+        min: 0
+      },
+      detail: {
+        name: 'Detail',
+        type: 'number',
+        max: 200,
+        min: 0
+      },
+      distortion: {
+        name: 'Detail',
+        type: 'number',
+        max: 200,
+        min: 0
+      }
+    },
     output: {
       out: {
         type: 'FrameBuffer',
@@ -66,7 +85,27 @@ let initialTypes = [
   {
     id: 4,
     name: 'Clouds',
-    input: {},
+    values: {
+      type: {
+        type: 'selection',
+        values: [
+          '4D Perlin',
+          '4D Simplex'
+        ]
+      },
+      x: {
+        type: 'number',
+      },
+      y: {
+        type: 'number'
+      },
+      z: {
+        type: 'number'
+      },
+      w: {
+        type: 'number'
+      }
+    },
     output: {
       out: {
         type: 'FrameBuffer',
@@ -77,7 +116,16 @@ let initialTypes = [
   {
     id: 5,
     name: 'Checker',
-    input: {},
+    values: {
+      color1: {
+        name: 'Color 1',
+        type: 'color'
+      },
+      color2: {
+        name: 'Color 2',
+        type: 'color'
+      }
+    },
     output: {
       out: {
         type: 'FrameBuffer',
@@ -87,11 +135,11 @@ let initialTypes = [
   },
   {
     id: 6,
-    name: 'colorMix',
+    name: 'Color Mix',
     values: {
-      color: {
-        name: 'Color',
-        type: 'color'
+      gradient: {
+        name: 'Color gradient',
+        type: 'gradient'
       }
     },
     input: {

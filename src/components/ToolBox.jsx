@@ -2,16 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import "./ToolBox.less"
+import draggable from '../utils/DragDrop.js';
 
 
 class ToolBox extends React.Component {
   constructor(props) {
     super(props);
-    this.handleDragStart = this.handleDragStart.bind(this);
   }
 
-  handleDragStart(event, type) {
-    event.dataTransfer.setData("text/plain", JSON.stringify(type));
+  enableDraggable(element, type) {
+    console.log("enable draggable");
+    if(element != undefined) {
+      draggable(element, {type});
+    }
   }
 
   render() {
@@ -19,7 +22,7 @@ class ToolBox extends React.Component {
 
     let nodes = types.map(type => {
       return (
-        <div key={type.id} className="node" draggable="true" onDragStart={(e) => this.handleDragStart(e, type)}>
+        <div className="type" key={type.id} ref={(ref) => this.enableDraggable(ref, type)} >
           <div className="anfang">⁞</div>
           <p>{type.name}</p>
         </div>

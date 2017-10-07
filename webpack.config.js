@@ -1,6 +1,6 @@
 let path = require('path');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
-let ExtractTextPlugin = require("extract-text-webpack-plugin");
+let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 //var CopyWebpackPlugin = require('copy-webpack-plugin');
 
@@ -11,8 +11,8 @@ let entry = path.join(__dirname, 'src/main.jsx');
 
 
 const extractLess = new ExtractTextPlugin({
-  filename: "[name].css",
-  disable: process.env.NODE_ENV === "development"
+  filename: '[name].css',
+  disable: process.env.NODE_ENV === 'development'
 });
 
 module.exports = {
@@ -54,10 +54,13 @@ module.exports = {
         use: extractLess.extract({
           use: [
             {
-              loader: "css-loader" // translates CSS into CommonJS
+              loader: 'css-loader' // translates CSS into CommonJS
             },
             {
-              loader: "less-loader" // compiles Less to CSS
+              loader: 'postcss-loader'
+            },
+            {
+              loader: 'less-loader' // compiles Less to CSS
             }
           ]
         })
