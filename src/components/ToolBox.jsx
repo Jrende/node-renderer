@@ -11,7 +11,6 @@ class ToolBox extends React.Component {
   }
 
   enableDraggable(element, type) {
-    console.log("enable draggable");
     if(element != undefined) {
       draggable(element, {type});
     }

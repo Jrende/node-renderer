@@ -147,7 +147,6 @@ const nodes = (state = initialState, action) => {
       });
     }
     case "SELECT_NODE": {
-      console.log("Select node " + action.id);
       return Object.assign({}, state, {
         selectedNode: action.id
       });
