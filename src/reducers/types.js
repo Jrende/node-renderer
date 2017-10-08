@@ -43,7 +43,7 @@ let initialTypes = [
       right: {
         type: 'FrameBuffer',
         name: 'Right'
-      },
+      }
     },
     output: {
       out: {
@@ -87,7 +87,7 @@ let initialTypes = [
     name: 'Clouds',
     values: {
       type: {
-        type: 'selection',
+        type: 'enum',
         values: [
           '4D Perlin',
           '4D Simplex'

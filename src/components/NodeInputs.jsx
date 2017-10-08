@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import NumberInput from './inputs/NumberInput';
+import ColorInput from './inputs/ColorInput';
+import EnumInput from './inputs/EnumInput';
 import './NodeInputs.less';
 
 
@@ -22,15 +24,36 @@ class NodeInputs extends React.Component {
     if(selectedNode !== undefined && selectedNode.type.values != undefined) {
       inputs = Object.keys(selectedNode.type.values).map(key => {
         let value = selectedNode.type.values[key];
-        if(value.type === "number") {
-          return (
-            <NumberInput
-              key={key}
-              name={key}
-              type={value}
-              value={selectedNode.values[key]}
-              onChange={(value) => this.onValueChange(key, value)} />
-          )
+        switch(value.type) {
+          case "number":
+            return (
+              <NumberInput
+                key={key}
+                name={key}
+                type={value}
+                value={selectedNode.values[key]}
+                onChange={(value) => this.onValueChange(key, value)} />
+            )
+          case "color":
+            return (
+              <ColorInput
+                key={key}
+                name={key}
+                type={value}
+                value={selectedNode.values[key]}
+                onChange={(value) => this.onValueChange(key, value)} />
+            )
+          case "enum":
+            return (
+              <EnumInput
+                key={key}
+                name={key}
+                type={value}
+                value={selectedNode.values[key]}
+                onChange={(value) => this.onValueChange(key, value)} />
+            )
+          default:
+            break;
         }
       });
     }
