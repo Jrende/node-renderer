@@ -34,7 +34,7 @@ class SvgRenderer extends React.Component {
   }
 
   //Wheee!
-  //TODO: Zoom towards mouse pointer
+  //TODO: Zoom towards mouse pointer or center of screen
   onWheel(event) {
     let zoom = this.state.zoom + event.deltaY;
     if(zoom > -200) {
@@ -80,7 +80,7 @@ class SvgRenderer extends React.Component {
         grabNodeId = outputNode.id;
         grabNodeName = node.input[grabNodeName].name;
         grabConnectorType = "output";
-        grabFrom = this.getNodeLayout(outputNode).getConnectorPos(grabNodeName);
+        grabFrom = this.getNodeLayout(outputNode.type).getConnectorPos(grabNodeName);
         grabFrom[0] += outputNode.pos[0] + 15;
         grabFrom[1] += outputNode.pos[1] - 5;
       }
@@ -107,6 +107,13 @@ class SvgRenderer extends React.Component {
 
   onMouseMove(event) {
     if(this.state.grabMode != null) {
+      if(event.buttons === 0) {
+        this.setState({
+          grabMode: null,
+          grabNodeId: null
+        });
+        return;
+      }
       let dx = event.clientX - this.state.lastPos[0];
       let dy = event.clientY - this.state.lastPos[1];
       this.setState({
@@ -173,17 +180,33 @@ class SvgRenderer extends React.Component {
   }
 
   setSvg(svg) {
-    this.svg = svg;
-    this.point = svg.createSVGPoint();
-    svg.addEventListener("drop", event => this.handleDrop(event));
+    if(svg != null) {
+      this.svg = svg;
+      this.point = svg.createSVGPoint();
+      svg.addEventListener("drop", event => this.handleDrop(event));
+    }
   }
 
   getNodeLayout(type) {
     let inputs = Object.keys(type.input||[]);
     let outputs = Object.keys(type.output||[]);
-    let height = 20 + Math.max(inputs.length, outputs.length) * 25;
+    let height = 20 + Math.max(inputs.length, outputs.length);
+    let lineWidths = [];
+    for(let i = 0; i < Math.max(inputs.length, outputs.length); i++) {
+      let inputLen = inputs[i] != undefined ? inputs[i].length : 0;
+      let outputLen = outputs[i] != undefined ? outputs[i].length : 0;
+      lineWidths[i] = inputLen + outputLen;
+      if(inputLen > 0 && outputLen > 0) {
+        lineWidths[i] += 4;
+      }
+    }
+    let maxLine = Math.max(...lineWidths);
+
     let lineHeight = 20;
-    let width = 100;
+    let width = Math.max(maxLine, type.name.length) * 10 + 5;
+    if(inputs.length > 0 && outputs.length > 0) {
+      width += 20;
+    }
     let offset = 40;
     let sideMargin = 10;
     return {
@@ -302,6 +325,7 @@ class SvgRenderer extends React.Component {
     return (
       <svg
         style={style}
+        className="node-svg"
         ref={this.setSvg}
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
@@ -310,19 +334,6 @@ class SvgRenderer extends React.Component {
         onWheel={this.onWheel}
         viewBox={viewBox}
       >
-        <defs>
-          <filter id="shadow" height="180%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/> 
-            <feOffset dx="4" dy="4" result="offsetblur"/>
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="0.2"/>
-            </feComponentTransfer>
-            <feMerge> 
-              <feMergeNode/>
-              <feMergeNode in="SourceGraphic"/> 
-            </feMerge>
-          </filter>
-        </defs>
         {lines}
         {connectorLine}
         {nodes}
