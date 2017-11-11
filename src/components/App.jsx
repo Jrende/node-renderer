@@ -2,6 +2,7 @@ import React from 'react'
 import SvgRenderer from '../containers/SvgRenderer'
 import ToolBox from '../containers/ToolBox'
 import NodeInputs from '../containers/NodeInputs'
+import RenderCanvas from '../containers/RenderCanvas';
 import './App.less';
 
 export default class App extends React.Component {
@@ -22,10 +23,10 @@ export default class App extends React.Component {
     console.log("tab", this.state.tab);
     switch(this.state.tab) {
       case "svg":
-        elm = <SvgRenderer key="renderer" />;
+        elm = <SvgRenderer />;
         break;
       case "render":
-        elm = <canvas className="node-svg" key="canvas" />;
+        elm = <RenderCanvas />;
         break;
       default:
     }
@@ -36,7 +37,7 @@ export default class App extends React.Component {
         <button onClick={() => this.selectTab("svg")}>svg</button>
         <button onClick={() => this.selectTab("render")}>render</button>
       </div>,
-      elm,
+      <div className="canvas" key="canvas">{elm}</div>,
       <ToolBox key="ToolBox" />
     ]
   }

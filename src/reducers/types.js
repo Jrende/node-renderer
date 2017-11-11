@@ -176,6 +176,28 @@ let initialTypes = [
         name: '﷽'
       },
     }
+  },
+  {
+    id: 8,
+    name: 'Voronoi',
+    values: {
+      scale: {
+        name: 'Scale',
+        type: 'number'
+      }
+    },
+    input: {
+    },
+    output: {
+      color: {
+        type: 'Framebuffer',
+        name: 'Color'
+      },
+      fac: {
+        type: 'Framebuffer',
+        name: 'Fac'
+      }
+    }
   }
 ]
 const types = (state = initialTypes, action) => {

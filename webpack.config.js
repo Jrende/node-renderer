@@ -64,6 +64,12 @@ module.exports = {
             }
           ]
         })
+      },
+      {
+        test: /\.(frag|vert)$/,
+        loader: 'raw-loader',
+        exclude: /node_modules/,
+        include: __dirname
       }
     ]
   }

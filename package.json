@@ -39,6 +39,7 @@
     "postcss-import": "^11.0.0",
     "postcss-less": "^1.1.1",
     "postcss-loader": "^2.0.6",
+    "raw-loader": "^0.5.1",
     "redux-devtools": "^3.4.0",
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^0.4.6",
