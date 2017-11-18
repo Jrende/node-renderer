@@ -7,6 +7,9 @@ export default class Renderer {
   constructor(canvas) {
     this.gl = canvas.getContext("webgl");
     this.gl.clearColor(0, 0, 0, 1.0);
+    let w = this.gl.canvas.width;
+    let h = this.gl.canvas.height;
+    this.gl.viewport(0, 0, w, h);
     this.solidShader = shaders.solid;
     this.solidShader.compile(this.gl);
     this.shader = shaders.texture;
@@ -32,31 +35,9 @@ export default class Renderer {
   }
 
   render(rootNode) {
-    /*
     this.renderCache = {};
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     let {finalResult} = this.renderRecursive(rootNode);
-    console.log("Plix render rootNode");
-    */
-    let canvas = this.gl.canvas;
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    this.output.renderTo(this.gl, () => {
-      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-      shaders.cloud.bind(this.gl);
-      this.quad.bind(this.gl);
-      shaders.cloud.setUniforms(this.gl, {
-        res: [canvas.clientWidth, canvas.clientHeight],
-        seed: 1231,
-        size: 1000,
-        density: 1,
-        left: 1,
-        color: [1.0, 1.0, 1.0]
-      });
-      this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
-      this.quad.unbind(this.gl);
-      shaders.cloud.unbind(this.gl);
-    });
-    this.present(this.output.texture);
+    this.present(finalResult);
   }
 
   renderRecursive(node) {
@@ -76,13 +57,15 @@ export default class Renderer {
       return input;
     }
     console.log(`Render ${node.type.name}-${node.id}`);
-    let renderer = new (getRenderer(node.type))(this.gl);
-    let values = renderer.render(input);
+    let ctor = getRenderer(node.type);
+    let renderer = new ctor(this.gl);
+    let values = renderer.render(node.values, input);
     //shader.compile(this.gl);
     return values;
   }
 
   present(texture) {
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.shader.bind(this.gl);
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);

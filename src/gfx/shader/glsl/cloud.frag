@@ -4,7 +4,6 @@ uniform float seed;
 uniform float size;
 uniform float density;
 uniform float left;
-uniform vec3 color;
 
 vec4 mod289(vec4 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -148,6 +147,7 @@ float fbm(vec2 P, int octaves, float lacunarity, float gain) {
 
 void main() {
   vec2 q = gl_FragCoord.xy / res.xy;
+  float left = 1.0;
   float noiseColor = snoise(vec3(vec2(q*size), left));
-  gl_FragColor = vec4(color*noiseColor, 1.0);
+  gl_FragColor = vec4(vec3(noiseColor), 1.0);
 }

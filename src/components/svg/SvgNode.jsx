@@ -11,7 +11,8 @@ export default function SvgNode(props) {
     onConnectorMouseUp,
     onMouseUp,
     onFocus,
-    onBlur
+    onBlur,
+    selected
   } = props;
   let height = nodeLayout.height;
   let width = nodeLayout.width;
@@ -64,11 +65,12 @@ export default function SvgNode(props) {
 
   height += Math.max(inputs.length, outputs.length) * 25;
 
+  
   return (
     <g
       tabindex="0"
       onFocus={onFocus}
-      className="svg-node"
+      className={`svg-node ${selected ? "selected" : ""}`}
       transform={`translate(${node.pos[0]} ${node.pos[1]})`}
       onMouseDown={onElementMouseDown}
       onMouseUp={onMouseUp}
@@ -90,6 +92,7 @@ export default function SvgNode(props) {
 SvgNode.propTypes = {
   node: PropTypes.object.isRequired,
   nodeLayout: PropTypes.object,
+  selected: PropTypes.bool,
   onElementMouseDown: PropTypes.func,
   onConnectorMouseDown: PropTypes.func,
   onConnectorMouseUp: PropTypes.func,

@@ -1,4 +1,35 @@
-let initialTypes = [
+export let types = {
+  clouds: {
+    id: 1,
+    name: 'Clouds',
+    values: {
+      seed: {
+        name: 'Seed',
+        type: 'number',
+        default: 1
+      },
+      size: {
+        name: 'Size',
+        type: 'number',
+        default: 1
+      },
+      density: {
+        name: 'Density',
+        type: 'number',
+        min: 0,
+        max: 1,
+        default: 0.5
+      }
+    },
+    output: {
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
+    }
+  }
+}
+  /*
   {
     id: 1,
     name: 'Blur',
@@ -73,37 +104,6 @@ let initialTypes = [
         type: 'number',
         max: 200,
         min: 0
-      }
-    },
-    output: {
-      out: {
-        type: 'FrameBuffer',
-        name: 'Output'
-      },
-    }
-  },
-  {
-    id: 4,
-    name: 'Clouds',
-    values: {
-      type: {
-        type: 'enum',
-        values: [
-          '4D Perlin',
-          '4D Simplex'
-        ]
-      },
-      x: {
-        type: 'number',
-      },
-      y: {
-        type: 'number'
-      },
-      z: {
-        type: 'number'
-      },
-      w: {
-        type: 'number'
       }
     },
     output: {
@@ -199,9 +199,10 @@ let initialTypes = [
       }
     }
   }
-]
-const types = (state = initialTypes, action) => {
+  */
+
+const typeReducer = (state = types, action) => {
   return state;
 }
 
-export default types
+export default typeReducer

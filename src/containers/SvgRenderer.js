@@ -26,7 +26,8 @@ function getConnections(graph) {
 const mapStateToProps = state => (
   {
     connections: getConnections(state.nodes.graph),
-    graph: state.nodes.graph
+    graph: state.nodes.graph,
+    selectedNode: state.nodes.selectedNode
   }
 );
 

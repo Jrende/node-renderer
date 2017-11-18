@@ -20,6 +20,11 @@ class NumberInput extends React.Component {
     if(type.name !== undefined) {
       typeName = name;
     }
+    let validValue = value;
+    if(isNaN(value)) {
+      validValue = 0;
+    }
+
 
     let range;
     if(type.max != undefined && type.min != undefined) {
@@ -29,7 +34,7 @@ class NumberInput extends React.Component {
           max={type.max}
           min={type.min}
           step=".01"
-          value={value}
+          value={validValue}
           onChange={this.onChange}
         />);
     }
@@ -37,7 +42,7 @@ class NumberInput extends React.Component {
     return (
       <fieldset className="number-input">
         <label htmlFor={name}>{typeName}</label>
-        <input type="number" name={name} value={value} onChange={this.onChange} />
+        <input type="number" name={name} value={validValue} onChange={this.onChange} />
         {range}
       </fieldset>
     );

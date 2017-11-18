@@ -266,12 +266,13 @@ class SvgRenderer extends React.Component {
   }
 
   render() {
-    let { graph, connections } = this.props;
+    let { graph, connections, selectedNode } = this.props;
     let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
     let nodes = graph.map(node => (
       <SvgNode
         key={node.id}
         node={node}
+        selected={selectedNode === node.id}
         nodeLayout={this.getNodeLayout(node.type)}
         onConnectorMouseUp={this.onConnectorMouseUp}
         onConnectorMouseDown={this.onConnectorMouseDown}
@@ -350,7 +351,8 @@ SvgRenderer.propTypes = {
   removeNode: PropTypes.func.isRequired,
   setNodeLocation: PropTypes.func.isRequired,
   connectNodes: PropTypes.func.isRequired,
-  selectNode: PropTypes.func
+  selectNode: PropTypes.func,
+  selectedNode: PropTypes.number
 };
 
 export default SvgRenderer;

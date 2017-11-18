@@ -19,7 +19,8 @@ class ToolBox extends React.Component {
   render() {
     let { types } = this.props;
 
-    let nodes = types.map(type => {
+    let nodes = Object.keys(types).map(key => {
+      let type = types[key];
       return (
         <div className="type" key={type.id} ref={(ref) => this.enableDraggable(ref, type)} >
           <div className="anfang">⁞</div>
@@ -36,7 +37,7 @@ class ToolBox extends React.Component {
 }
 
 ToolBox.propTypes = {
-  types: PropTypes.array.isRequired
+  types: PropTypes.object.isRequired
 }
 
 export default ToolBox;

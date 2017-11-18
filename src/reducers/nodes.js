@@ -51,7 +51,8 @@ const nodes = (state = initialState, action) => {
         });
       }
       return Object.assign({}, state, {
-        graph: [...state.graph, newNode]
+        graph: [...state.graph, newNode],
+        selectedNode: action.id
       });
     }
     case "MOVE_NODE": {

@@ -23,7 +23,7 @@ class RenderCanvas extends React.Component {
     if(this.renderer) {
       this.renderer.render(this.props.rootNode);
     }
-    return <canvas className="render-canvas" ref={this.setCanvas}></canvas>
+    return <canvas width="1024" height="1024" className="render-canvas" ref={this.setCanvas}></canvas>
   }
 }
 

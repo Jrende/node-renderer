@@ -31,7 +31,7 @@ class NodeInputs extends React.Component {
                 key={key}
                 name={key}
                 type={value}
-                value={selectedNode.values[key]}
+                value={parseFloat(selectedNode.values[key])}
                 onChange={(value) => this.onValueChange(key, value)} />
             )
           case "color":

@@ -19,7 +19,7 @@ name: 'Voronoi',
 import CloudRenderer from './CloudRenderer';
 export default function getRenderer(type) {
   switch(type.id) {
-    case 4:
+    case 1:
       return CloudRenderer;
     default:
       console.error(`Unable to find type for ${type.name}`);
