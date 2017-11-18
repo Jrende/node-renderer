@@ -31,7 +31,12 @@ function getDefault(value) {
     case "number":
       return 0;
     case "color":
-      return "Black";
+      return {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 1
+      };
     default:
       return null;
   }

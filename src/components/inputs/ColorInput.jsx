@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import tinycolor from 'tinycolor2';
 
 class ColorInput extends React.Component {
   constructor(props) {
@@ -10,15 +11,18 @@ class ColorInput extends React.Component {
   }
 
   onChange(event) {
-    this.props.onChange(event.target.value);
+    let value = event.target.value;
+    let color = tinycolor(value);
+    this.props.onChange(color.toRgb());
   }
 
   render() {
     let { name, type, value } = this.props;
+    let color = tinycolor(value);
     return (
       <fieldset>
         <label htmlFor={name}>{type.name}</label>
-        <input onChange={this.onChange} type="color" />
+        <input onChange={this.onChange} type="color" value={color.toHexString()} />
       </fieldset>
     );
   }
@@ -27,7 +31,7 @@ class ColorInput extends React.Component {
 ColorInput.propTypes = {
   name: PropTypes.string.isRequired,
   type: PropTypes.object.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.object,
   onChange: PropTypes.func
 }
 
