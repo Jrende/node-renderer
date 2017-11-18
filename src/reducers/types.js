@@ -27,7 +27,52 @@ export let types = {
         name: 'Output'
       },
     }
-  }
+  },
+  blend: {
+    id: 2,
+    name: 'Blend',
+    values: {
+      factor: {
+        name: 'Factor',
+        type: 'number',
+        default: 0.5,
+        max: 1,
+        min: 0
+      }
+    },
+    input: {
+      left: {
+        type: 'FrameBuffer',
+        name: 'Left'
+      },
+      right: {
+        type: 'FrameBuffer',
+        name: 'Right'
+      }
+    },
+    output: {
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
+    }
+  },
+  solidColor: {
+    id: 3,
+    name: 'Solid Color',
+    values: {
+      color: {
+        name: 'Color',
+        type: 'color'
+      }
+    },
+    output: {
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
+    }
+  },
 }
   /*
   {
