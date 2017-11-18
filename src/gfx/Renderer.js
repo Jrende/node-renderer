@@ -36,6 +36,7 @@ export default class Renderer {
 
   render(rootNode) {
     this.renderCache = {};
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     if(Object.keys(rootNode.input).length > 0) {
       let {finalResult} = this.renderRecursive(rootNode);
       this.present(finalResult);
@@ -67,7 +68,6 @@ export default class Renderer {
   }
 
   present(texture) {
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.shader.bind(this.gl);
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
