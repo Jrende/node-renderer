@@ -23,22 +23,23 @@ export default class App extends React.Component {
     console.log("tab", this.state.tab);
     switch(this.state.tab) {
       case "svg":
-        elm = <SvgRenderer />;
         break;
       case "render":
-        elm = <RenderCanvas />;
         break;
       default:
     }
 
-    return [
-      <NodeInputs key="NodeInputs" />,
+    /*
       <div key="tabs" className="tabs">
         <button onClick={() => this.selectTab("svg")}>svg</button>
         <button onClick={() => this.selectTab("render")}>render</button>
       </div>,
-      <div className="canvas" key="canvas">{elm}</div>,
-      <ToolBox key="ToolBox" />
+      */
+    return [
+      <NodeInputs key="NodeInputs" />,
+      <SvgRenderer key="SvgRenderer" />,
+      <ToolBox key="ToolBox" />,
+      <RenderCanvas key="RenderCanvas" />
     ]
   }
 }

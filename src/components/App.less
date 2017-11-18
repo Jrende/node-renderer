@@ -5,28 +5,21 @@ body {
 
 .app {
   display: grid;
-  grid-template-columns: 15em 1fr 15em;
-  grid-template-rows: 1em 1fr;
+  grid-template-columns: 15em 1fr 1fr;
+  grid-template-rows: 1fr 0.25fr;
   height: 100vh;
 }
 
-.tabs {
-  grid-column: 2;
-  grid-row: 1;
-}
-
 .node-inputs {
-  grid-column: 1;
-  grid-row: span 3;
+  grid-row: span 2;
 }
 
 .tool-box {
-  grid-column: 3;
-  grid-row: span 3;
+  grid-column-start: 2;
+  grid-row-start: 2;
 }
 
 .canvas {
-  grid-column: 2;
-  grid-row: 2;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
