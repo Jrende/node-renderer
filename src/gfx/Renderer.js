@@ -36,8 +36,10 @@ export default class Renderer {
 
   render(rootNode) {
     this.renderCache = {};
-    let {finalResult} = this.renderRecursive(rootNode);
-    this.present(finalResult);
+    if(Object.keys(rootNode.input).length > 0) {
+      let {finalResult} = this.renderRecursive(rootNode);
+      this.present(finalResult);
+    }
   }
 
   renderRecursive(node) {
