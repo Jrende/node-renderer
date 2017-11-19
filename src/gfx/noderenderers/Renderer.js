@@ -2,6 +2,7 @@ import Framebuffer from '../Framebuffer.js';
 import VertexArray from '../VertexArray.js';
 
 let quad = undefined;
+let placeholder = undefined;
 export default class Renderer {
   constructor(gl) {
     this.gl = gl;
@@ -17,6 +18,12 @@ export default class Renderer {
           2, 0, 3],
         [2]);
     }
+    if(placeholder === undefined) {
+      this.placeholder = new Framebuffer(gl, 1, 1, false, false);
+      this.placeholder.renderTo(gl, () => {
+        gl.clear(gl.COLOR_BUFFER_BIT);
+      });
+    }
     this.quad = quad;
   }
 
@@ -25,7 +32,7 @@ export default class Renderer {
       color.r / 255,
       color.g / 255,
       color.b / 255,
-      color.a / 255
+      color.a
     ]
   }
 }

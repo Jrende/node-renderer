@@ -1,19 +1,20 @@
 import Renderer from './Renderer';
 import shaders from '../shader';
-export default class CloudRenderer extends Renderer {
+
+export default class SolidColorRenderer extends Renderer {
   constructor(gl) {
     super(gl);
     this.shader = shaders.solid;
     this.shader.compile(gl);
   }
 
-  render(values, framebuffers) {
+  render(values) {
     this.output.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
       this.shader.bind(this.gl);
       this.quad.bind(this.gl);
       this.shader.setUniforms(this.gl, {
-        color: this.fromColor(values.color),
+        color: this.fromColor(values.color)
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
       this.quad.unbind(this.gl);
@@ -21,6 +22,6 @@ export default class CloudRenderer extends Renderer {
     });
     return {
       out: this.output.texture
-    }
+    };
   }
 }

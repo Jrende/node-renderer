@@ -5,7 +5,9 @@ import Framebuffer from './Framebuffer.js';
 
 export default class Renderer {
   constructor(canvas) {
-    this.gl = canvas.getContext("webgl");
+    this.gl = canvas.getContext("webgl", {
+      premultipliedAlpha: true
+    });
     this.gl.clearColor(0, 0, 0, 1.0);
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
@@ -31,7 +33,8 @@ export default class Renderer {
       -1.0, -1.0,
       1.0, -1.0
     ], [1, 0, 2, 2, 0, 3], [2]);
-
+    this.gl.enable(this.gl.BLEND);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
   }
 
   render(rootNode) {

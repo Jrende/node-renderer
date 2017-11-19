@@ -27,7 +27,6 @@ export default class CloudRenderer extends Renderer {
   */
    
   render(values, framebuffers) {
-    console.log("values: ", values);
     this.output.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
       this.shader.bind(this.gl);

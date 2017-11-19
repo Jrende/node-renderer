@@ -32,6 +32,16 @@ export let types = {
     id: 2,
     name: 'Blend',
     values: {
+      mode: {
+        name: "Mode",
+        type: "enum",
+        values: [
+          "Normal",
+          "Screen",
+          "Multiply"
+        ],
+        default: "Normal"
+      },
       factor: {
         name: 'Factor',
         type: 'number',
