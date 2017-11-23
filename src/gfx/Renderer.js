@@ -1,12 +1,13 @@
 import shaders from './shader/';
 import VertexArray from './VertexArray';
 import getRenderer from './noderenderers';
-import Framebuffer from './Framebuffer.js';
+import Framebuffer from './Framebuffer';
 
 export default class Renderer {
   constructor(canvas) {
-    this.gl = canvas.getContext("webgl", {
-      premultipliedAlpha: true
+    this.gl = canvas.getContext('webgl', {
+      premultipliedAlpha: true,
+      preserveDrawingBuffer: true
     });
     this.gl.clearColor(0, 0, 0, 1.0);
     let w = this.gl.canvas.width;
@@ -41,7 +42,7 @@ export default class Renderer {
     this.renderCache = {};
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     if(Object.keys(rootNode.input).length > 0) {
-      let {finalResult} = this.renderRecursive(rootNode);
+      let { finalResult } = this.renderRecursive(rootNode);
       this.present(finalResult);
     }
   }
@@ -63,8 +64,8 @@ export default class Renderer {
       return input;
     }
     console.log(`Render ${node.type.name}-${node.id}`);
-    let ctor = getRenderer(node.type);
-    let renderer = new ctor(this.gl);
+    let Ctor = getRenderer(node.type);
+    let renderer = new Ctor(this.gl);
     let values = renderer.render(node.values, input);
     //shader.compile(this.gl);
     return values;
@@ -80,5 +81,4 @@ export default class Renderer {
     this.uvLessQuad.unbind(this.gl);
     this.shader.unbind(this.gl);
   }
-
 }
