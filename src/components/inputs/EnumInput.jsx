@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
 class EnumInput extends React.Component {
   constructor(props) {
@@ -15,14 +14,14 @@ class EnumInput extends React.Component {
 
   render() {
     let { name, type, value } = this.props;
-    let options = type.values.map(val => {
-      return (<option key={val}>{val}</option>)
-    });
+    let options = type.values.map(val =>
+      (<option selected={val === value} key={val}>{val}</option>)
+    );
     return [
-        <label key="label" htmlFor={name}>{type.name}</label>,
-        <select key="select" onChange={this.onChange}>
-          {options}
-        </select>
+      <label key="label" htmlFor={name}>{type.name}</label>,
+      <select key="select" onChange={this.onChange}>
+        {options}
+      </select>
     ];
   }
 }
@@ -32,6 +31,6 @@ EnumInput.propTypes = {
   type: PropTypes.object.isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func
-}
+};
 
 export default EnumInput;
