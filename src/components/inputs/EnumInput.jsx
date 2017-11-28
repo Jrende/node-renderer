@@ -15,11 +15,11 @@ class EnumInput extends React.Component {
   render() {
     let { name, type, value } = this.props;
     let options = type.values.map(val =>
-      (<option selected={val === value} key={val}>{val}</option>)
+      (<option key={val}>{val}</option>)
     );
     return [
       <label key="label" htmlFor={name}>{type.name}</label>,
-      <select key="select" onChange={this.onChange}>
+      <select key="select" value={value} onChange={this.onChange}>
         {options}
       </select>
     ];
