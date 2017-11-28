@@ -13,7 +13,6 @@ class NodeInputs extends React.Component {
   }
 
   onValueChange(name, value) {
-    console.log(`Change ${name} to ${value}`);
     this.props.changeValue(this.props.selectedNode.id, {[name]: value});
   }
 
