@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgRenderer.less';
 import SvgNode from './SvgNode';
-import { addInSvgSpace, transformPointToSvgSpace, transformPointFromSvgSpace } from '../../utils/SvgUtils';
+import { addInSvgSpace, transformPointToSvgSpace } from '../../utils/SvgUtils';
 
-/* globals SVGSVGElement */
+/* globals SVGSVGElement, document */
 class SvgRenderer extends React.Component {
   constructor(props) {
     super(props);
@@ -20,17 +20,17 @@ class SvgRenderer extends React.Component {
     };
 
     [
-      "handleDrop",
-      "setSvg",
-      "onElementMouseDown",
-      "onMouseMove",
-      "onMouseUp",
-      "onConnectorMouseUp",
-      "onConnectorMouseDown",
-      "onKeyDown",
-      "onCanvasMouseDown",
-      "onWheel"
-    ].forEach(name => this[name] = this[name].bind(this));
+      'handleDrop',
+      'setSvg',
+      'onElementMouseDown',
+      'onMouseMove',
+      'onMouseUp',
+      'onConnectorMouseUp',
+      'onConnectorMouseDown',
+      'onKeyDown',
+      'onCanvasMouseDown',
+      'onWheel'
+    ].forEach(name => { this[name] = this[name].bind(this); });
   }
 
   //Wheee!
@@ -40,12 +40,12 @@ class SvgRenderer extends React.Component {
     if(zoom > -200) {
       this.setState({
         zoom
-      })
+      });
     }
   }
 
   onKeyDown(event) {
-    if(event.key === "Delete") {
+    if(event.key === 'Delete') {
       if(document.activeElement != null) {
         let activeNodeId = document.activeElement.getAttribute('data-node-id')|0;
         this.props.removeNode(activeNodeId);
@@ -72,14 +72,14 @@ class SvgRenderer extends React.Component {
     }
 
     let grabConnectorType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
-    if(grabConnectorType === "input") {
+    if(grabConnectorType === 'input') {
       let node = this.props.graph.find(n => n.id === grabNodeId);
-      if(node.input[grabNodeName] != undefined) {
+      if(node.input[grabNodeName] !== undefined) {
         let outputNode = this.props.graph.find(n => n.id === node.input[grabNodeName].id);
-        this.props.removeConnection(grabNodeId, grabNodeName)
+        this.props.removeConnection(grabNodeId, grabNodeName);
         grabNodeId = outputNode.id;
         grabNodeName = node.input[grabNodeName].name;
-        grabConnectorType = "output";
+        grabConnectorType = 'output';
         grabFrom = this.getNodeLayout(outputNode.type).getConnectorPos(grabNodeName);
         grabFrom[0] += outputNode.pos[0] + 15;
         grabFrom[1] += outputNode.pos[1] - 5;
@@ -121,19 +121,22 @@ class SvgRenderer extends React.Component {
       });
 
       switch(this.state.grabMode) {
-        case 'element':
+        case 'element': {
           let node = this.props.graph.find(item => item.id === this.state.grabNodeId);
           let newPos = addInSvgSpace(node.pos, [dx, dy], this.svg);
           this.props.setNodeLocation(this.state.grabNodeId, newPos);
           break;
-        case 'connector':
+        }
+        case 'connector': {
           let grabTo = addInSvgSpace(this.state.grabTo, [dx, dy], this.svg);
           this.setState({ grabTo });
           break;
-        case 'canvas':
+        }
+        case 'canvas': {
           let pan = addInSvgSpace(this.state.pan, [dx, dy], this.svg);
           this.setState({ pan });
           break;
+        }
         default:
       }
     }
@@ -161,7 +164,7 @@ class SvgRenderer extends React.Component {
           id: nodeId,
           name: inputName
         };
-        if(this.state.grabConnectorType === "input") {
+        if(this.state.grabConnectorType === 'input') {
           let temp = to;
           to = from;
           from = temp;
@@ -179,11 +182,26 @@ class SvgRenderer extends React.Component {
     });
   }
 
+  onCanvasMouseDown(event) {
+    if(event.target === this.svg) {
+      event.stopPropagation();
+      let clientPos = [event.clientX, event.clientY];
+      let transformedPos = transformPointToSvgSpace(clientPos, this.svg);
+      this.props.selectNode(-1);
+      this.setState({
+        grabMode: 'canvas',
+        grabTo: transformedPos,
+        grabFrom: transformedPos,
+        lastPos: clientPos
+      });
+    }
+  }
+
   setSvg(svg) {
     if(svg != null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
-      svg.addEventListener("drop", event => this.handleDrop(event));
+      svg.addEventListener('drop', event => this.handleDrop(event));
     }
   }
 
@@ -193,8 +211,8 @@ class SvgRenderer extends React.Component {
     let height = 20 + Math.max(inputs.length, outputs.length);
     let lineWidths = [];
     for(let i = 0; i < Math.max(inputs.length, outputs.length); i++) {
-      let inputLen = inputs[i] != undefined ? inputs[i].length : 0;
-      let outputLen = outputs[i] != undefined ? outputs[i].length : 0;
+      let inputLen = inputs[i] !== undefined ? inputs[i].length : 0;
+      let outputLen = outputs[i] !== undefined ? outputs[i].length : 0;
       lineWidths[i] = inputLen + outputLen;
       if(inputLen > 0 && outputLen > 0) {
         lineWidths[i] += 4;
@@ -222,7 +240,7 @@ class SvgRenderer extends React.Component {
       },
       width,
       height
-    }
+    };
   }
 
   preventEvent(event) {
@@ -232,7 +250,7 @@ class SvgRenderer extends React.Component {
   handleDrop(event) {
     event.preventDefault();
     let type = event.detail.type;
-    let nodeLayout = this.getNodeLayout(type)
+    let nodeLayout = this.getNodeLayout(type);
     this.point.x = event.clientX;
     this.point.y = event.clientY;
     let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
@@ -247,22 +265,7 @@ class SvgRenderer extends React.Component {
   }
 
   handleDragEnter() {
-    console.log("dragenter");
-  }
-
-  onCanvasMouseDown(event) {
-    if(event.target == this.svg) {
-      event.stopPropagation();
-      let clientPos = [event.clientX, event.clientY];
-      let transformedPos = transformPointToSvgSpace(clientPos, this.svg);
-      this.props.selectNode(-1);
-      this.setState({
-        grabMode: 'canvas',
-        grabTo: transformedPos,
-        grabFrom: transformedPos,
-        lastPos: clientPos
-      });
-    }
+    console.log('dragenter');
   }
 
   render() {

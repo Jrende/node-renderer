@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import tinycolor from 'tinycolor2';
 
 class ColorInput extends React.Component {
@@ -33,6 +32,6 @@ ColorInput.propTypes = {
   type: PropTypes.object.isRequired,
   value: PropTypes.object,
   onChange: PropTypes.func
-}
+};
 
 export default ColorInput;

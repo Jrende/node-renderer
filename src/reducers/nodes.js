@@ -21,7 +21,7 @@ let initialState = {
       }
     }
   ]
-}
+};
 
 function getDefault(value) {
   if(value.default !== undefined) {
