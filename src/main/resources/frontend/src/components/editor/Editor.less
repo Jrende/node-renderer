@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.editor {
+  display: grid;
+  grid-template-columns: 15em 1fr 1fr;
+  grid-template-rows: 1fr 0.25fr;
+  height: 100vh;
+}
+
+.node-inputs {
+  grid-row: span 2;
+}
+
+.tool-box {
+  grid-column-start: 2;
+  grid-row-start: 2;
+}
+
+.canvas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}

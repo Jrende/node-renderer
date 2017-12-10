@@ -1,0 +1,4 @@
+target/
+node_modules/
+.iml
+config.properties
