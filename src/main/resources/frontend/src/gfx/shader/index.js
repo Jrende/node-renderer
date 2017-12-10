@@ -9,10 +9,30 @@ import blurVert from './glsl/blur.vert';
 import cloudFrag from './glsl/cloud.frag';
 import cloudVert from './glsl/cloud.vert';
 import Shader from './Shader';
-export default {
-  cloud: new Shader({frag: cloudFrag, vert: cloudVert}),
-  texture: new Shader({frag: textureFrag, vert: textureVert}),
-  solid: new Shader({frag: solidFrag, vert: solidVert}),
-  blur: new Shader({frag: blurFrag, vert: blurVert}),
-  blend: new Shader({frag: blendFrag, vert: blendVert})
+
+function buildShader(name) {
+  switch(name) {
+    case "cloud": return new Shader({frag: cloudFrag, vert: cloudVert});
+    case "texture": return new Shader({frag: textureFrag, vert: textureVert});
+    case "solid": return new Shader({frag: solidFrag, vert: solidVert});
+    case "blur": return new Shader({frag: blurFrag, vert: blurVert});
+    case "blend": return new Shader({frag: blendFrag, vert: blendVert});
+  }
+}
+
+export default class ShaderBuilder {
+  constructor(gl) {
+    this.gl = gl;
+    this.shaderCache = {};
+  }
+
+  getShader(shaderName) {
+    let shader = this.shaderCache[shaderName];
+    if(shader === undefined) {
+      shader = buildShader(shaderName);
+      shader.compile(this.gl);
+      this.shaderCache[shaderName] = shader;
+    }
+    return shader;
+  }
 }

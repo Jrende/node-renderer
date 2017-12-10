@@ -12,23 +12,27 @@ class RenderCanvas extends React.Component {
     this.setCanvas = this.setCanvas.bind(this);
   }
 
-  setCanvas(canvas) {
-    if(canvas) {
-      this.renderer = new Renderer(canvas);
+  componentDidMount() {
+    if(this.canvas !== undefined) {
+      this.renderer = new Renderer(this.canvas);
       this.renderer.render(this.props.rootNode);
     }
+  }
+
+  setCanvas(canvas) {
+    this.canvas = canvas;
   }
 
   render() {
     if(this.renderer) {
       this.renderer.render(this.props.rootNode);
     }
-    return <canvas width="1024" height="1024" className="render-canvas" ref={this.setCanvas}></canvas>
+    return <canvas width="1024" height="1024" className="render-canvas" ref={this.setCanvas}></canvas>;
   }
 }
 
 RenderCanvas.propTypes = {
   rootNode: PropTypes.object.isRequired
-}
+};
 
 export default RenderCanvas;

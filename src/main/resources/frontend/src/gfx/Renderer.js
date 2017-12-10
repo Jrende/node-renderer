@@ -1,4 +1,4 @@
-import shaders from './shader/';
+import ShaderBuilder from './shader/';
 import VertexArray from './VertexArray';
 import getRenderer from './noderenderers';
 import Framebuffer from './Framebuffer';
@@ -24,12 +24,6 @@ export default class Renderer {
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
     this.gl.viewport(0, 0, w, h);
-    this.solidShader = shaders.solid;
-    this.solidShader.compile(this.gl);
-    this.shader = shaders.texture;
-    this.shader.compile(this.gl);
-    shaders.cloud.compile(this.gl);
-    shaders.solid.compile(this.gl);
     this.output = new Framebuffer(this.gl, 1024, 1024, false, false);
     this.quad = new VertexArray(this.gl,
       [1, 1, 1,
@@ -49,6 +43,8 @@ export default class Renderer {
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     this.renderCache = [];
     this.renderFunctions = {};
+    this.shaders = new ShaderBuilder(this.gl);
+    this.shader = this.shaders.getShader('texture');
   }
 
   render(rootNode) {
@@ -92,7 +88,7 @@ export default class Renderer {
       if(node.id !== 0) {
         if(this.renderFunctions[node.type.id] === undefined) {
           let Ctor = getRenderer(node.type);
-          let renderer = new Ctor(this.gl);
+          let renderer = new Ctor(this.gl, this.shaders);
           this.renderFunctions[node.type.id] = renderer.render.bind(renderer);
         }
         cache.render = this.renderFunctions[node.type.id];

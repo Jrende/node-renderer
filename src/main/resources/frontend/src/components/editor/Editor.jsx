@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import SvgRenderer from '../../containers/editor/SvgRenderer';
 import ToolBox from '../../containers/editor/ToolBox';
@@ -19,7 +20,10 @@ class Editor extends React.Component {
   render() {
     return (
       <div className="editor">
-        <NodeInputs key="NodeInputs" />
+        <div>
+          <Link to="/">←</Link>
+          <NodeInputs key="NodeInputs" />
+        </div>
         <SvgRenderer key="SvgRenderer" />
         <ToolBox key="ToolBox" />
         <RenderCanvas key="RenderCanvas" />

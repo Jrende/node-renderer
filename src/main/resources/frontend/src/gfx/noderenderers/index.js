@@ -7,7 +7,7 @@ let constructors = {
   [types.clouds.id]: CloudRenderer,
   [types.solidColor.id]: SolidColorRenderer,
   [types.blend.id]: BlendRenderer
-}
+};
 
 export default function getRenderer(type) {
   return constructors[type.id];

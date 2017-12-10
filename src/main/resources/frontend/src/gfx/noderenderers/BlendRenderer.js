@@ -1,14 +1,11 @@
 import Renderer from './Renderer';
-import shaders from '../shader';
 
 export default class BlendRenderer extends Renderer {
-  constructor(gl) {
+  constructor(gl, shaders) {
     super(gl);
     this.gl = gl;
-    this.shader = shaders.blend;
-    this.shader.compile(gl);
-    this.textureShader = shaders.texture;
-    this.textureShader.compile(gl);
+    this.shader = shaders.getShader('blend');
+    this.textureShader = shaders.getShader('texture');
   }
 
   render(values, framebuffers) {

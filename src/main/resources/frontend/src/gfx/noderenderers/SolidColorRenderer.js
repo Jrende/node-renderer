@@ -2,10 +2,9 @@ import Renderer from './Renderer';
 import shaders from '../shader';
 
 export default class SolidColorRenderer extends Renderer {
-  constructor(gl) {
+  constructor(gl, shaders) {
     super(gl);
-    this.shader = shaders.solid;
-    this.shader.compile(gl);
+    this.shader = shaders.getShader('solid');
   }
 
   render(values) {
