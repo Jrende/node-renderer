@@ -86,12 +86,12 @@ export default class Renderer {
         output: undefined
       };
       if(node.id !== 0) {
-        if(this.renderFunctions[node.type.id] === undefined) {
+        if(this.renderFunctions[node.id] === undefined) {
           let Ctor = getRenderer(node.type);
           let renderer = new Ctor(this.gl, this.shaders);
-          this.renderFunctions[node.type.id] = renderer.render.bind(renderer);
+          this.renderFunctions[node.id] = renderer.render.bind(renderer);
         }
-        cache.render = this.renderFunctions[node.type.id];
+        cache.render = this.renderFunctions[node.id];
       }
       this.renderCache[node.id] = cache;
     }
