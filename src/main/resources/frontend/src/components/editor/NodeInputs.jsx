@@ -32,7 +32,7 @@ class NodeInputs extends React.Component {
                 type={value}
                 value={parseFloat(selectedNode.values[key])}
                 onChange={(value) => this.onValueChange(key, value)} />
-            )
+            );
           case "color":
             return (
               <ColorInput
@@ -41,7 +41,7 @@ class NodeInputs extends React.Component {
                 type={value}
                 value={selectedNode.values[key]}
                 onChange={(value) => this.onValueChange(key, value)} />
-            )
+            );
           case "enum":
             return (
               <EnumInput
@@ -50,24 +50,22 @@ class NodeInputs extends React.Component {
                 type={value}
                 value={selectedNode.values[key]}
                 onChange={(value) => this.onValueChange(key, value)} />
-            )
+            );
           default:
             break;
         }
       });
     }
-    return (
-      <div className="node-inputs">
-        <h1>NodeInputs</h1>
-        {inputs}
-      </div>
-    );
+    return [
+      <h1 key="NodeInputs">NodeInputs</h1>,
+      ...inputs
+    ];
   }
 }
 
 NodeInputs.propTypes = {
   selectedNode: PropTypes.object,
   changeValue: PropTypes.func
-}
+};
 
 export default NodeInputs;

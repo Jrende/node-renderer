@@ -6,20 +6,35 @@ body {
 .editor {
   display: grid;
   grid-template-columns: 15em 1fr 1fr;
-  grid-template-rows: 1fr 0.25fr;
+  grid-template-rows: 1em 1fr 0.25fr;
+  grid-template-areas:
+    "mb mb mb"
+    "ni sr ca"
+    "ni tb ca";
   height: 100vh;
 }
 
 .node-inputs {
-  grid-row: span 2;
+  grid-area: ni;
 }
 
 .tool-box {
-  grid-column-start: 2;
-  grid-row-start: 2;
+  grid-area: tb;
 }
 
 .canvas {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-area: ca;
+}
+
+.svg-renderer {
+  grid-area: sr
+}
+
+.menu-bar {
+  grid-area: mb;
+  grid-column: span 3;
+  nav {
+    display: flex;
+    flex-direction: row;
+  }
 }

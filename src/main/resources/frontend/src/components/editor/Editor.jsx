@@ -20,13 +20,22 @@ class Editor extends React.Component {
   render() {
     return (
       <div className="editor">
-        <div>
+        <nav className="menu-bar">
           <Link to="/">←</Link>
+          <button>save</button>
+        </nav>
+        <div className="node-inputs">
           <NodeInputs key="NodeInputs" />
         </div>
-        <SvgRenderer key="SvgRenderer" />
-        <ToolBox key="ToolBox" />
-        <RenderCanvas key="RenderCanvas" />
+        <div className="svg-renderer">
+          <SvgRenderer key="SvgRenderer" />
+        </div>
+        <div className="tool-box">
+          <ToolBox key="ToolBox" />
+        </div>
+        <div className="canvas">
+          <RenderCanvas key="RenderCanvas" />
+        </div>
       </div>
     );
   }
