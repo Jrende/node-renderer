@@ -3,6 +3,7 @@ package com.jrende.model;
 public class Image {
     long id;
     String source;
+    String userId;
 
     public Image(long id, String source) {
         this.id = id;
@@ -15,5 +16,21 @@ public class Image {
 
     public String getSource() {
         return source;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
