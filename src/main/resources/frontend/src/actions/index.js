@@ -1,9 +1,7 @@
-let nodeId = 1;
 export function createNewNode(node) {
   return {
     type: "CREATE_NODE",
-    node,
-    id: nodeId++
+    node
   };
 }
 

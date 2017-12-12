@@ -45,8 +45,10 @@ function getDefault(value) {
 const nodes = (state = initialState, action) => {
   switch (action.type) {
     case "CREATE_NODE": {
+      let ids = state.graph.map(n => n.id).sort();
+      let newId = ids[ids.length - 1] + 1;
       let newNode = Object.assign({}, action.node, {
-        id: action.id,
+        id: newId,
         input: {},
         values: {}
       });
