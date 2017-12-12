@@ -1,0 +1,1 @@
+UPDATE image SET source = ? WHERE image_id = ?;
