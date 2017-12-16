@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import './NumberInput.less';
 
 
@@ -27,7 +26,7 @@ class NumberInput extends React.Component {
 
 
     let range;
-    if(type.max != undefined && type.min != undefined) {
+    if(type.max !== undefined && type.min !== undefined) {
       range = (
         <input
           type="range"
@@ -52,8 +51,8 @@ class NumberInput extends React.Component {
 NumberInput.propTypes = {
   name: PropTypes.string.isRequired,
   type: PropTypes.object.isRequired,
-  value: PropTypes.number,
-  onChange: PropTypes.func
-}
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired
+};
 
 export default NumberInput;

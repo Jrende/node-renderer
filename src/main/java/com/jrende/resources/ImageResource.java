@@ -1,10 +1,9 @@
 package com.jrende.resources;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.jrende.dao.ImageDAO;
 import com.jrende.model.Image;
+import com.jrende.model.ImageOptimizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,9 +47,9 @@ public class ImageResource {
 
 
     @POST
-    public long saveImage(String source, @Context HttpServletRequest req, @Context HttpServletResponse res) {
+    public long createNewImage(String source, @Context HttpServletRequest req, @Context HttpServletResponse res) {
         //TODO: Sanity check, has at least one finalOutput node, etc.
-        Image image = ImageDAO.getInstance().saveImage(source, req.getSession().getId());
+        Image image = ImageDAO.getInstance().saveImage(ImageOptimizer.optimizeGraph(source), req.getSession().getId());
         res.setStatus(Status.CREATED.getStatusCode());
         return image.getId();
     }
@@ -58,15 +57,10 @@ public class ImageResource {
     @GET
     @Path("/{id}/source")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getImageSource(@PathParam("id") long id, @Context HttpServletRequest req, @Context HttpServletResponse res) {
+    public String getImageSource(@PathParam("id") long id, @Context HttpServletRequest req, @Context HttpServletResponse res) throws IOException {
         Image image = ImageDAO.getInstance().getImage(id);
-        if (image == null) {
-            res.setStatus(404);
-            try {
-                res.getWriter().println("Image with id " + id + " not found");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (image == null || id == 0) {
+            res.sendError(404, "Image with id " + id + " not found");
             return null;
         }
         return image.getSource();
@@ -75,27 +69,16 @@ public class ImageResource {
     @POST
     @Path("/{id}/source")
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateImageSource(@PathParam("id") long id, String source, @Context HttpServletRequest req, @Context HttpServletResponse res) {
+    public void updateImageSource(@PathParam("id") long id, String source, @Context HttpServletRequest req, @Context HttpServletResponse res) throws IOException {
         Image image = ImageDAO.getInstance().getImage(id);
         if (image == null) {
-            respond(res, Status.NOT_FOUND, "Image with id " + id + " not found");
+            res.sendError(404, "Image with id " + id + " not found");
             return;
         }
         if (req.getSession().getId().equals(image.getUserId())) {
-            ImageDAO.getInstance().updateImage(id, source);
+            ImageDAO.getInstance().updateImage(id, ImageOptimizer.optimizeGraph(source));
         } else {
-            res.setStatus(Status.FORBIDDEN.getStatusCode());
+            res.sendError(Status.FORBIDDEN.getStatusCode());
         }
     }
-
-    private void respond(HttpServletResponse response, Status status, String message) {
-        response.setStatus(status.getStatusCode());
-        try {
-            response.getWriter().println(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
 }

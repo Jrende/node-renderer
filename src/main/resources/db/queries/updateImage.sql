@@ -1,1 +1,1 @@
-UPDATE image SET source = ? WHERE image_id = ?;
+UPDATE images SET source = ? WHERE image_id = ?;

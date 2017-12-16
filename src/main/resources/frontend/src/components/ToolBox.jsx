@@ -1,18 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import './ToolBox.less';
-import draggable from '../../utils/DragDrop.js';
+import draggable from '../utils/DragDrop';
 
 
 class ToolBox extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   enableDraggable(element, type) {
-    if(element != undefined) {
-      draggable(element, {type});
+    if(element !== undefined) {
+      draggable(element, { type });
     }
   }
 

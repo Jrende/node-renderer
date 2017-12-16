@@ -1,8 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import NodeInputs from '../../components/editor/NodeInputs';
-import * as actions from '../../actions';
+import NodeInputs from '../components/NodeInputs';
+import * as actions from '../actions';
 
 const mapStateToProps = state => (
   {
@@ -14,6 +12,9 @@ const mapDispatchToProps = dispatch => (
   {
     changeValue: (nodeId, value) => {
       dispatch(actions.changeValue(nodeId, value));
+    },
+    selectNode: (nodeId) => {
+      dispatch(actions.selectNode(nodeId));
     },
   }
 );

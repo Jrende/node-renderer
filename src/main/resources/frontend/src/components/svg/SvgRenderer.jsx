@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgRenderer.less';
 import SvgNode from './SvgNode';
-import { addInSvgSpace, transformPointToSvgSpace } from '../../../utils/SvgUtils';
-
+import { addInSvgSpace, transformPointToSvgSpace } from '../../utils/SvgUtils';
 /* globals SVGSVGElement, document */
 class SvgRenderer extends React.Component {
   constructor(props) {
@@ -15,8 +14,8 @@ class SvgRenderer extends React.Component {
       grabMode: null,
       grabNodeId: -1,
       lastPos: [0, 0],
-      pan: [0, 0],
-      zoom: 0
+      pan: [336.9835205078125, -422.49603271484375],
+      zoom: 265
     };
 
     [
@@ -33,8 +32,7 @@ class SvgRenderer extends React.Component {
     ].forEach(name => { this[name] = this[name].bind(this); });
   }
 
-  //Wheee!
-  //TODO: Zoom towards mouse pointer or center of screen
+  // TODO: Zoom towards mouse pointer or center of screen
   onWheel(event) {
     let zoom = this.state.zoom + event.deltaY;
     if(zoom > -200) {
@@ -47,7 +45,7 @@ class SvgRenderer extends React.Component {
   onKeyDown(event) {
     if(event.key === 'Delete') {
       if(document.activeElement != null) {
-        let activeNodeId = document.activeElement.getAttribute('data-node-id')|0;
+        let activeNodeId = document.activeElement.getAttribute('data-node-id') | 0;
         this.props.removeNode(activeNodeId);
       }
     }
@@ -65,7 +63,7 @@ class SvgRenderer extends React.Component {
     let parent = event.target.parentElement;
     while(!(parent instanceof SVGSVGElement)) {
       if(parent.hasAttribute('data-node-id')) {
-        grabNodeId = parent.getAttribute('data-node-id')|0;
+        grabNodeId = parent.getAttribute('data-node-id') | 0;
         break;
       }
       parent = parent.parentElement;
@@ -150,7 +148,7 @@ class SvgRenderer extends React.Component {
       let inputName = target.getAttribute('data-input-name') || target.getAttribute('data-output-name');
       while(!(parent instanceof SVGSVGElement)) {
         if(parent.hasAttribute('data-node-id')) {
-          nodeId = parent.getAttribute('data-node-id')|0;
+          nodeId = parent.getAttribute('data-node-id') | 0;
           break;
         }
         parent = parent.parentElement;
@@ -206,8 +204,8 @@ class SvgRenderer extends React.Component {
   }
 
   getNodeLayout(type) {
-    let inputs = Object.keys(type.input||[]);
-    let outputs = Object.keys(type.output||[]);
+    let inputs = Object.keys(type.input || []);
+    let outputs = Object.keys(type.output || []);
     let height = 20 + Math.max(inputs.length, outputs.length);
     let lineWidths = [];
     for(let i = 0; i < Math.max(inputs.length, outputs.length); i++) {
@@ -234,7 +232,7 @@ class SvgRenderer extends React.Component {
           output = [sideMargin, inputs.indexOf(name) * lineHeight + offset];
         }
         if(type.output != null && type.output[name] != null) {
-          output = [width-sideMargin, outputs.indexOf(name) * lineHeight + offset];
+          output = [width - sideMargin, outputs.indexOf(name) * lineHeight + offset];
         }
         return output;
       },
@@ -271,7 +269,7 @@ class SvgRenderer extends React.Component {
   render() {
     let { graph, connections, selectedNode } = this.props;
     let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
-    //Sort on x location, to enhance tabbing between nodes focus
+    // Sort on x location, to enhance tabbing between nodes focus
     let nodes = graph.sort((a, b) => a.pos[0] - b.pos[0]).map(node => (
       <SvgNode
         key={node.id}
@@ -325,8 +323,8 @@ class SvgRenderer extends React.Component {
       zIndex = 2;
     }
     let style = { zIndex };
-    let viewBox = `${-w - pan[0]} ${-w - pan[1]} ${w*2} ${w*2}`;
-    //TODO: Set svg viewBox depending on svg size
+    let viewBox = `${-w - pan[0]} ${-w - pan[1]} ${w * 2} ${w * 2}`;
+    // TODO: Set svg viewBox depending on svg size
     return (
       <svg
         style={style}
@@ -355,8 +353,8 @@ SvgRenderer.propTypes = {
   removeNode: PropTypes.func.isRequired,
   setNodeLocation: PropTypes.func.isRequired,
   connectNodes: PropTypes.func.isRequired,
-  selectNode: PropTypes.func,
-  selectedNode: PropTypes.number
+  selectNode: PropTypes.func.isRequired,
+  selectedNode: PropTypes.number.isRequired
 };
 
 export default SvgRenderer;

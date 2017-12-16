@@ -1,4 +1,4 @@
-export let types = {
+export const types = {
   clouds: {
     id: 1,
     name: 'Clouds',
@@ -7,6 +7,13 @@ export let types = {
         name: 'Seed',
         type: 'number',
         default: 1
+      },
+      left: {
+        name: 'Left',
+        type: 'number',
+        default: 0,
+        min: -10,
+        max: 10
       },
       size: {
         name: 'Size',
@@ -33,14 +40,14 @@ export let types = {
     name: 'Blend',
     values: {
       mode: {
-        name: "Mode",
-        type: "enum",
+        name: 'Mode',
+        type: 'enum',
         values: [
-          "Normal",
-          "Screen",
-          "Multiply"
+          'Normal',
+          'Screen',
+          'Multiply'
         ],
-        default: "Normal"
+        default: 'Normal'
       },
       factor: {
         name: 'Factor',
@@ -83,8 +90,8 @@ export let types = {
       },
     }
   },
-}
-  /*
+};
+/*
   {
     id: 1,
     name: 'Blur',
@@ -254,10 +261,10 @@ export let types = {
       }
     }
   }
-  */
+*/
 
 const typeReducer = (state = types, action) => {
   return state;
-}
+};
 
-export default typeReducer
+export default typeReducer;

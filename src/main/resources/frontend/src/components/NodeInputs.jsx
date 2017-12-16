@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import NumberInput from './inputs/NumberInput';
 import ColorInput from './inputs/ColorInput';
 import EnumInput from './inputs/EnumInput';
@@ -8,52 +7,52 @@ import './NodeInputs.less';
 
 
 class NodeInputs extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   onValueChange(name, value) {
-    this.props.changeValue(this.props.selectedNode.id, {[name]: value});
+    this.props.changeValue(this.props.selectedNode.id, { [name]: value });
   }
 
   render() {
     let { selectedNode } = this.props;
 
     let inputs = [];
-    if(selectedNode !== undefined && selectedNode.type.values != undefined) {
+    if(selectedNode !== undefined && selectedNode.type.values !== undefined) {
       inputs = Object.keys(selectedNode.type.values).map(key => {
-        let value = selectedNode.type.values[key];
-        switch(value.type) {
-          case "number":
+        let nodeValue = selectedNode.type.values[key];
+        switch(nodeValue.type) {
+          case 'number':
             return (
               <NumberInput
                 key={key}
                 name={key}
-                type={value}
+                type={nodeValue}
                 value={parseFloat(selectedNode.values[key])}
-                onChange={(value) => this.onValueChange(key, value)} />
+                onChange={(value) => this.onValueChange(key, value)}
+              />
             );
-          case "color":
+          case 'color':
             return (
               <ColorInput
                 key={key}
                 name={key}
-                type={value}
+                type={nodeValue}
                 value={selectedNode.values[key]}
-                onChange={(value) => this.onValueChange(key, value)} />
+                onChange={(value) => this.onValueChange(key, value)}
+              />
             );
-          case "enum":
+          case 'enum':
             return (
               <EnumInput
                 key={key}
                 name={key}
-                type={value}
+                type={nodeValue}
                 value={selectedNode.values[key]}
-                onChange={(value) => this.onValueChange(key, value)} />
+                onChange={(value) => this.onValueChange(key, value)}
+              />
             );
           default:
             break;
         }
+        return null;
       });
     }
     return [
@@ -64,8 +63,8 @@ class NodeInputs extends React.Component {
 }
 
 NodeInputs.propTypes = {
-  selectedNode: PropTypes.object,
-  changeValue: PropTypes.func
+  selectedNode: PropTypes.object.isRequired,
+  changeValue: PropTypes.func.isRequired,
 };
 
 export default NodeInputs;

@@ -2,10 +2,9 @@ let path = require('path');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-//var CopyWebpackPlugin = require('copy-webpack-plugin');
+// var CopyWebpackPlugin = require('copy-webpack-plugin');
 
-let dist = path.join(__dirname, '../../webapp/static/');
-let src = path.join(__dirname, 'src/');
+let dist = path.join(__dirname, '../../webapp/static/editor');
 let index = path.join(__dirname, 'src/index.html');
 let entry = path.join(__dirname, 'src/main.jsx');
 
@@ -23,7 +22,7 @@ module.exports = {
   output: {
     path: dist,
     filename: '[name].js',
-    publicPath: 'static'
+    publicPath: 'static/editor'
   },
   resolve: {
     extensions: ['.jsx', '.js']
@@ -43,7 +42,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test : /\.jsx?/,
+        test: /\.jsx?/,
         include: __dirname,
         exclude: '/node_modules/',
         use: {

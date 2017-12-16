@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import draggable from '../../utils/DragDrop.js';
-import Renderer from '../../gfx/Renderer';
+import Renderer from '../gfx/Renderer';
 import './RenderCanvas.less';
 
 
@@ -16,6 +14,9 @@ class RenderCanvas extends React.Component {
     if(this.canvas !== undefined) {
       this.renderer = new Renderer(this.canvas);
       this.renderer.render(this.props.rootNode);
+      window.onresize = () => {
+        this.renderer.render(this.props.rootNode, true);
+      };
     }
   }
 
@@ -27,7 +28,12 @@ class RenderCanvas extends React.Component {
     if(this.renderer) {
       this.renderer.render(this.props.rootNode);
     }
-    return <canvas width="1024" height="1024" className="render-canvas" ref={this.setCanvas}></canvas>;
+    return (<canvas
+      width="1024"
+      height="1024"
+      className="render-canvas"
+      ref={this.setCanvas}
+    />);
   }
 }
 

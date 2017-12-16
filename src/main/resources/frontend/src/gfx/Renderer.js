@@ -3,6 +3,7 @@ import VertexArray from './VertexArray';
 import getRenderer from './noderenderers';
 import Framebuffer from './Framebuffer';
 
+/*
 function measurePerf() {
   let perfEntries = performance.getEntriesByType('measure');
   console.table(perfEntries.map(entry => ({
@@ -12,6 +13,20 @@ function measurePerf() {
   performance.clearMarks();
   performance.clearMeasures();
 }
+*/
+
+/*eslint-disable */
+function hashCode(string) {
+  var hash = 0, i, chr;
+  if (string.length === 0) return hash;
+  for (i = 0; i < string.length; i++) {
+    chr   = string.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+/ *eslint-enable */
 
 /* global performance */
 export default class Renderer {
@@ -47,20 +62,21 @@ export default class Renderer {
     this.shader = this.shaders.getShader('texture');
   }
 
-  render(rootNode) {
+  render(rootNode, forceUpdate = false) {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     if(Object.keys(rootNode.input).length > 0) {
-      this.prerender(rootNode);
+      console.log(`Render ${hashCode(JSON.stringify(rootNode))}`);
+      this.prerender(rootNode, forceUpdate);
       performance.mark('start render');
       let { finalResult } = this.renderRecursive(rootNode);
       performance.mark('end render');
       performance.measure('render', 'start render', 'end render');
       this.present(finalResult);
-      //measurePerf();
+      // measurePerf();
     }
   }
 
-  prerender(rootNode) {
+  prerender(rootNode, forceUpdate) {
     performance.mark('start createRenderers');
     this.createRenderers(rootNode);
     performance.mark('end createRenderers');
@@ -69,7 +85,13 @@ export default class Renderer {
       cache.isDirty = false;
     });
     performance.mark('start calculateDiff');
-    this.calculateDiff(rootNode);
+    if(!forceUpdate) {
+      this.calculateDiff(rootNode);
+    } else {
+      this.renderCache.forEach(cache => {
+        cache.isDirty = true;
+      });
+    }
     performance.mark('end calculateDiff');
     performance.measure('calculate diff', 'start calculateDiff', 'end calculateDiff');
   }
@@ -126,16 +148,16 @@ export default class Renderer {
 
   renderRecursive(node) {
     let input = {};
-    //To render this, I first need to render its children
+    // To render this, I first need to render its children
     Object.keys(node.input).forEach(key => {
       input[key] = {};
-      //Each children is connected to an input, named by 'key'
-      //This assumes that the renderer will only return a single value.
-      //How do we handle multiple return values?
+      // Each children is connected to an input, named by 'key'
+      // This assumes that the renderer will only return a single value.
+      // How do we handle multiple return values?
       let output = this.renderRecursive(node.input[key].node);
-      //AAAh!
+      // AAAh!
       input[key] = output[node.input[key].name];
-      //Object.assign(input[key], output[node.input[key].name]);
+      // Object.assign(input[key], output[node.input[key].name]);
     });
     if(node.id === 0) {
       return input;
@@ -147,7 +169,6 @@ export default class Renderer {
       cache.input = node.input;
       cache.isDirty = false;
     }
-    //shader.compile(this.gl);
     return cache.output;
   }
 

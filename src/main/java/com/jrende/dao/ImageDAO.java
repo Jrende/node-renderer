@@ -38,7 +38,8 @@ public class ImageDAO {
     private Image getImageFromResultsSet(ResultSet resultSet) throws SQLException {
         String source = resultSet.getString("source");
         long id = resultSet.getLong("image_id");
-        return new Image(id, source);
+        String userId = resultSet.getString("user_id");
+        return new Image(id, source, userId);
     }
 
     public List<Image> getImages() {
@@ -77,7 +78,7 @@ public class ImageDAO {
             ResultSet result = saveImage.executeQuery();
             result.next();
             long id = result.getLong("image_id");
-            return new Image(id, source);
+            return new Image(id, source, userId);
         } catch (SQLException e) {
             e.printStackTrace();
         }

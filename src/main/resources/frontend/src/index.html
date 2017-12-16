@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet">
   </head>
   <body>
-    <div id="root" class="app"></div>
+    <div id="root" class="editor"></div>
+    <script th:inline="javascript" type="text/javascript">
+
+window.initialGraph = <%= "[(\${image})]" %>
+    </script>
   </body>
 </html>

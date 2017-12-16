@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import SvgRenderer from '../../components/editor/svg/SvgRenderer';
-import * as actions from '../../actions';
+import SvgRenderer from '../components/svg/SvgRenderer';
+import * as actions from '../actions';
 
 function getConnections(graph) {
   let ret = [];
@@ -45,10 +45,10 @@ const mapDispatchToProps = dispatch => (
     removeConnection: (nodeId, connectionName) => {
       dispatch(actions.removeConnection(nodeId, connectionName));
     },
-    removeNode: (nodeId, connectionName) => {
+    removeNode: (nodeId) => {
       dispatch(actions.removeNode(nodeId));
     },
-    selectNode: (nodeId, value) => {
+    selectNode: (nodeId) => {
       dispatch(actions.selectNode(nodeId));
     }
   }

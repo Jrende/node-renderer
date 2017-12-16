@@ -1,10 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import RenderCanvas from '../../components/editor/RenderCanvas';
+import RenderCanvas from '../components/RenderCanvas';
 
 function getRootNote(graph) {
   let nodes = [];
+  // TODO: Do this without assigning to state
   graph.forEach(node => nodes[node.id] = node);
   let newGraph = graph.map(node => {
     let inputs = Object.assign({}, node.input);
@@ -19,11 +18,11 @@ function getRootNote(graph) {
   return newGraph.find(node => node.id === 0);
 }
 
-const mapStateToProps = state => {
-  return {
+const mapStateToProps = state => (
+  {
     rootNode: getRootNote(state.nodes.graph)
-  };
-};
+  }
+);
 
 const Component = connect(
   mapStateToProps

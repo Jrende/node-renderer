@@ -5,13 +5,13 @@ let initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case "REQUEST_IMAGES": {
+    case 'REQUEST_IMAGES': {
       return {
         isLoading: true,
         images: state.images
       };
     }
-    case "RECEIVE_IMAGES": {
+    case 'RECEIVE_IMAGES': {
       return {
         images: action.images,
         isLoading: false

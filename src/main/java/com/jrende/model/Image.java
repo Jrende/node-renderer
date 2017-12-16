@@ -5,9 +5,10 @@ public class Image {
     String source;
     String userId;
 
-    public Image(long id, String source) {
+    public Image(long id, String source, String userId) {
         this.id = id;
         this.source = source;
+        this.userId = userId;
     }
 
     public long getId() {
