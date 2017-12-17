@@ -12,9 +12,11 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +46,7 @@ public class ImageResource {
         JsonObject imageData = new JsonObject();
         imageData.addProperty("id", image.getId());
         imageData.addProperty("source", "/api/" + image.getId() + "/source");
-        imageData.addProperty("thumbnail", "/api/" + image.getId() + "/thumbnail");
+        imageData.addProperty("thumbnail", "/static/thumbnails/thumb-" + image.getId() + ".png");
         imageData.addProperty("forks", "/api/" + image.getId() + "/forks");
         return imageData.toString();
     }
@@ -56,23 +58,33 @@ public class ImageResource {
             @FormDataParam("source") String source,
             @FormDataParam("thumbnail") String thumbnail,
             @Context HttpServletRequest req,
-            @Context HttpServletResponse res) {
+            @Context HttpServletResponse res) throws IOException {
         //TODO: Sanity check, has at least one finalOutput node, etc.
         Image image = ImageDAO.getInstance().saveImage(ImageOptimizer.optimizeGraph(source), req.getSession().getId());
+        saveThumbnailToFile(image.getId(), thumbnail);
         res.setStatus(Status.CREATED.getStatusCode());
         return image.getId();
     }
 
+    private void saveThumbnailToFile(long id, String thumbnail) throws IOException {
+        String str = thumbnail.substring(thumbnail.indexOf(',') + 1);
+        byte[] decode = Base64.getDecoder().decode(str);
+        Files.write(Paths.get("src", "main", "webapp", "static", "thumbnails", "thumb-" + id + ".png"), decode, StandardOpenOption.CREATE);
+    }
+
     @GET
-    @Path("/{id}/source")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getImageSource(@PathParam("id") long id, @Context HttpServletRequest req, @Context HttpServletResponse res) throws IOException {
-        Image image = ImageDAO.getInstance().getImage(id);
-        if (image == null || id == 0) {
-            res.sendError(404, "Image with id " + id + " not found");
-            return null;
+    @Path("/{id}/thumbnail")
+    @Produces("image/png")
+    public void getThumbnail(@PathParam("id") long id, @Context HttpServletRequest req, @Context HttpServletResponse res) {
+        try {
+            byte[] thumbnails = Files.readAllBytes(Paths.get("src", "main", "webapp", "static", "thumbnails", "thumb-" + id + ".png"));
+            res.setStatus(200);
+            res.setContentType("image/png");
+            res.setContentLength(thumbnails.length);
+            res.getOutputStream().write(thumbnails);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return image.getSource();
     }
 
     @POST
@@ -90,10 +102,11 @@ public class ImageResource {
             res.sendError(404, "Image with id " + id + " not found");
             return;
         }
-        if (req.getSession().getId().equals(image.getUserId())) {
+//        if (req.getSession().getId().equals(image.getUserId())) {
             ImageDAO.getInstance().updateImage(id, ImageOptimizer.optimizeGraph(source));
-        } else {
-            res.sendError(Status.FORBIDDEN.getStatusCode());
-        }
+            saveThumbnailToFile(id, thumbnail);
+//        } else {
+//            res.sendError(Status.FORBIDDEN.getStatusCode());
+//        }
     }
 }
