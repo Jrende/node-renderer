@@ -10,8 +10,8 @@ const mapStateToProps = state => (
 
 const mapDispatchToProps = dispatch => (
   {
-    saveImage: (imageId, graph, idChangedCallback) => {
-      dispatch(saveImage(imageId, graph, idChangedCallback));
+    saveImage: (imageId, graph, image, idChangedCallback) => {
+      dispatch(saveImage(imageId, graph, image, idChangedCallback));
     },
   }
 );

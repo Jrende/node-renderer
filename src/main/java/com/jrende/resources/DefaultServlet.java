@@ -54,6 +54,13 @@ public class DefaultServlet extends HttpServlet {
 
     }
 
+    public static boolean isPositiveInt(String str) {
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) return false;
+        }
+        return true;
+    }
+
     private void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setCharacterEncoding("utf-8");
         String id = request.getRequestURI().substring(1);
@@ -63,8 +70,8 @@ public class DefaultServlet extends HttpServlet {
         }
         WebContext ctx = new WebContext(request, response, this.getServletContext(), request.getLocale());
         String template;
-        if (!id.isEmpty()) {
-            if(!id.equals("0")) {
+        if (!id.isEmpty() && isPositiveInt(id)) {
+            if (!id.equals("0")) {
                 Image image = ImageDAO.getInstance().getImage(Integer.parseInt(id));
                 ctx.setVariable("image", image.getSource());
             }

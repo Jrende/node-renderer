@@ -53,7 +53,8 @@ export function fetchSource(id) {
   };
 }
 
-export function saveImage(id, graph, idChangedCallback) {
+/* global FormData, Blob */
+export function saveImage(id, graph, thumbnail, idChangedCallback) {
   let newGraph = JSON.parse(JSON.stringify(graph));
   newGraph.forEach(node => {
     Object.keys(node.input).forEach(key => {
@@ -65,15 +66,18 @@ export function saveImage(id, graph, idChangedCallback) {
   return (dispatch) => {
     dispatch(saveRequest());
 
-    // image with id 0 is "special".
+    // image with id 0 is 'special'.
     // We never save to that, instead we create a new image
     let url = '/api/images';
     if(id !== 0) {
       url += `/${id}/source`;
     }
+    let formData = new FormData();
+    formData.append('source', new Blob([JSON.stringify(newGraph)], { type: 'application/json' }));
+    formData.append('thumbnail', new Blob([thumbnail], { type: 'text/plain' }));
     fetch(url, {
       method: 'POST',
-      body: JSON.stringify(newGraph),
+      body: formData,
       credentials: 'include'
     }).then(
       response => {

@@ -28,6 +28,8 @@ function hashCode(string) {
 };
 / *eslint-enable */
 
+let lastRootNode;
+
 /* global performance */
 export default class Renderer {
   constructor(canvas) {
@@ -60,10 +62,18 @@ export default class Renderer {
     this.renderFunctions = {};
     this.shaders = new ShaderBuilder(this.gl);
     this.shader = this.shaders.getShader('texture');
+    window.renderLastFrame = this.renderLastFrame.bind(this);
+  }
+
+  renderLastFrame() {
+    if(lastRootNode !== undefined) {
+      this.render(lastRootNode, true);
+    }
   }
 
   render(rootNode, forceUpdate = false) {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    lastRootNode = rootNode;
     if(Object.keys(rootNode.input).length > 0) {
       console.log(`Render ${hashCode(JSON.stringify(rootNode))}`);
       this.prerender(rootNode, forceUpdate);

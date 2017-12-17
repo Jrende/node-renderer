@@ -17,6 +17,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
@@ -39,7 +40,7 @@ public class Main {
         http.setIdleTimeout(30000);
         server.addConnector(http);
 
-        ContextHandler staticResourceHandler = new ContextHandler("/static/");
+        ContextHandler staticResourceHandler = new ContextHandler("/static");
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setResourceBase("src/main/webapp/static");
@@ -62,6 +63,7 @@ public class Main {
 
         //Create Jersey servlet
         ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(MultiPartFeature.class);
         resourceConfig.packages("com.jrende.resources");
         ServletHolder servletHolder = new ServletHolder(new ServletContainer(resourceConfig));
         servletHolder.setInitOrder(1);

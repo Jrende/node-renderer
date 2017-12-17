@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.jrende.dao.ImageDAO;
 import com.jrende.model.Image;
 import com.jrende.model.ImageOptimizer;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +13,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,7 @@ public class ImageResource {
     public ImageResource() {
         gson = new GsonBuilder().disableHtmlEscaping().create();
     }
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +51,12 @@ public class ImageResource {
 
 
     @POST
-    public long createNewImage(String source, @Context HttpServletRequest req, @Context HttpServletResponse res) {
+    @Consumes("multipart/form-data")
+    public long createNewImage(
+            @FormDataParam("source") String source,
+            @FormDataParam("thumbnail") String thumbnail,
+            @Context HttpServletRequest req,
+            @Context HttpServletResponse res) {
         //TODO: Sanity check, has at least one finalOutput node, etc.
         Image image = ImageDAO.getInstance().saveImage(ImageOptimizer.optimizeGraph(source), req.getSession().getId());
         res.setStatus(Status.CREATED.getStatusCode());
@@ -69,7 +78,13 @@ public class ImageResource {
     @POST
     @Path("/{id}/source")
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateImageSource(@PathParam("id") long id, String source, @Context HttpServletRequest req, @Context HttpServletResponse res) throws IOException {
+    @Consumes("multipart/form-data")
+    public void updateImageSource(
+            @PathParam("id") long id,
+            @FormDataParam("source") String source,
+            @FormDataParam("thumbnail") String thumbnail,
+            @Context HttpServletRequest req,
+            @Context HttpServletResponse res) throws IOException {
         Image image = ImageDAO.getInstance().getImage(id);
         if (image == null) {
             res.sendError(404, "Image with id " + id + " not found");
