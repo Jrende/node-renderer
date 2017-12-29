@@ -4,6 +4,8 @@ import textureFrag from './glsl/textureShader.frag';
 import textureVert from './glsl/textureShader.vert';
 import blendFrag from './glsl/blend.frag';
 import blendVert from './glsl/blend.vert';
+import hueSaturationFrag from './glsl/hueSaturation.frag';
+import hueSaturationVert from './glsl/hueSaturation.vert';
 import blurFrag from './glsl/blur.frag';
 import blurVert from './glsl/blur.vert';
 import cloudFrag from './glsl/cloud.frag';
@@ -17,6 +19,7 @@ function buildShader(name) {
     case "solid": return new Shader({frag: solidFrag, vert: solidVert});
     case "blur": return new Shader({frag: blurFrag, vert: blurVert});
     case "blend": return new Shader({frag: blendFrag, vert: blendVert});
+    case "hueSaturation": return new Shader({frag: hueSaturationFrag, vert: hueSaturationVert});
   }
 }
 

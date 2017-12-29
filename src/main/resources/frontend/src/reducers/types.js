@@ -90,125 +90,37 @@ export const types = {
       },
     }
   },
-};
-/*
-  {
-    id: 1,
-    name: 'Blur',
+  hueSaturation: {
+    id: 4,
+    name: 'Hue/Saturation',
     values: {
-      radius: {
-        name: 'Radius',
+      hue: {
+        name: 'Hue',
         type: 'number',
-        max: 10,
-        min: 0
-      }
-    },
-    input: {
-      in: {
-        type: 'FrameBuffer',
-        name: 'Input'
-      }
-    },
-    output: {
-      out: {
-        type: 'FrameBuffer',
-        name: 'Output'
-      },
-    }
-  },
-  {
-    id: 2,
-    name: 'Mix',
-    values: {
-      factor: {
-        name: 'Factor',
-        type: 'number',
-        default: 0.5,
+        default: 0,
         max: 1,
-        min: 0
-      }
-    },
-    input: {
-      left: {
-        type: 'FrameBuffer',
-        name: 'Left'
+        min: -1
       },
-      right: {
-        type: 'FrameBuffer',
-        name: 'Right'
-      }
-    },
-    output: {
-      out: {
-        type: 'FrameBuffer',
-        name: 'Output'
-      },
-    }
-  },
-  {
-    id: 3,
-    name: 'Noise',
-    values: {
-      scale: {
-        name: 'Scale',
+      saturation: {
+        name: 'Saturation',
         type: 'number',
-        max: 200,
-        min: 0
+        default: 0,
+        max: 1,
+        min: -1
       },
-      detail: {
-        name: 'Detail',
-        type: 'number',
-        max: 200,
-        min: 0
-      },
-      distortion: {
-        name: 'Detail',
-        type: 'number',
-        max: 200,
-        min: 0
-      }
-    },
-    output: {
-      out: {
-        type: 'FrameBuffer',
-        name: 'Output'
-      },
-    }
-  },
-  {
-    id: 5,
-    name: 'Checker',
-    values: {
-      color1: {
-        name: 'Color 1',
-        type: 'color'
-      },
-      color2: {
-        name: 'Color 2',
-        type: 'color'
-      }
-    },
-    output: {
-      out: {
-        type: 'FrameBuffer',
-        name: 'Output'
-      },
-    }
-  },
-  {
-    id: 6,
-    name: 'Color Mix',
-    values: {
-      gradient: {
-        name: 'Color gradient',
-        type: 'gradient'
+      lightness: {
+        name: "Lightness",
+        type: "number",
+        default: 0,
+        max: 1,
+        min: -1
       }
     },
     input: {
       input: {
         type: 'FrameBuffer',
         name: 'Input'
-      },
+      }
     },
     output: {
       out: {
@@ -217,51 +129,7 @@ export const types = {
       },
     }
   },
-  {
-    id: 7,
-    name: 'Test node with a long name',
-    values: {
-      color: {
-        name: 'Color',
-        type: 'color'
-      }
-    },
-    input: {
-      in: {
-        type: 'FrameBuffer',
-        name: 'Input'
-      },
-    },
-    output: {
-      out: {
-        type: 'FrameBuffer',
-        name: '﷽'
-      },
-    }
-  },
-  {
-    id: 8,
-    name: 'Voronoi',
-    values: {
-      scale: {
-        name: 'Scale',
-        type: 'number'
-      }
-    },
-    input: {
-    },
-    output: {
-      color: {
-        type: 'Framebuffer',
-        name: 'Color'
-      },
-      fac: {
-        type: 'Framebuffer',
-        name: 'Fac'
-      }
-    }
-  }
-*/
+};
 
 const typeReducer = (state = types, action) => {
   return state;
