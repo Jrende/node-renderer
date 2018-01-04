@@ -1,4 +1,16 @@
 export const types = {
+  finalOutput: {
+    id: 0,
+    name: 'Output',
+    input: {
+      finalResult: {
+        type: 'FrameBuffer',
+        name: 'Final result'
+      },
+    },
+    output: {},
+    values: {}
+  },
   clouds: {
     id: 1,
     name: 'Clouds',
@@ -109,8 +121,8 @@ export const types = {
         min: -1
       },
       lightness: {
-        name: "Lightness",
-        type: "number",
+        name: 'Lightness',
+        type: 'number',
         default: 0,
         max: 1,
         min: -1

@@ -1,3 +1,7 @@
+import { types } from './types';
+
+let typeValues = Object.values(types);
+
 let initialState = {
   selectedNode: -1,
   graph: [
@@ -6,18 +10,7 @@ let initialState = {
       pos: [0, 0],
       input: {},
       values: {},
-      type: {
-        id: 0,
-        name: 'Output',
-        input: {
-          finalResult: {
-            type: 'FrameBuffer',
-            name: 'Final result'
-          },
-        },
-        output: {},
-        values: {}
-      }
+      type: types.finalOutput
     }
   ]
 };
@@ -46,8 +39,12 @@ const nodes = (state = initialState, action) => {
     case 'CREATE_NODE': {
       let ids = state.graph.map(n => n.id).sort();
       let newId = ids[ids.length - 1] + 1;
-      let newNode = Object.assign({}, action.node, {
+      let type = typeValues.find(t => t.id === action.node.type);
+
+      let newNode = Object.assign({}, {
         id: newId,
+        type,
+        pos: action.node.pos,
         input: {},
         values: {}
       });
@@ -74,12 +71,13 @@ const nodes = (state = initialState, action) => {
       return newState;
     }
     case 'CONNECT_NODES': {
+      let fromNode = state.graph.find(node => node.id === action.from.id);
       let newGraph = state.graph.map(node => {
         if(node.id === action.to.id) {
           return Object.assign({}, node, {
             input: Object.assign({}, node.input, {
               [action.to.name]: {
-                id: action.from.id,
+                node: fromNode,
                 name: action.from.name
               }
             })
@@ -113,9 +111,9 @@ const nodes = (state = initialState, action) => {
           if(node.output != null) {
             outputs = Object.keys(node.output);
           }
-          outputs = outputs.filter(key => node.output[key].id === action.id);
+          outputs = outputs.filter(key => node.output[key].node.id === action.id);
           let inputs = Object.keys(node.input);
-          inputs = inputs.filter(key => node.input[key].id === action.id);
+          inputs = inputs.filter(key => node.input[key].node.id === action.id);
           if(outputs.length > 0 || inputs.length > 0) {
             let newNode = JSON.parse(JSON.stringify(node));
             outputs.forEach(thing => {

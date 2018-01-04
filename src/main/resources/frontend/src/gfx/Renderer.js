@@ -108,7 +108,8 @@ export default class Renderer {
 
   createRenderers(node) {
     Object.keys(node.input).forEach(key => {
-      this.createRenderers(node.input[key].node);
+      let inputNode = node.input[key].node
+      this.createRenderers(inputNode);
     });
     if(this.renderCache[node.id] == null) {
       let cache = {
@@ -174,6 +175,7 @@ export default class Renderer {
     }
     let cache = this.renderCache[node.id];
     if(cache.isDirty) {
+      console.log("Render " + node.id + "-" + node.type.name + "!");
       cache.output = this.renderCache[node.id].render(node.values, input);
       cache.values = node.values;
       cache.input = node.input;

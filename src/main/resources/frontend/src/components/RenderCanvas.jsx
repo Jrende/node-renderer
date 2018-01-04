@@ -25,6 +25,7 @@ class RenderCanvas extends React.Component {
   }
 
   render() {
+    console.log('rendercanvas.render');
     if(this.renderer) {
       this.renderer.render(this.props.rootNode);
     }

@@ -13,7 +13,7 @@ function getConnections(graph) {
             name: key
           },
           to: {
-            id: node.input[key].id,
+            id: node.input[key].node.id,
             name: node.input[key].name
           }
         });

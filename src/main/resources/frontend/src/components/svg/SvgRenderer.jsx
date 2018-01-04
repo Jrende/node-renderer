@@ -73,7 +73,7 @@ class SvgRenderer extends React.Component {
     if(grabConnectorType === 'input') {
       let node = this.props.graph.find(n => n.id === grabNodeId);
       if(node.input[grabNodeName] !== undefined) {
-        let outputNode = this.props.graph.find(n => n.id === node.input[grabNodeName].id);
+        let outputNode = node.input[grabNodeName].node;
         this.props.removeConnection(grabNodeId, grabNodeName);
         grabNodeId = outputNode.id;
         grabNodeName = node.input[grabNodeName].name;
@@ -253,7 +253,7 @@ class SvgRenderer extends React.Component {
     this.point.y = event.clientY;
     let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
     let newNode = {
-      type,
+      type: type.id,
       pos: [
         newCoords.x - nodeLayout.width / 2.0,
         newCoords.y - nodeLayout.height / 2.0
