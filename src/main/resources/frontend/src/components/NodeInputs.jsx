@@ -8,7 +8,7 @@ import './NodeInputs.less';
 
 class NodeInputs extends React.Component {
   onValueChange(name, value) {
-    this.props.changeValue(this.props.selectedNode.id, { [name]: value });
+    this.props.changeValue(this.props.id, { [name]: value });
   }
 
   render() {
@@ -64,6 +64,7 @@ class NodeInputs extends React.Component {
 
 NodeInputs.propTypes = {
   selectedNode: PropTypes.object.isRequired,
+  id: PropTypes.number.isRequired,
   changeValue: PropTypes.func.isRequired,
 };
 

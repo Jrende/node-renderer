@@ -21,11 +21,11 @@ export function connectNodes(from, to) {
   };
 }
 
-export function removeConnection(nodeId, connectionName) {
+export function removeConnection(from, to) {
   return {
     type: 'REMOVE_CONNECTION',
-    id: nodeId,
-    connectionName
+    from,
+    to
   };
 }
 

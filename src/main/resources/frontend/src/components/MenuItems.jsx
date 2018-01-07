@@ -32,7 +32,8 @@ class MenuItems extends React.Component {
     let id = +location.pathname.substr(1);
     // Lets do something very ugly
     let img = getImg(200, 100);
-    this.props.saveImage(id, this.props.graph, img, (newId) => {
+    let src = { nodes: this.props.nodes, connections: this.props.connections };
+    this.props.saveImage(id, src, img, (newId) => {
       // Possibly the wrong place to mess around with history
       history.replaceState({}, '?', `/${newId}`);
     });
@@ -47,8 +48,9 @@ class MenuItems extends React.Component {
 }
 
 MenuItems.propTypes = {
-  saveImage: PropTypes.func.isRequired,
-  graph: PropTypes.array.isRequired
+  nodes: PropTypes.array.isRequired,
+  connections: PropTypes.array.isRequired,
+  saveImage: PropTypes.func.isRequired
 };
 
 export default MenuItems;

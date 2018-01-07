@@ -4,7 +4,8 @@ import { saveImage } from '../actions/api';
 
 const mapStateToProps = state => (
   {
-    graph: state.nodes.graph
+    nodes: state.graph.nodes,
+    connections: state.graph.connections
   }
 );
 

@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import SvgRenderer from '../components/svg/SvgRenderer';
 import * as actions from '../actions';
 
+/*
 function getConnections(graph) {
   let ret = [];
   graph.forEach(node => {
@@ -22,12 +23,13 @@ function getConnections(graph) {
   });
   return ret;
 }
+*/
 
 const mapStateToProps = state => (
   {
-    connections: getConnections(state.nodes.graph),
-    graph: state.nodes.graph,
-    selectedNode: state.nodes.selectedNode
+    connections: state.graph.connections,
+    nodes: state.graph.nodes,
+    selectedNode: state.graph.selectedNode
   }
 );
 

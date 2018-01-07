@@ -106,38 +106,40 @@ export default class Renderer {
     performance.measure('calculate diff', 'start calculateDiff', 'end calculateDiff');
   }
 
-  createRenderers(node) {
-    Object.keys(node.input).forEach(key => {
-      let inputNode = node.input[key].node
+  createRenderers(graphNode) {
+    Object.keys(graphNode.input).forEach(key => {
+      let inputNode = graphNode.input[key];
       this.createRenderers(inputNode);
     });
-    if(this.renderCache[node.id] == null) {
+    let node = graphNode.node;
+    if(this.renderCache[graphNode.id] == null) {
       let cache = {
         isDirty: true,
         values: {},
         input: {},
         output: undefined
       };
-      if(node.id !== 0) {
-        if(this.renderFunctions[node.id] === undefined) {
+      if(graphNode.id !== 0) {
+        if(this.renderFunctions[graphNode.id] === undefined) {
           let Ctor = getRenderer(node.type);
           let renderer = new Ctor(this.gl, this.shaders);
-          this.renderFunctions[node.id] = renderer.render.bind(renderer);
+          this.renderFunctions[graphNode.id] = renderer.render.bind(renderer);
         }
-        cache.render = this.renderFunctions[node.id];
+        cache.render = this.renderFunctions[graphNode.id];
       }
-      this.renderCache[node.id] = cache;
+      this.renderCache[graphNode.id] = cache;
     }
   }
 
-  calculateDiff(node) {
-    let cache = this.renderCache[node.id];
-    Object.keys(node.input).forEach(key => {
-      let hasChanged = this.calculateDiff(node.input[key].node);
+  calculateDiff(graphNode) {
+    let cache = this.renderCache[graphNode.id];
+    Object.keys(graphNode.input).forEach(key => {
+      let hasChanged = this.calculateDiff(graphNode.input[key]);
       if(hasChanged) {
         cache.isDirty = true;
       }
     });
+    let node = graphNode.node;
     let values = Object.keys(node.values);
     for(let i = 0; i < values.length; i++) {
       let key = values[i];
@@ -146,39 +148,39 @@ export default class Renderer {
         return true;
       }
     }
-    let inputs = Object.keys(node.input);
+    let inputs = Object.keys(graphNode.input);
     for(let i = 0; i < inputs.length; i++) {
       let key = inputs[i];
-      if(node.input[key] !== cache.input[key]) {
+      if(graphNode.input[key] !== cache.input[key]) {
         cache.isDirty = true;
         return true;
       }
     }
-    return this.renderCache[node.id].isDirty;
+    return this.renderCache[graphNode.id].isDirty;
   }
 
-  renderRecursive(node) {
+  renderRecursive(graphNode) {
     let input = {};
+    let node = graphNode.node;
     // To render this, I first need to render its children
-    Object.keys(node.input).forEach(key => {
-      input[key] = {};
+    Object.keys(graphNode.input).forEach(key => {
       // Each children is connected to an input, named by 'key'
       // This assumes that the renderer will only return a single value.
       // How do we handle multiple return values?
-      let output = this.renderRecursive(node.input[key].node);
+      let output = this.renderRecursive(graphNode.input[key]);
       // AAAh!
-      input[key] = output[node.input[key].name];
+      input[key] = output[graphNode.input[key].name];
       // Object.assign(input[key], output[node.input[key].name]);
     });
-    if(node.id === 0) {
+    if(graphNode.id === 0) {
       return input;
     }
-    let cache = this.renderCache[node.id];
+    let cache = this.renderCache[graphNode.id];
     if(cache.isDirty) {
-      console.log("Render " + node.id + "-" + node.type.name + "!");
-      cache.output = this.renderCache[node.id].render(node.values, input);
+      console.log("Render " + graphNode.id + "-" + node.type.name + "!");
+      cache.output = this.renderCache[graphNode.id].render(node.values, input);
       cache.values = node.values;
-      cache.input = node.input;
+      cache.input = graphNode.input;
       cache.isDirty = false;
     }
     return cache.output;

@@ -20,8 +20,14 @@ class ColorInput extends React.Component {
     let color = tinycolor(value);
     return (
       <fieldset>
-        <label htmlFor={name}>{type.name}</label>
-        <input onChange={this.onChange} type="color" value={color.toHexString()} />
+        <label htmlFor={name}>
+          {type.name}: <input
+            id={name}
+            onChange={this.onChange}
+            type="color"
+            value={color.toHexString()}
+          />
+        </label>
       </fieldset>
     );
   }

@@ -54,9 +54,9 @@ class SvgRenderer extends React.Component {
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
-    let c = transformPointToSvgSpace([event.clientX, event.clientY], this.svg);
-    let grabTo = c;
-    let grabFrom = c;
+    let coord = transformPointToSvgSpace([event.clientX, event.clientY], this.svg);
+    let grabTo = coord;
+    let grabFrom = coord;
 
     let grabNodeName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
     let grabNodeId = -1;
@@ -71,12 +71,13 @@ class SvgRenderer extends React.Component {
 
     let grabConnectorType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
     if(grabConnectorType === 'input') {
-      let node = this.props.graph.find(n => n.id === grabNodeId);
-      if(node.input[grabNodeName] !== undefined) {
-        let outputNode = node.input[grabNodeName].node;
-        this.props.removeConnection(grabNodeId, grabNodeName);
-        grabNodeId = outputNode.id;
-        grabNodeName = node.input[grabNodeName].name;
+      let existingConnection = this.props.connections.find(c =>
+        c.to.id === grabNodeId && c.to.name === grabNodeName);
+      if(existingConnection !== undefined) {
+        let outputNode = this.props.nodes[existingConnection.from.id];
+        this.props.removeConnection(existingConnection.from, existingConnection.to);
+        grabNodeId = existingConnection.from.id;
+        grabNodeName = existingConnection.from.name;
         grabConnectorType = 'output';
         grabFrom = this.getNodeLayout(outputNode.type).getConnectorPos(grabNodeName);
         grabFrom[0] += outputNode.pos[0] + 15;
@@ -94,11 +95,11 @@ class SvgRenderer extends React.Component {
     });
   }
 
-  onElementMouseDown(event, node) {
-    this.props.selectNode(node.id);
+  onElementMouseDown(event, id) {
+    this.props.selectNode(+id);
     this.setState({
       grabMode: 'element',
-      grabNodeId: node.id,
+      grabNodeId: +id,
       lastPos: [event.clientX, event.clientY]
     });
   }
@@ -120,7 +121,7 @@ class SvgRenderer extends React.Component {
 
       switch(this.state.grabMode) {
         case 'element': {
-          let node = this.props.graph.find(item => item.id === this.state.grabNodeId);
+          let node = this.props.nodes[this.state.grabNodeId];
           let newPos = addInSvgSpace(node.pos, [dx, dy], this.svg);
           this.props.setNodeLocation(this.state.grabNodeId, newPos);
           break;
@@ -267,27 +268,32 @@ class SvgRenderer extends React.Component {
   }
 
   render() {
-    let { graph, connections, selectedNode } = this.props;
+    let { nodes, connections, selectedNode } = this.props;
     let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
-    let nodes = graph.sort((a, b) => a.pos[0] - b.pos[0]).map(node => (
-      <SvgNode
-        key={node.id}
-        node={node}
-        selected={selectedNode === node.id}
-        nodeLayout={this.getNodeLayout(node.type)}
-        onConnectorMouseUp={this.onConnectorMouseUp}
-        onConnectorMouseDown={this.onConnectorMouseDown}
-        onElementMouseDown={event => this.onElementMouseDown(event, node)}
-      />
-    ));
+    let nodeElements = Object.entries(nodes)
+      .sort((a, b) => a[1].pos[0] - b[1].pos[0])
+      .map(entry => {
+        let id = +entry[0];
+        let node = entry[1];
+        return (<SvgNode
+          key={id}
+          id={id}
+          node={node}
+          selected={selectedNode === id}
+          nodeLayout={this.getNodeLayout(node.type)}
+          onConnectorMouseUp={this.onConnectorMouseUp}
+          onConnectorMouseDown={this.onConnectorMouseDown}
+          onElementMouseDown={event => this.onElementMouseDown(event, id)}
+        />);
+      });
 
     let lines = connections.map((connection) => {
-      let node1 = graph.find(node => node.id === connection.from.id);
+      let node1 = nodes[connection.from.id];
       let fromPos = this.getNodeLayout(node1.type).getConnectorPos(connection.from.name);
       fromPos[0] += node1.pos[0] - 15;
       fromPos[1] += node1.pos[1] - 5;
-      let node2 = graph.find(node => node.id === connection.to.id);
+      let node2 = nodes[connection.to.id];
       let toPos = this.getNodeLayout(node2.type).getConnectorPos(connection.to.name);
       toPos[0] += node2.pos[0] + 15;
       toPos[1] += node2.pos[1] - 5;
@@ -339,14 +345,14 @@ class SvgRenderer extends React.Component {
       >
         {lines}
         {connectorLine}
-        {nodes}
+        {nodeElements}
       </svg>
     );
   }
 }
 
 SvgRenderer.propTypes = {
-  graph: PropTypes.array.isRequired,
+  nodes: PropTypes.array.isRequired,
   connections: PropTypes.array.isRequired,
   createNewNode: PropTypes.func.isRequired,
   removeConnection: PropTypes.func.isRequired,

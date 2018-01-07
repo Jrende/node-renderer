@@ -4,7 +4,7 @@ import { loadEmptyGraph, setGraph } from '../actions';
 
 const mapStateToProps = state => (
   {
-    selectedNode: state.nodes.selectedNode
+    selectedNode: state.graph.selectedNode
   }
 );
 

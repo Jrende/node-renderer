@@ -12,7 +12,7 @@
     <div id="root" class="editor"></div>
     <script th:inline="javascript" type="text/javascript">
 
-window.initialGraph = <%= "[(\${image})]" %>
+      window.initialGraph = <%= "[(\${image != null ? image : {}})]" %>
     </script>
   </body>
 </html>

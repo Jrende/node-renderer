@@ -13,9 +13,9 @@ class RenderCanvas extends React.Component {
   componentDidMount() {
     if(this.canvas !== undefined) {
       this.renderer = new Renderer(this.canvas);
-      this.renderer.render(this.props.rootNode);
+      this.renderer.render(this.props.graph);
       window.onresize = () => {
-        this.renderer.render(this.props.rootNode, true);
+        this.renderer.render(this.props.graph, true);
       };
     }
   }
@@ -25,9 +25,8 @@ class RenderCanvas extends React.Component {
   }
 
   render() {
-    console.log('rendercanvas.render');
     if(this.renderer) {
-      this.renderer.render(this.props.rootNode);
+      this.renderer.render(this.props.graph);
     }
     return (<canvas
       width="1024"
@@ -39,7 +38,7 @@ class RenderCanvas extends React.Component {
 }
 
 RenderCanvas.propTypes = {
-  rootNode: PropTypes.object.isRequired
+  graph: PropTypes.object.isRequired,
 };
 
 export default RenderCanvas;

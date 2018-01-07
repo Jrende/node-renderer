@@ -4,6 +4,7 @@ import './SvgNode.less';
 
 export default function SvgNode(props) {
   let {
+    id,
     node,
     onElementMouseDown,
     onConnectorMouseDown,
@@ -72,7 +73,7 @@ export default function SvgNode(props) {
       transform={`translate(${node.pos[0]} ${node.pos[1]})`}
       onMouseDown={onElementMouseDown}
       onMouseUp={onMouseUp}
-      data-node-id={node.id}
+      data-node-id={id}
     >
       <rect className="node-body" width={width} height={height} rx="5" ry="5" fill="#d4d4d4" />
       <text className="title" transform="translate(5 16)">{node.type.name}</text>
@@ -88,6 +89,7 @@ export default function SvgNode(props) {
 }
 
 SvgNode.propTypes = {
+  id: PropTypes.number.isRequired,
   node: PropTypes.object.isRequired,
   nodeLayout: PropTypes.object.isRequired,
   selected: PropTypes.bool.isRequired,

@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
-import nodes from './nodes';
+import graph from './graph';
 import types from './types';
 
 const reducer = combineReducers({
-  nodes,
+  graph,
   types
 });
 
