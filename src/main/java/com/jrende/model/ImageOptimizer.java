@@ -6,8 +6,9 @@ public class ImageOptimizer {
     private static Gson gson = new Gson();
 
     public static String optimizeGraph(String source) {
-        JsonArray jsonArray = gson.fromJson(source, JsonArray.class);
-        makeFinalOutputOrigo(jsonArray);
+        JsonObject jsonArray = gson.fromJson(source, JsonObject.class);
+
+        makeFinalOutputOrigo(jsonArray.getAsJsonArray("nodes"));
         String output = jsonArray.toString();
         return output;
     }
@@ -19,17 +20,7 @@ public class ImageOptimizer {
 
     private static void makeFinalOutputOrigo(JsonArray jsonArray) throws IllegalArgumentException {
         Float xZero = 0.0f, yZero = 0.0f;
-        JsonObject finalOutput = null;
-        for (JsonElement jsonElement : jsonArray) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            if (jsonObject.get("id").getAsNumber().intValue() == 0) {
-                finalOutput = jsonObject;
-                break;
-            }
-        }
-        if(finalOutput == null) {
-            throw new IllegalArgumentException("Missing final output node!");
-        }
+        JsonObject finalOutput = jsonArray.get(0).getAsJsonObject();
         JsonArray outputPos = finalOutput.get("pos").getAsJsonArray();
         xZero = outputPos.get(0).getAsFloat();
         yZero = outputPos.get(1).getAsFloat();

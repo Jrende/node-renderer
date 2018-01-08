@@ -103,8 +103,28 @@ public class ImageResource {
             return;
         }
 //        if (req.getSession().getId().equals(image.getUserId())) {
-            ImageDAO.getInstance().updateImage(id, ImageOptimizer.optimizeGraph(source));
-            saveThumbnailToFile(id, thumbnail);
+        ImageDAO.getInstance().updateImage(id, ImageOptimizer.optimizeGraph(source));
+        saveThumbnailToFile(id, thumbnail);
+//        } else {
+//            res.sendError(Status.FORBIDDEN.getStatusCode());
+//        }
+    }
+
+    @GET
+    @Path("/{id}/source")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getImageSource(
+            @PathParam("id") long id,
+            @Context HttpServletRequest req,
+            @Context HttpServletResponse res) throws IOException {
+        Image image = ImageDAO.getInstance().getImage(id);
+        if (image == null) {
+            res.sendError(404, "Image with id " + id + " not found");
+            return null;
+        }
+        return image.getSource();
+
+//        if (req.getSession().getId().equals(image.getUserId())) {
 //        } else {
 //            res.sendError(Status.FORBIDDEN.getStatusCode());
 //        }

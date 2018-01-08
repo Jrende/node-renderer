@@ -75,7 +75,6 @@ export default class Renderer {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     lastRootNode = rootNode;
     if(Object.keys(rootNode.input).length > 0) {
-      console.log(`Render ${hashCode(JSON.stringify(rootNode))}`);
       this.prerender(rootNode, forceUpdate);
       performance.mark('start render');
       let { finalResult } = this.renderRecursive(rootNode);
@@ -177,7 +176,6 @@ export default class Renderer {
     }
     let cache = this.renderCache[graphNode.id];
     if(cache.isDirty) {
-      console.log("Render " + graphNode.id + "-" + node.type.name + "!");
       cache.output = this.renderCache[graphNode.id].render(node.values, input);
       cache.values = node.values;
       cache.input = graphNode.input;

@@ -80,10 +80,11 @@ const nodes = (state = initialState, action) => {
       });
     }
     case 'REMOVE_CONNECTION': {
-      let newConnections = state.connections.filter(connection =>
-        connection.from.id !== action.from.id && connection.from.name !== action.from.name &&
-        connection.to.id !== action.to.id && connection.to.name !== action.to.name
-      );
+      let newConnections = state.connections
+        .filter(connection =>
+          connection.from !== action.from &&
+          connection.to !== action.to
+        );
       return Object.assign({}, state, {
         connections: newConnections
       });
@@ -116,8 +117,8 @@ const nodes = (state = initialState, action) => {
     case 'SET_GRAPH': {
       return Object.assign({}, state, {
         selectedNode: -1,
-        graph: action.graph,
-        connections: action.connections
+        nodes: action.graph.nodes,
+        connections: action.graph.connections
       });
     }
     case 'LOAD_EMPTY_GRAPH': {
