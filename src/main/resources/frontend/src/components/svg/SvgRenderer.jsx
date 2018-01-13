@@ -16,8 +16,8 @@ class SvgRenderer extends React.Component {
       grabNodeId: -1,
       lastPos: [0, 0],
       // pan: [336.9835205078125, -422.49603271484375],
-      pan: [0.5, 0.5],
-      zoom: 1
+      pan: [200, -50],
+      zoom: 0.4
     };
 
     [
@@ -36,7 +36,7 @@ class SvgRenderer extends React.Component {
 
   // TODO: Zoom towards mouse pointer or center of screen
   onWheel(event) {
-    let zoom = this.state.zoom + event.deltaY / 100;
+    let zoom = this.state.zoom + event.deltaY / 200;
     if(zoom > 0) {
       this.setState({
         zoom
