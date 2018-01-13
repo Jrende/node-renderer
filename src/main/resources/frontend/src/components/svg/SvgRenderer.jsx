@@ -346,7 +346,7 @@ class SvgRenderer extends React.Component {
 
     return (
       <svg
-        style={`z-index: ${zIndex}`}
+        style={{ zIndex }}
         className="node-svg"
         ref={this.setSvg}
         width="100%"
