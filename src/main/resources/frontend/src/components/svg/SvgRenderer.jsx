@@ -1,3 +1,4 @@
+import { mat3 } from 'gl-matrix';
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgRenderer.less';
@@ -14,8 +15,9 @@ class SvgRenderer extends React.Component {
       grabMode: null,
       grabNodeId: -1,
       lastPos: [0, 0],
-      pan: [336.9835205078125, -422.49603271484375],
-      zoom: 265
+      // pan: [336.9835205078125, -422.49603271484375],
+      pan: [0.5, 0.5],
+      zoom: 1
     };
 
     [
@@ -34,8 +36,8 @@ class SvgRenderer extends React.Component {
 
   // TODO: Zoom towards mouse pointer or center of screen
   onWheel(event) {
-    let zoom = this.state.zoom + event.deltaY;
-    if(zoom > -200) {
+    let zoom = this.state.zoom + event.deltaY / 100;
+    if(zoom > 0) {
       this.setState({
         zoom
       });
@@ -54,9 +56,12 @@ class SvgRenderer extends React.Component {
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
-    let coord = transformPointToSvgSpace([event.clientX, event.clientY], this.svg);
-    let grabTo = coord;
+    let coord = transformPointToSvgSpace([event.clientX, event.clientY], this.svg, this.point);
+    let halfSize = [-this.svg.clientWidth / 2.0, -this.svg.clientHeight / 2.0];
+    coord = addInSvgSpace(coord, halfSize, this.svg, this.point);
     let grabFrom = coord;
+    let grabTo = coord;
+
 
     let grabNodeName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
     let grabNodeId = -1;
@@ -119,20 +124,21 @@ class SvgRenderer extends React.Component {
         lastPos: [event.clientX, event.clientY]
       });
 
+      let svgNode = this.svg.querySelector('.svg-node');
       switch(this.state.grabMode) {
         case 'element': {
           let node = this.props.nodes[this.state.grabNodeId];
-          let newPos = addInSvgSpace(node.pos, [dx, dy], this.svg);
+          let newPos = addInSvgSpace(node.pos, [dx, dy], svgNode, this.point);
           this.props.setNodeLocation(this.state.grabNodeId, newPos);
           break;
         }
         case 'connector': {
-          let grabTo = addInSvgSpace(this.state.grabTo, [dx, dy], this.svg);
+          let grabTo = addInSvgSpace(this.state.grabTo, [dx, dy], svgNode, this.point);
           this.setState({ grabTo });
           break;
         }
         case 'canvas': {
-          let pan = addInSvgSpace(this.state.pan, [dx, dy], this.svg);
+          let pan = addInSvgSpace(this.state.pan, [dx, dy], svgNode, this.point);
           this.setState({ pan });
           break;
         }
@@ -185,7 +191,8 @@ class SvgRenderer extends React.Component {
     if(event.target === this.svg) {
       event.stopPropagation();
       let clientPos = [event.clientX, event.clientY];
-      let transformedPos = transformPointToSvgSpace(clientPos, this.svg);
+      let svgNode = this.svg.querySelector('.svg-node');
+      let transformedPos = transformPointToSvgSpace(clientPos, svgNode, this.point);
       this.props.selectNode(-1);
       this.setState({
         grabMode: 'canvas',
@@ -263,10 +270,6 @@ class SvgRenderer extends React.Component {
     this.props.createNewNode(newNode);
   }
 
-  handleDragEnter() {
-    console.log('dragenter');
-  }
-
   render() {
     let { nodes, connections, selectedNode } = this.props;
     let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
@@ -291,11 +294,11 @@ class SvgRenderer extends React.Component {
     let lines = connections.map((connection) => {
       let node1 = nodes[connection.from.id];
       let fromPos = this.getNodeLayout(node1.type).getConnectorPos(connection.from.name);
-      fromPos[0] += node1.pos[0] - 15;
+      fromPos[0] += node1.pos[0] + 15;
       fromPos[1] += node1.pos[1] - 5;
       let node2 = nodes[connection.to.id];
       let toPos = this.getNodeLayout(node2.type).getConnectorPos(connection.to.name);
-      toPos[0] += node2.pos[0] + 15;
+      toPos[0] += node2.pos[0] - 15;
       toPos[1] += node2.pos[1] - 5;
       let key = `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`;
       return (
@@ -323,29 +326,42 @@ class SvgRenderer extends React.Component {
         strokeWidth="2"
       />);
     }
-    let w = 200 + zoom;
     let zIndex = 0;
     if(grabMode !== null && grabMode !== 'canvas') {
       zIndex = 2;
     }
-    let style = { zIndex };
-    let viewBox = `${-w - pan[0]} ${-w - pan[1]} ${w * 2} ${w * 2}`;
-    // TODO: Set svg viewBox depending on svg size
+
+    let m = mat3.create();
+    if(this.svg !== undefined) {
+      let w = this.svg.clientWidth;
+      let h = this.svg.clientHeight;
+      mat3.translate(m, m, [w / 2, h / 2]);
+    }
+
+    let zoomVal = 1 / zoom;
+    mat3.scale(m, m, [zoomVal, zoomVal]);
+    mat3.translate(m, m, pan);
+    mat3.transpose(m, m);
+    let svgMat = [m[0], m[3], m[1], m[4], m[2], m[5]];
+
     return (
       <svg
-        style={style}
+        style={`z-index: ${zIndex}`}
         className="node-svg"
         ref={this.setSvg}
+        width="100%"
+        height="100%"
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
         onMouseDown={this.onCanvasMouseDown}
         onKeyDown={this.onKeyDown}
         onWheel={this.onWheel}
-        viewBox={viewBox}
       >
-        {lines}
-        {connectorLine}
-        {nodeElements}
+        <g transform={`matrix(${svgMat})`}>
+          {lines}
+          {connectorLine}
+          {nodeElements}
+        </g>
       </svg>
     );
   }
