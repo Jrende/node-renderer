@@ -16,8 +16,8 @@ class SvgRenderer extends React.Component {
       grabNodeId: -1,
       lastPos: [0, 0],
       // pan: [336.9835205078125, -422.49603271484375],
-      pan: [200, -50],
-      zoom: 0.4
+      pan: [0, 0],
+      zoom: 1
     };
 
     [
@@ -56,11 +56,6 @@ class SvgRenderer extends React.Component {
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
-    let coord = transformPointToSvgSpace([event.clientX, event.clientY], this.svg, this.point);
-    let halfSize = [-this.svg.clientWidth / 2.0, -this.svg.clientHeight / 2.0];
-    coord = addInSvgSpace(coord, halfSize, this.svg, this.point);
-    let grabFrom = coord;
-    let grabTo = coord;
 
 
     let grabNodeName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
@@ -73,6 +68,12 @@ class SvgRenderer extends React.Component {
       }
       parent = parent.parentElement;
     }
+
+    let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${grabNodeId}'`);
+    let coord = transformPointToSvgSpace([event.clientX, event.clientY], svgNode, this.point);
+    console.log("grabFrom " + grabNodeId);
+    let grabFrom = coord;
+    let grabTo = coord;
 
     let grabConnectorType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
     if(grabConnectorType === 'input') {
@@ -124,21 +125,22 @@ class SvgRenderer extends React.Component {
         lastPos: [event.clientX, event.clientY]
       });
 
-      let svgNode = this.svg.querySelector('.svg-node');
       switch(this.state.grabMode) {
         case 'element': {
+          let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.state.grabNodeId}']`);
           let node = this.props.nodes[this.state.grabNodeId];
           let newPos = addInSvgSpace(node.pos, [dx, dy], svgNode, this.point);
           this.props.setNodeLocation(this.state.grabNodeId, newPos);
           break;
         }
         case 'connector': {
+          let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.state.grabNodeId}']`);
           let grabTo = addInSvgSpace(this.state.grabTo, [dx, dy], svgNode, this.point);
           this.setState({ grabTo });
           break;
         }
         case 'canvas': {
-          let pan = addInSvgSpace(this.state.pan, [dx, dy], svgNode, this.point);
+          let pan = addInSvgSpace(this.state.pan, [dx * this.state.zoom, dy * this.state.zoom], this.svg, this.point);
           this.setState({ pan });
           break;
         }

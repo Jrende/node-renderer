@@ -20,6 +20,38 @@ export default class Renderer {
     });
   }
 
+  render(values, framebuffers) {
+    this.output.renderTo(this.gl, () => {
+      this.renderBegin(framebuffers);
+      this.shader.setUniforms(this.gl, values);
+      this.renderEnd(framebuffers);
+    });
+
+    return {
+      out: this.output.texture
+    };
+  }
+
+  renderBegin(framebuffers) {
+    this.shader.bind(this.gl);
+    let input = framebuffers.input;
+    if(input === undefined) {
+      input = this.placeholder.input;
+      this.gl.activeTexture(this.gl.TEXTURE0);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, input);
+      this.shader.setUniforms(this.gl, {
+        sampler: 0,
+      });
+    }
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.quad.bind(this.gl);
+  }
+
+  renderEnd(framebuffers) {
+    this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
+    this.quad.unbind(this.gl);
+    this.shader.unbind(this.gl);
+  }
 
   fromColor(color) {
     return [
