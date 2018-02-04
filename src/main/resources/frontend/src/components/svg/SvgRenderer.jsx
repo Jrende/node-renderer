@@ -36,7 +36,13 @@ class SvgRenderer extends React.Component {
 
   // TODO: Zoom towards mouse pointer or center of screen
   onWheel(event) {
-    let zoom = this.state.zoom + event.deltaY / 200;
+    let deltaY = event.deltaY;
+    // Firefox gives scroll in number of lines. We convert that into pixel values matching Chrome
+    if(event.deltaMode === 1) {
+      deltaY *= 18;
+    }
+    let zoom = this.state.zoom + deltaY / 200;
+    console.log(`Zoom: ${deltaY}`);
     if(zoom > 0) {
       this.setState({
         zoom
@@ -335,8 +341,8 @@ class SvgRenderer extends React.Component {
 
     let m = mat3.create();
     if(this.svg !== undefined) {
-      let w = this.svg.clientWidth;
-      let h = this.svg.clientHeight;
+      let w = this.svg.clientWidth || this.svg.parentNode.clientWidth;
+      let h = this.svg.clientHeight || this.svg.parentNode.clientHeight;
       mat3.translate(m, m, [w / 2, h / 2]);
     }
 
@@ -344,7 +350,7 @@ class SvgRenderer extends React.Component {
     mat3.scale(m, m, [zoomVal, zoomVal]);
     mat3.translate(m, m, pan);
     mat3.transpose(m, m);
-    let svgMat = [m[0], m[3], m[1], m[4], m[2], m[5]];
+    let svgMat = `${m[0]}, ${m[3]}, ${m[1]}, ${m[4]}, ${m[2]}, ${m[5]}`;
 
     return (
       <svg
