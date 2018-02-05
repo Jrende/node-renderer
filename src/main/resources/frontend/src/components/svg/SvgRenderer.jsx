@@ -42,7 +42,6 @@ class SvgRenderer extends React.Component {
       deltaY *= 18;
     }
     let zoom = this.state.zoom + deltaY / 200;
-    console.log(`Zoom: ${deltaY}`);
     if(zoom > 0) {
       this.setState({
         zoom
@@ -215,6 +214,9 @@ class SvgRenderer extends React.Component {
     if(svg != null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
+      this.setState({
+        pan: [0, 0]
+      });
       svg.addEventListener('drop', event => this.handleDrop(event));
     }
   }
@@ -279,6 +281,7 @@ class SvgRenderer extends React.Component {
   }
 
   render() {
+    console.log("Render svg canvas");
     let { nodes, connections, selectedNode } = this.props;
     let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
