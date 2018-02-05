@@ -4,6 +4,18 @@ import PropTypes from 'prop-types';
 import './SvgRenderer.less';
 import SvgNode from './SvgNode';
 import { addInSvgSpace, transformPointToSvgSpace } from '../../utils/SvgUtils';
+
+function getSvgNodeFromTarget(target) {
+  let parent = target;
+  while(!(parent instanceof SVGSVGElement)) {
+    if(parent.hasAttribute('data-node-id')) {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+  return undefined;
+}
+
 /* globals SVGSVGElement, document */
 class SvgRenderer extends React.Component {
   constructor(props) {
@@ -62,42 +74,41 @@ class SvgRenderer extends React.Component {
     event.preventDefault();
     event.stopPropagation();
 
+    let connectorName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
+    let svgNode = getSvgNodeFromTarget(event.target);
+    let grabNodeId = svgNode.getAttribute('data-node-id') | 0;
 
-    let grabNodeName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
-    let grabNodeId = -1;
-    let parent = event.target.parentElement;
-    while(!(parent instanceof SVGSVGElement)) {
-      if(parent.hasAttribute('data-node-id')) {
-        grabNodeId = parent.getAttribute('data-node-id') | 0;
-        break;
-      }
-      parent = parent.parentElement;
-    }
-
-    let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${grabNodeId}'`);
-    let coord = transformPointToSvgSpace([event.clientX, event.clientY], svgNode, this.point);
-    console.log("grabFrom " + grabNodeId);
+    let node = this.props.nodes[grabNodeId];
+    let coord = transformPointToSvgSpace(
+      [
+        event.clientX + node.pos[0],
+        event.clientY + node.pos[1]
+      ],
+      svgNode,
+      this.point
+    );
     let grabFrom = coord;
     let grabTo = coord;
 
     let grabConnectorType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
     if(grabConnectorType === 'input') {
       let existingConnection = this.props.connections.find(c =>
-        c.to.id === grabNodeId && c.to.name === grabNodeName);
+        c.to.id === grabNodeId && c.to.name === connectorName);
+      // If there is an existing connection, we want to change that one instead.
       if(existingConnection !== undefined) {
         let outputNode = this.props.nodes[existingConnection.from.id];
         this.props.removeConnection(existingConnection.from, existingConnection.to);
         grabNodeId = existingConnection.from.id;
-        grabNodeName = existingConnection.from.name;
+        connectorName = existingConnection.from.name;
         grabConnectorType = 'output';
-        grabFrom = this.getNodeLayout(outputNode.type).getConnectorPos(grabNodeName);
+        grabFrom = this.getNodeLayout(outputNode.type).getConnectorPos(connectorName);
         grabFrom[0] += outputNode.pos[0] + 15;
         grabFrom[1] += outputNode.pos[1] - 5;
       }
     }
     this.setState({
       grabNodeId,
-      grabNodeName,
+      connectorName,
       grabMode: 'connector',
       grabConnectorType,
       grabTo,
@@ -124,8 +135,10 @@ class SvgRenderer extends React.Component {
         });
         return;
       }
-      let dx = event.clientX - this.state.lastPos[0];
-      let dy = event.clientY - this.state.lastPos[1];
+      let delta = [
+        (event.clientX - this.state.lastPos[0]),
+        (event.clientY - this.state.lastPos[1])
+      ].map(v => v * this.state.zoom);
       this.setState({
         lastPos: [event.clientX, event.clientY]
       });
@@ -134,18 +147,18 @@ class SvgRenderer extends React.Component {
         case 'element': {
           let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.state.grabNodeId}']`);
           let node = this.props.nodes[this.state.grabNodeId];
-          let newPos = addInSvgSpace(node.pos, [dx, dy], svgNode, this.point);
+          let newPos = addInSvgSpace(node.pos, delta, svgNode, this.point);
           this.props.setNodeLocation(this.state.grabNodeId, newPos);
           break;
         }
         case 'connector': {
           let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.state.grabNodeId}']`);
-          let grabTo = addInSvgSpace(this.state.grabTo, [dx, dy], svgNode, this.point);
+          let grabTo = addInSvgSpace(this.state.grabTo, delta, svgNode, this.point);
           this.setState({ grabTo });
           break;
         }
         case 'canvas': {
-          let pan = addInSvgSpace(this.state.pan, [dx * this.state.zoom, dy * this.state.zoom], this.svg, this.point);
+          let pan = addInSvgSpace(this.state.pan, delta, this.svg, this.point);
           this.setState({ pan });
           break;
         }
@@ -170,7 +183,7 @@ class SvgRenderer extends React.Component {
       if(nodeId !== -1 && nodeId !== this.state.grabNodeId) {
         let from = {
           id: this.state.grabNodeId,
-          name: this.state.grabNodeName
+          name: this.state.connectorName
         };
         let to = {
           id: nodeId,
@@ -214,8 +227,10 @@ class SvgRenderer extends React.Component {
     if(svg != null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
+      let w = this.svg.clientWidth || this.svg.parentNode.clientWidth;
+      let h = this.svg.clientHeight || this.svg.parentNode.clientHeight;
       this.setState({
-        pan: [0, 0]
+        pan: [w / 2.0, h / 2.0]
       });
       svg.addEventListener('drop', event => this.handleDrop(event));
     }
@@ -273,15 +288,14 @@ class SvgRenderer extends React.Component {
     let newNode = {
       type: type.id,
       pos: [
-        newCoords.x - nodeLayout.width / 2.0,
-        newCoords.y - nodeLayout.height / 2.0
+        newCoords.x - nodeLayout.width / 2.0 - this.state.pan[0],
+        newCoords.y - nodeLayout.height / 2.0 - this.state.pan[1]
       ]
     };
     this.props.createNewNode(newNode);
   }
 
   render() {
-    console.log("Render svg canvas");
     let { nodes, connections, selectedNode } = this.props;
     let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
@@ -343,12 +357,6 @@ class SvgRenderer extends React.Component {
     }
 
     let m = mat3.create();
-    if(this.svg !== undefined) {
-      let w = this.svg.clientWidth || this.svg.parentNode.clientWidth;
-      let h = this.svg.clientHeight || this.svg.parentNode.clientHeight;
-      mat3.translate(m, m, [w / 2, h / 2]);
-    }
-
     let zoomVal = 1 / zoom;
     mat3.scale(m, m, [zoomVal, zoomVal]);
     mat3.translate(m, m, pan);
