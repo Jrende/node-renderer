@@ -7,6 +7,7 @@ export default class CloudRenderer extends Renderer {
     this.shader = shaders.getShader('cloud');
   }
 
+  /*
   render(values, framebuffers) {
     this.output.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
@@ -32,4 +33,5 @@ export default class CloudRenderer extends Renderer {
       out: this.output.texture
     };
   }
+  */
 }

@@ -2,7 +2,7 @@ precision highp float;
 uniform float hue;
 uniform float saturation;
 uniform float lightness;
-uniform sampler2D inputTexture;
+uniform sampler2D sampler;
 varying vec2 uv;
 
 vec3 rgb2hsv(vec3 c) {
@@ -22,7 +22,7 @@ vec3 hsv2rgb(vec3 c) {
 }
 
 void main(void) {
-  vec3 color = texture2D(inputTexture, uv).rgb;
+  vec3 color = texture2D(sampler, uv).rgb;
   vec3 hsv = rgb2hsv(color);
   hsv.x = hsv.x + hue;
   hsv.y = hsv.y + saturation;

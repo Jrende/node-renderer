@@ -1,5 +1,3 @@
-/* globals gl */
-
 let dataTypes = ['float', 'vec2', 'vec3', 'vec4', 'mat3', 'mat4', 'sampler2D'];
 function compileShader(gl, src, type) {
   const shader = gl.createShader(type);
@@ -133,7 +131,7 @@ export default class Shader {
 
   bind(gl) {
     if(!this.compiled) {
-      throw new Exception("Can't bind uncompiled shader");
+      throw new Error("Can't bind uncompiled shader");
     }
     gl.useProgram(this.program);
   }
@@ -153,12 +151,7 @@ export default class Shader {
     let values = getUniformValues(uniforms);
     values.forEach(value => {
       let uniform = this.uniforms[value.name];
-      if(!uniform) {
-        console.error(`Unable to find uniform ${value.name}!`);
-        return;
-      }
-      //TODO: add validation, compare value type to uniform type etc.
-      if(uniform.handle != null) {
+      if(uniform !== undefined && uniform.handle != null) {
         setUniform(gl, uniform.handle, uniform.type, value.value);
       }
     });

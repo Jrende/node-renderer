@@ -20,37 +20,45 @@ export default class Renderer {
     });
   }
 
+  setFramebuffers(framebuffers) {
+    let input = framebuffers || {};
+    let samplers = Object.keys(this.shader.uniforms)
+      .filter(key => this.shader.uniforms[key].type === 'sampler2D');
+    for(let i = 0; i < samplers.length; i++) {
+      let samplerName = samplers[i];
+      let texture = input[samplerName];
+      if(texture === undefined) {
+        texture = this.placeholder.texture;
+      }
+      this.gl.activeTexture(this.gl.TEXTURE0 + i);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+      this.shader.setUniforms(this.gl, {
+        [samplerName]: i,
+      });
+    }
+  }
+
   render(values, framebuffers) {
     this.output.renderTo(this.gl, () => {
-      this.renderBegin(framebuffers);
-      this.shader.setUniforms(this.gl, values);
-      this.renderEnd(framebuffers);
-    });
+      this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
+      this.shader.bind(this.gl);
+      this.quad.bind(this.gl);
+
+      this.shader.setUniforms(this.gl, {
+        res: [this.canvas.width, this.canvas.height],
+        aspectRatio: this.canvas.clientWidth / this.canvas.clientHeight
+      });
+      this.shader.setUniforms(this.gl, values);
+      this.setFramebuffers(framebuffers);
+      this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
+
+      this.quad.unbind(this.gl);
+      this.shader.unbind(this.gl);
+    });
     return {
       out: this.output.texture
     };
-  }
-
-  renderBegin(framebuffers) {
-    this.shader.bind(this.gl);
-    let input = framebuffers.input;
-    if(input === undefined) {
-      input = this.placeholder.input;
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, input);
-      this.shader.setUniforms(this.gl, {
-        sampler: 0,
-      });
-    }
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-    this.quad.bind(this.gl);
-  }
-
-  renderEnd(framebuffers) {
-    this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
-    this.quad.unbind(this.gl);
-    this.shader.unbind(this.gl);
   }
 
   fromColor(color) {

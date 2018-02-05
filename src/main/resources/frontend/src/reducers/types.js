@@ -129,7 +129,39 @@ export const types = {
       }
     },
     input: {
-      input: {
+      inputTexture: {
+        type: 'FrameBuffer',
+        name: 'Input'
+      }
+    },
+    output: {
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
+    }
+  },
+  brightnessContrast: {
+    id: 5,
+    name: 'Brightness/Contrast',
+    values: {
+      brightness: {
+        name: 'Brightness',
+        type: 'number',
+        default: 0,
+        max: 1,
+        min: -1
+      },
+      contrast: {
+        name: 'Contrast',
+        type: 'number',
+        default: 0,
+        max: 1,
+        min: -1
+      }
+    },
+    input: {
+      inputTexture: {
         type: 'FrameBuffer',
         name: 'Input'
       }
