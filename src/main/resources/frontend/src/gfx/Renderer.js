@@ -76,24 +76,24 @@ export default class Renderer {
     lastRootNode = rootNode;
     if(Object.keys(rootNode.input).length > 0) {
       this.prerender(rootNode, forceUpdate);
-      performance.mark('start render');
+      // performance.mark('start render');
       let { finalResult } = this.renderRecursive(rootNode);
-      performance.mark('end render');
-      performance.measure('render', 'start render', 'end render');
+      // performance.mark('end render');
+      // performance.measure('render', 'start render', 'end render');
       this.present(finalResult);
       // measurePerf();
     }
   }
 
   prerender(rootNode, forceUpdate) {
-    performance.mark('start createRenderers');
+    // performance.mark('start createRenderers');
     this.createRenderers(rootNode);
-    performance.mark('end createRenderers');
-    performance.measure('create renderers', 'start createRenderers', 'end createRenderers');
+    // performance.mark('end createRenderers');
+    // performance.measure('create renderers', 'start createRenderers', 'end createRenderers');
     this.renderCache.forEach(cache => {
       cache.isDirty = false;
     });
-    performance.mark('start calculateDiff');
+    // performance.mark('start calculateDiff');
     if(!forceUpdate) {
       this.calculateDiff(rootNode);
     } else {
@@ -101,8 +101,8 @@ export default class Renderer {
         cache.isDirty = true;
       });
     }
-    performance.mark('end calculateDiff');
-    performance.measure('calculate diff', 'start calculateDiff', 'end calculateDiff');
+    // performance.mark('end calculateDiff');
+    // performance.measure('calculate diff', 'start calculateDiff', 'end calculateDiff');
   }
 
   createRenderers(graphNode) {
