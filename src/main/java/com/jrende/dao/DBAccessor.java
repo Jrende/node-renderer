@@ -2,8 +2,8 @@ package com.jrende.dao;
 
 import com.jrende.Config;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -47,16 +47,15 @@ public class DBAccessor {
     }
 
     public PreparedStatement createQueryFromResource(String name) throws SQLException {
-        File file = new File(getClass().getResource("/db/queries/" + name + ".sql").getFile());
+        InputStream in = getClass().getResourceAsStream("/db/queries/" + name + ".sql");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder result = new StringBuilder();
-        try (Scanner scanner = new Scanner(file)) {
+        try (Scanner scanner = new Scanner(reader)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 result.append(line).append("\n");
             }
             scanner.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         String query = result.toString();
         return db.prepareStatement(query);
