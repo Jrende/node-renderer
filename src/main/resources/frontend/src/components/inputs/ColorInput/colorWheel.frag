@@ -2,6 +2,7 @@ precision highp float;
 uniform vec2 resolution;
 
 #define PI2 6.28318530718
+#define THICKNESS 0.2
 
 vec3 hsv2rgb(vec3 c) {
   vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -23,7 +24,7 @@ void main(void) {
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   vec2 center = vec2(0.5, 0.5);
   float dist = distance(pos, center);
-  if(dist > 0.3 && dist < 0.5) {
+  if(dist > 0.4 && dist < (0.3 + THICKNESS)) {
     vec2 dir = normalize(pos - center);
     float hue = getAngle(dir, vec2(0.0, 1.0)) / PI2;
     vec3 hsv = hsv2rgb(vec3(hue, 1.0, 1.0));
