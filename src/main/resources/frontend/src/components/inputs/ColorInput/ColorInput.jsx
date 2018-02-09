@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import tinycolor from 'tinycolor2';
-import { mat4, vec2 } from 'gl-matrix';
+import { mat4, vec2, vec3, quat } from 'gl-matrix';
 import colorWheelVert from './colorWheel.vert';
 import colorWheelFrag from './colorWheel.frag';
 import satValVert from './satVal.vert';
@@ -28,9 +28,27 @@ function getAllOffsetTop(elm) {
   return offsetTop;
 }
 
+function getAngle(v1, v2) {
+  let v1n = vec2.normalize(vec2.create(), v1);
+  let v2n = vec2.normalize(vec2.create(), v2);
+  let dot = vec2.dot(v1n, v2n);
+  let det = v1n[0]*v2n[1] - v1n[1]*v2n[0];
+  let rad = Math.atan2(det, dot);
+  if(rad < 0) {
+    rad += 2*Math.PI;
+  }
+  return rad;
+}
+
+
 class ColorInput extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      hue: 0,
+      saturation: 0,
+      value: 0
+    };
     this.onChange = this.onChange.bind(this);
     this.setCanvas = this.setCanvas.bind(this);
     this.onCanvasClick = this.onCanvasClick.bind(this);
@@ -87,44 +105,20 @@ class ColorInput extends React.Component {
       -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
     ]
       .map(c => c * 2.0);
-    /*
-    if(this.clickedOnWheel(coords)) {
-      console.log('clicked on color wheel');
+    let positionInWheel = this.positionInWheel(coords);
+    if(positionInWheel !== undefined) {
+      console.log(`clicked on color wheel: ${positionInWheel}`);
+      this.setState({ hue: positionInWheel });
+      return;
     }
-    */
-    if (this.clickedOnTriangle(coords)) {
-      console.log('clicked on triangle');
+    let positionInTriangle = this.positionInTriangle(coords);
+    if (positionInTriangle !== undefined) {
+      console.log(`clicked on triangle: ${JSON.stringify(positionInTriangle)}`);
+      return;
     }
   }
 
-  /*
-  clickedOnTriangle(p) {
-    let pt = vec2.transformMat4(vec2.create(), p, this.triangleModel);
-    let at = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
-    let bt = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
-    let ct = vec2.transformMat4(vec2.create(), this.triP[2], this.triangleModel);
-
-    let v0 = vec2.sub(vec2.create(), bt, at);
-    let v1 = vec2.sub(vec2.create(), ct, at);
-    let v2 = vec2.sub(vec2.create(), pt, at);
-
-    let a = vec2.dot(v0, v0);
-    let b = vec2.dot(v1, v1);
-    let c = vec2.dot(v1, v0);
-    let d = vec2.dot(v2, v0);
-    let e = vec2.dot(v2, v1);
-
-    let divisor = a*b - c*c;
-
-    let u = (b*d - c*e)/divisor;
-    let v = (a*e - c*d)/divisor;
-
-    console.log(`u: ${u}, v: ${v}`);
-    return false;
-  }
-  */
-
-  clickedOnTriangle(coord) {
+  positionInTriangle(coord) {
     let p = coord;
     let a = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
     let b = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
@@ -139,15 +133,25 @@ class ColorInput extends React.Component {
     let v = (p[0]*c[1] - p[1]*c[0])/d;
     let w = (p[1]*b[0]-p[0]*b[1])/d;
 
-    console.log(`u: ${u}, v: ${v}, w: ${w}`);
-    return u > 0.0 && u < 1.0 &&
+    // console.log(`u: ${u}, v: ${v}, w: ${w}`);
+    if(u > 0.0 && u < 1.0 &&
       v > 0.0 && v < 1.0 &&
-      w > 0.0 && w < 1.0;
+      w > 0.0 && w < 1.0) {
+      return {
+        saturation: w,
+        value: v
+      };
+    }
+    return undefined;
   }
 
-  clickedOnWheel(p) {
-    let dist = vec2.distance(p, [0.5, 0.5]);
-    return (dist > 0.4 && dist < 0.5);
+  positionInWheel(p) {
+    let center = [0, 0];
+    let dist = vec2.distance(p, center);
+    if(dist > 0.8 && dist < 1.0) {
+      return getAngle([0, 1], p) / (2.0 * Math.PI);
+    }
+    return undefined;
   }
 
   setCanvas(canvas) {
@@ -172,6 +176,11 @@ class ColorInput extends React.Component {
 
     this.satValShader.bind(this.gl);
     this.triangle.bind(this.gl);
+    mat4.fromRotationTranslationScale(
+      this.triangleModel,
+      quat.setAxisAngle(quat.create(), [0, 0, 1], this.state.hue * Math.PI * 2.0),
+      vec3.create(),
+      [0.8, 0.8, 1.0]);
     this.satValShader.setUniforms(this.gl, {
       resolution,
       mvp: this.triangleModel,
