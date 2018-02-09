@@ -83,17 +83,66 @@ class ColorInput extends React.Component {
 
   onCanvasClick(event) {
     let coords = [
-      (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth,
-      (event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight
-    ];
+      (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
+      -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
+    ]
+      .map(c => c * 2.0);
     /*
     if(this.clickedOnWheel(coords)) {
       console.log('clicked on color wheel');
     }
     */
-    if (this.clickedOnTriangle([coords[0], coords[1] - 0.5])) {
+    if (this.clickedOnTriangle(coords)) {
       console.log('clicked on triangle');
     }
+  }
+
+  /*
+  clickedOnTriangle(p) {
+    let pt = vec2.transformMat4(vec2.create(), p, this.triangleModel);
+    let at = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
+    let bt = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
+    let ct = vec2.transformMat4(vec2.create(), this.triP[2], this.triangleModel);
+
+    let v0 = vec2.sub(vec2.create(), bt, at);
+    let v1 = vec2.sub(vec2.create(), ct, at);
+    let v2 = vec2.sub(vec2.create(), pt, at);
+
+    let a = vec2.dot(v0, v0);
+    let b = vec2.dot(v1, v1);
+    let c = vec2.dot(v1, v0);
+    let d = vec2.dot(v2, v0);
+    let e = vec2.dot(v2, v1);
+
+    let divisor = a*b - c*c;
+
+    let u = (b*d - c*e)/divisor;
+    let v = (a*e - c*d)/divisor;
+
+    console.log(`u: ${u}, v: ${v}`);
+    return false;
+  }
+  */
+
+  clickedOnTriangle(coord) {
+    let p = coord;
+    let a = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
+    let b = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
+    let c = vec2.transformMat4(vec2.create(), this.triP[2], this.triangleModel);
+
+    vec2.sub(b, b, a);
+    vec2.sub(c, c, a);
+    vec2.sub(p, p, a);
+
+    let d = b[0]*c[1] - c[0]*b[1];
+    let u = (p[0]*(b[1]-c[1]) + p[1]*(c[0]-b[0]) + b[0]*c[1] - c[0]*b[1])/d;
+    let v = (p[0]*c[1] - p[1]*c[0])/d;
+    let w = (p[1]*b[0]-p[0]*b[1])/d;
+
+    console.log(`u: ${u}, v: ${v}, w: ${w}`);
+    return u > 0.0 && u < 1.0 &&
+      v > 0.0 && v < 1.0 &&
+      w > 0.0 && w < 1.0;
   }
 
   clickedOnWheel(p) {
