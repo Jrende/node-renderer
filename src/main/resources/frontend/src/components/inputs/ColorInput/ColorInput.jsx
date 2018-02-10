@@ -54,6 +54,19 @@ class ColorInput extends React.Component {
     this.onCanvasClick = this.onCanvasClick.bind(this);
   }
 
+  /*
+  componentWillReceiveProps(nextProps) {
+    if (tinycolor.equals(nextProps.value, this.props.value)) {
+      let col = tinycolor(nextProps.value).toHsv();
+      this.setState({
+        hue: col.h,
+        saturation: col.s,
+        value: col.v
+      });
+    }
+  }
+    */
+
   componentDidMount() {
     this.gl = this.canvas.getContext('webgl', {
       premultipliedAlpha: true,
@@ -103,12 +116,11 @@ class ColorInput extends React.Component {
     let positionInWheel = this.positionInWheel(coords);
     if(positionInWheel !== undefined) {
       console.log(`clicked on color wheel: ${positionInWheel}`);
-      let col = tinycolor(this.props.color).toHsv();
       let hue = positionInWheel;
       let newColor = tinycolor.fromRatio({
         h: hue,
-        s: col.s,
-        v: col.v
+        s: this.state.saturation,
+        v: this.state.value
       });
       this.setState({ hue });
       this.props.onChange(newColor.toRgb());
@@ -117,16 +129,14 @@ class ColorInput extends React.Component {
     let positionInTriangle = this.positionInTriangle(coords);
     if (positionInTriangle !== undefined) {
       console.log(`clicked on triangle: ${JSON.stringify(positionInTriangle)}`);
-      let col = tinycolor(this.props.color).toHsv();
+      let saturation = 1 - positionInTriangle.w;
+      let value = 1 - positionInTriangle.v;
       let newColor = tinycolor.fromRatio({
-        h: col.h,
-        s: positionInTriangle.w,
-        v: positionInTriangle.v
+        h: this.state.hue,
+        s: saturation,
+        v: value
       });
-      this.setState({
-        saturation: positionInTriangle.w,
-        value: positionInTriangle.v
-      });
+      this.setState({ saturation, value });
       this.props.onChange(newColor.toRgb());
     }
   }
