@@ -48,10 +48,15 @@ class ColorInput extends React.Component {
     this.state = {
       hue: col.h,
       saturation: col.s,
-      value: col.v
+      value: col.v,
+      mouseDown: false
     };
-    this.setCanvas = this.setCanvas.bind(this);
-    this.onCanvasClick = this.onCanvasClick.bind(this);
+    [
+      'setCanvas',
+      'onCanvasMouseDown',
+      'onCanvasMouseMove',
+      'onCanvasMouseUp'
+    ].forEach(name => this[name] = this[name].bind(this));
   }
 
   /*
@@ -107,38 +112,70 @@ class ColorInput extends React.Component {
     this.renderCanvas(color.toHsv());
   }
 
-  onCanvasClick(event) {
+  onCanvasMouseDown(event) {
+    event.preventDefault();
+    this.setState({ mouseDown: true });
+    document.getElementById('root').addEventListener('mousemove', this.onCanvasMouseMove);
+    console.log(`mouseDown ${this.state.mouseDown}`);
     let coords = [
       (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
       -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
-    ]
-      .map(c => c * 2.0);
+    ].map(c => c * 2.0);
+    let { hue, saturation, value } = this.handleInput(coords);
+    this.updateColor(hue, saturation, value);
+  }
+
+
+  onCanvasMouseMove(event) {
+    event.preventDefault();
+    if(this.state.mouseDown === true && event.buttons === 0) {
+      this.setState({ mouseDown: false });
+      document.getElementById('root').removeEventListener('mousemove', this.onCanvasMouseMove);
+      return;
+    }
+    if(this.state.mouseDown) {
+      console.log('canvas mouse move');
+      let coords = [
+        (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
+        -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
+      ].map(c => c * 2.0);
+      let { hue, saturation, value } = this.handleInput(coords);
+      this.updateColor(hue, saturation, value);
+    }
+  }
+
+  onCanvasMouseUp(event) {
+    event.preventDefault();
+    document.getElementById('root').removeEventListener('mousemove', this.onCanvasMouseMove);
+    this.setState({ mouseDown: false, colorWheelToggle: false, triangleToggle: false });
+    console.log(`mouseDown ${this.state.mouseDown}`);
+  }
+
+  handleInput(coords) {
+    let { hue, saturation, value } = this.state;
     let positionInWheel = this.positionInWheel(coords);
     if(positionInWheel !== undefined) {
-      console.log(`clicked on color wheel: ${positionInWheel}`);
-      let hue = positionInWheel;
-      let newColor = tinycolor.fromRatio({
-        h: hue,
-        s: this.state.saturation,
-        v: this.state.value
-      });
-      this.setState({ hue });
-      this.props.onChange(newColor.toRgb());
-      return;
+      hue = positionInWheel;
+      this.setState({ colorWheelToggle: true });
     }
     let positionInTriangle = this.positionInTriangle(coords);
     if (positionInTriangle !== undefined) {
-      console.log(`clicked on triangle: ${JSON.stringify(positionInTriangle)}`);
-      let saturation = 1 - positionInTriangle.w;
-      let value = 1 - positionInTriangle.v;
-      let newColor = tinycolor.fromRatio({
-        h: this.state.hue,
-        s: saturation,
-        v: value
-      });
-      this.setState({ saturation, value });
-      this.props.onChange(newColor.toRgb());
+      saturation = Math.min(1 - positionInTriangle.w, 1.0);
+      value = Math.min(1 - positionInTriangle.v, 1.0);
+      this.setState({ triangleToggle: true });
     }
+    return { hue, saturation, value };
+  }
+
+  updateColor(hue, saturation, value) {
+    this.setState({ hue, saturation, value });
+
+    let newColor = tinycolor.fromRatio({
+      h: hue,
+      s: saturation,
+      v: value
+    });
+    this.props.onChange(newColor.toRgb());
   }
 
   positionInTriangle(coord) {
@@ -157,9 +194,9 @@ class ColorInput extends React.Component {
     let w = (p[1]*b[0]-p[0]*b[1])/d;
 
     // console.log(`u: ${u}, v: ${v}, w: ${w}`);
-    if(u > 0.0 && u < 1.0 &&
+    if(!this.state.colorWheelToggle && (this.state.triangleToggle || (u > 0.0 && u < 1.0 &&
       v > 0.0 && v < 1.0 &&
-      w > 0.0 && w < 1.0) {
+      w > 0.0 && w < 1.0))) {
       return {
         u, v, w
       };
@@ -167,10 +204,11 @@ class ColorInput extends React.Component {
     return undefined;
   }
 
+
   positionInWheel(p) {
     let center = [0, 0];
     let dist = vec2.distance(p, center);
-    if(dist > 0.8 && dist < 1.0) {
+    if(!this.state.triangleToggle && (this.state.colorWheelToggle || dist > 0.8 && dist < 1.0)) {
       return getAngle([1, 0], p) / (2.0 * Math.PI);
     }
     return undefined;
@@ -226,7 +264,8 @@ class ColorInput extends React.Component {
     return (
       <fieldset>
         <canvas
-          onClick={this.onCanvasClick}
+          onMouseDown={this.onCanvasMouseDown}
+          onMouseUp={this.onCanvasMouseUp}
           width="256"
           height="256"
           className="color-input-canvas"
