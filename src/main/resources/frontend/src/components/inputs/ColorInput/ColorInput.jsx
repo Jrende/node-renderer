@@ -44,12 +44,12 @@ function getAngle(v1, v2) {
 class ColorInput extends React.Component {
   constructor(props) {
     super(props);
+    let col = tinycolor(props.value).toHsv();
     this.state = {
-      hue: 0,
-      saturation: 0,
-      value: 0
+      hue: col.h,
+      saturation: col.s,
+      value: col.v
     };
-    this.onChange = this.onChange.bind(this);
     this.setCanvas = this.setCanvas.bind(this);
     this.onCanvasClick = this.onCanvasClick.bind(this);
   }
@@ -90,13 +90,8 @@ class ColorInput extends React.Component {
     this.triangleModel = mat4.fromScaling(mat4.create(), [0.8, 0.8, 1.0]);
 
     this.gl.clearColor(0, 0, 0, 1.0);
-    this.renderCanvas(this.props.value);
-  }
-
-  onChange(event) {
-    let value = event.target.value;
-    let color = tinycolor(value);
-    this.props.onChange(color.toRgb());
+    let color = tinycolor(this.props.value);
+    this.renderCanvas(color.toHsv());
   }
 
   onCanvasClick(event) {
@@ -108,13 +103,31 @@ class ColorInput extends React.Component {
     let positionInWheel = this.positionInWheel(coords);
     if(positionInWheel !== undefined) {
       console.log(`clicked on color wheel: ${positionInWheel}`);
-      this.setState({ hue: positionInWheel });
+      let col = tinycolor(this.props.color).toHsv();
+      let hue = positionInWheel;
+      let newColor = tinycolor.fromRatio({
+        h: hue,
+        s: col.s,
+        v: col.v
+      });
+      this.setState({ hue });
+      this.props.onChange(newColor.toRgb());
       return;
     }
     let positionInTriangle = this.positionInTriangle(coords);
     if (positionInTriangle !== undefined) {
       console.log(`clicked on triangle: ${JSON.stringify(positionInTriangle)}`);
-      return;
+      let col = tinycolor(this.props.color).toHsv();
+      let newColor = tinycolor.fromRatio({
+        h: col.h,
+        s: positionInTriangle.w,
+        v: positionInTriangle.v
+      });
+      this.setState({
+        saturation: positionInTriangle.w,
+        value: positionInTriangle.v
+      });
+      this.props.onChange(newColor.toRgb());
     }
   }
 
@@ -138,8 +151,7 @@ class ColorInput extends React.Component {
       v > 0.0 && v < 1.0 &&
       w > 0.0 && w < 1.0) {
       return {
-        saturation: w,
-        value: v
+        u, v, w
       };
     }
     return undefined;
@@ -149,7 +161,7 @@ class ColorInput extends React.Component {
     let center = [0, 0];
     let dist = vec2.distance(p, center);
     if(dist > 0.8 && dist < 1.0) {
-      return getAngle([0, 1], p) / (2.0 * Math.PI);
+      return getAngle([1, 0], p) / (2.0 * Math.PI);
     }
     return undefined;
   }
@@ -158,7 +170,7 @@ class ColorInput extends React.Component {
     this.canvas = canvas;
   }
 
-  renderCanvas(color) {
+  renderCanvas() {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.quad.bind(this.gl);
 
@@ -178,17 +190,14 @@ class ColorInput extends React.Component {
     this.triangle.bind(this.gl);
     mat4.fromRotationTranslationScale(
       this.triangleModel,
-      quat.setAxisAngle(quat.create(), [0, 0, 1], this.state.hue * Math.PI * 2.0),
+      quat.setAxisAngle(quat.create(), [0, 0, 1], this.state.hue * Math.PI * 2.0 - Math.PI/2.0),
+
       vec3.create(),
       [0.8, 0.8, 1.0]);
     this.satValShader.setUniforms(this.gl, {
       resolution,
       mvp: this.triangleModel,
-      inputColor: [
-        color.r / 255,
-        color.g / 255,
-        color.b / 255
-      ]
+      hue: this.state.hue
     });
     this.gl.drawElements(this.gl.TRIANGLES, 3, this.gl.UNSIGNED_SHORT, 0);
     this.triangle.unbind(this.gl);
@@ -197,9 +206,13 @@ class ColorInput extends React.Component {
 
   render() {
     let { name, value } = this.props;
+    let color = tinycolor(value);
     if(this.gl !== undefined) {
-      this.renderCanvas(value);
+      this.renderCanvas(color.toHsv());
     }
+    let bgColor = {
+      backgroundColor: color.toHexString()
+    };
     return (
       <fieldset>
         <canvas
@@ -209,6 +222,7 @@ class ColorInput extends React.Component {
           className="color-input-canvas"
           ref={this.setCanvas}
         />
+        <div className="color-input-color" style={bgColor} />
       </fieldset>
     );
   }
