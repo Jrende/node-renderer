@@ -1,7 +1,10 @@
 import VertexArray from '../VertexArray';
-class Quad {
-  constructor() {
-    this.geometry = new VertexArray(
+import Geometry from './Geometry';
+
+export default class Quad extends Geometry {
+  constructor(gl) {
+    super();
+    this.geometry = new VertexArray(gl,
       [1, 1, 1,
         -1, 1, 1,
         -1, -1, 1,
@@ -10,11 +13,4 @@ class Quad {
         2, 0, 3],
       [3]);
   }
-
-  addToWorld(world, material) {
-    world.material = material;
-    world.geometry = this.geometry;
-  }
 }
-
-export default new Quad();

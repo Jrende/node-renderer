@@ -41,8 +41,7 @@ export function normalize(vec) {
   }
 }
 
-const quad;
-/* global gl */
+let quad;
 export function drawTexture(gl, texture, opacity=1.0) {
   if(quad == null) {
     quad = new VertexArray([
