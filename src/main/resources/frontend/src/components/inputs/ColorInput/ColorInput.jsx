@@ -159,8 +159,6 @@ class ColorInput extends React.Component {
     }
     let positionInTriangle = this.positionInTriangle(coords);
     if (positionInTriangle !== undefined) {
-      //console.log(`u: ${positionInTriangle.u}, v: ${positionInTriangle.w}, w: ${positionInTriangle.w}`);
-
       let { u, v, w } = positionInTriangle;
       let t = vec2.create();
       let v1 = vec2.mul(vec2.create(), this.triUV[0], [u, u]);
@@ -171,11 +169,6 @@ class ColorInput extends React.Component {
       vec2.add(t, t, v3);
       saturation = t[0];
       value = t[1];
-
-      // saturation = 1 - positionInTriangle.w;
-      // value = 1 - positionInTriangle.v;
-      // saturation = Math.max(Math.min(1 - positionInTriangle.w, 1.0), 0.0);
-      // value = Math.max(Math.min(1 - positionInTriangle.v, 1.0), 0.0);
       this.setState({ triangleToggle: true });
     }
     // console.log(`h: ${hue}, s: ${saturation}, v: ${value}`);
@@ -235,6 +228,25 @@ class ColorInput extends React.Component {
       */
 
   getTriangleCoordinateFromColor(color) {
+    let u = color.saturation;
+    let v = -color.value;
+
+
+    let a = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
+    let b = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
+    let c = vec2.transformMat4(vec2.create(), this.triP[2], this.triangleModel);
+
+    let w = 1 - u - v;
+    let v1 = vec2.mul(vec2.create(), a, [u, u]);
+    let v2 = vec2.mul(vec2.create(), b, [v, v]);
+    let v3 = vec2.mul(vec2.create(), c, [w, w]);
+
+    let res = vec2.create();
+    vec2.add(res, v1, v2);
+    vec2.add(res, res, v3);
+    //vec2.add(res, res, b);
+    //vec2.add(res, res, a);
+    return res;
   }
 
   positionInWheel(p) {
@@ -282,7 +294,6 @@ class ColorInput extends React.Component {
     this.triangle.unbind(this.gl);
     this.satValShader.unbind(this.gl);
 
-    /*
     this.solidShader.bind(this.gl);
     this.ring.bind(this.gl);
     let pos = this.getTriangleCoordinateFromColor({
@@ -302,7 +313,6 @@ class ColorInput extends React.Component {
     this.ring.draw(this.gl);
     this.ring.unbind(this.gl);
     this.solidShader.unbind(this.gl);
-    */
   }
 
   render() {
