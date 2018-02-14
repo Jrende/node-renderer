@@ -241,9 +241,12 @@ class ColorInput extends React.Component {
     let v2 = vec2.mul(vec2.create(), b, [v, v]);
     let v3 = vec2.mul(vec2.create(), c, [w, w]);
 
+    let s = vec2.sub(vec2.create(), b, c);
+
     let res = vec2.create();
     vec2.add(res, v1, v2);
     vec2.add(res, res, v3);
+    vec2.add(res, res, s);
     //vec2.add(res, res, b);
     //vec2.add(res, res, a);
     return res;
