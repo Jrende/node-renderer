@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import NumberInput from './inputs/NumberInput';
 import ColorInput from './inputs/ColorInput';
 import EnumInput from './inputs/EnumInput';
+import GradientInput from './inputs/GradientInput';
+
 import './NodeInputs.less';
 
 
@@ -42,6 +44,16 @@ class NodeInputs extends React.Component {
           case 'enum':
             return (
               <EnumInput
+                key={key}
+                name={key}
+                type={nodeValue}
+                value={selectedNode.values[key]}
+                onChange={(value) => this.onValueChange(key, value)}
+              />
+            );
+          case 'gradient':
+            return (
+              <GradientInput
                 key={key}
                 name={key}
                 type={nodeValue}

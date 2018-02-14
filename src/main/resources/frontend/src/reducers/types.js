@@ -173,6 +173,28 @@ export const types = {
       },
     }
   },
+  gradientMap: {
+    id: 6,
+    name: "Gradient Map",
+    values: {
+      gradient: {
+        name: "Gradient",
+        type: "gradient"
+      }
+    },
+    input: {
+      inputTexture: {
+        type: 'FrameBuffer',
+        name: 'Input'
+      }
+    },
+    output: {
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
+    }
+  }
 };
 
 const typeReducer = (state = types, action) => {
