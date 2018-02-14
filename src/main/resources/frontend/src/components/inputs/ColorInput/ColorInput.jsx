@@ -106,12 +106,12 @@ class ColorInput extends React.Component {
         0, 1, 2
       ],
       [2, 2]);
-    this.ring = new Ring(this.gl, 24, 0.4);
+    this.ring = new Ring(this.gl, 24, 0.6);
     this.triangleModel = mat4.create();
 
     this.gl.clearColor(0, 0, 0, 1.0);
     let color = tinycolor(this.props.value);
-    this.renderCanvas(color.toHsv());
+    this.renderCanvas(color);
   }
 
   onCanvasMouseDown(event) {
@@ -241,14 +241,11 @@ class ColorInput extends React.Component {
     let v2 = vec2.mul(vec2.create(), b, [v, v]);
     let v3 = vec2.mul(vec2.create(), c, [w, w]);
 
-    let s = vec2.sub(vec2.create(), b, c);
-
     let res = vec2.create();
     vec2.add(res, v1, v2);
     vec2.add(res, res, v3);
-    vec2.add(res, res, s);
-    //vec2.add(res, res, b);
-    //vec2.add(res, res, a);
+    vec2.add(res, res, b);
+    vec2.sub(res, res, c);
     return res;
   }
 
@@ -283,9 +280,13 @@ class ColorInput extends React.Component {
 
     this.satValShader.bind(this.gl);
     this.triangle.bind(this.gl);
+    let hueRot = quat.setAxisAngle(
+      quat.create(),
+      [0, 0, 1],
+      this.state.hue * Math.PI * 2.0 - Math.PI/2.0);
     mat4.fromRotationTranslationScale(
       this.triangleModel,
-      quat.setAxisAngle(quat.create(), [0, 0, 1], this.state.hue * Math.PI * 2.0 - Math.PI/2.0),
+      hueRot,
       vec3.create(),
       [0.8, 0.8, 1.0]);
     this.satValShader.setUniforms(this.gl, {
@@ -304,8 +305,16 @@ class ColorInput extends React.Component {
       saturation: this.state.saturation,
       value: this.state.value
     });
+
+    let color = tinycolor.fromRatio({
+      h: this.state.hue,
+      s: this.state.saturation,
+      v: this.state.value
+    });
+    let svMarkerColor = color.isLight()? [0.0, 0.0, 0.0, 1.0] : [1.0, 1.0, 1.0, 1.0];
+
     this.solidShader.setUniforms(this.gl, {
-      color: [1.0, 1.0, 1.0, 1.0],
+      color: svMarkerColor,
       mvp: mat4.fromRotationTranslationScale(
         mat4.create(),
         quat.create(),
@@ -315,6 +324,25 @@ class ColorInput extends React.Component {
 
     this.ring.draw(this.gl);
     this.ring.unbind(this.gl);
+
+    let hue = tinycolor.fromRatio({
+      h: this.state.hue,
+      s: 1.0,
+      v: 1.0
+    });
+    let hueMarkerColor = hue.isLight()? [0.0, 0.0, 0.0, 1.0] : [1.0, 1.0, 1.0, 1.0];
+    let hueMarkerMatrix = mat4.create();
+    let quatMat = mat4.fromQuat(mat4.create(), hueRot);
+    mat4.multiply(hueMarkerMatrix, hueMarkerMatrix, quatMat);
+    mat4.translate(hueMarkerMatrix, hueMarkerMatrix, [0, 0.9, 0]);
+    mat4.scale(hueMarkerMatrix, hueMarkerMatrix, [0.015, 0.1, 1.0]);
+    this.quad.bind(this.gl);
+    this.solidShader.setUniforms(this.gl, {
+      color: hueMarkerColor,
+      mvp: hueMarkerMatrix
+    });
+
+    this.quad.draw(this.gl);
     this.solidShader.unbind(this.gl);
   }
 
@@ -322,7 +350,7 @@ class ColorInput extends React.Component {
     let { name, value } = this.props;
     let color = tinycolor(value);
     if(this.gl !== undefined) {
-      this.renderCanvas(color.toHsv());
+      this.renderCanvas(color);
     }
     return (
       <fieldset>
