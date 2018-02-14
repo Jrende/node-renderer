@@ -27,7 +27,6 @@ class SvgRenderer extends React.Component {
       grabMode: null,
       grabNodeId: -1,
       lastPos: [0, 0],
-      // pan: [336.9835205078125, -422.49603271484375],
       pan: [0, 0],
       zoom: 1
     };
@@ -55,6 +54,7 @@ class SvgRenderer extends React.Component {
     }
     let zoom = this.state.zoom + deltaY / 200;
     if(zoom > 0) {
+      console.log(`zoom: ${zoom}`);
       this.setState({
         zoom
       });
@@ -79,6 +79,7 @@ class SvgRenderer extends React.Component {
     let grabNodeId = svgNode.getAttribute('data-node-id') | 0;
 
     let node = this.props.nodes[grabNodeId];
+    let svgSize = this.getSvgSize();
     let coord = transformPointToSvgSpace(
       [
         event.clientX + node.pos[0],
@@ -87,6 +88,8 @@ class SvgRenderer extends React.Component {
       svgNode,
       this.point
     );
+    coord[0] /= this.state.zoom;
+    coord[1] /= this.state.zoom;
     let grabFrom = coord;
     let grabTo = coord;
 
@@ -138,7 +141,7 @@ class SvgRenderer extends React.Component {
       let delta = [
         (event.clientX - this.state.lastPos[0]),
         (event.clientY - this.state.lastPos[1])
-      ].map(v => v * this.state.zoom);
+      ];
       this.setState({
         lastPos: [event.clientX, event.clientY]
       });
@@ -158,6 +161,7 @@ class SvgRenderer extends React.Component {
           break;
         }
         case 'canvas': {
+          delta = delta.map(v => v * this.state.zoom);
           let pan = addInSvgSpace(this.state.pan, delta, this.svg, this.point);
           this.setState({ pan });
           break;
@@ -223,14 +227,24 @@ class SvgRenderer extends React.Component {
     }
   }
 
+  getSvgSize() {
+    let size = [0, 0];
+    if(this.svg !== undefined) {
+      size = [
+        this.svg.clientWidth || this.svg.parentNode.clientWidth,
+        this.svg.clientHeight || this.svg.parentNode.clientHeight
+      ];
+    }
+    return size;
+  }
+
   setSvg(svg) {
     if(svg != null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
-      let w = this.svg.clientWidth || this.svg.parentNode.clientWidth;
-      let h = this.svg.clientHeight || this.svg.parentNode.clientHeight;
+      let s = this.getSvgSize();
       this.setState({
-        pan: [w / 2.0, h / 2.0]
+        pan: [0, 0]
       });
       svg.addEventListener('drop', event => this.handleDrop(event));
     }
@@ -285,12 +299,13 @@ class SvgRenderer extends React.Component {
     this.point.x = event.clientX;
     this.point.y = event.clientY;
     let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
+    let svgSize = this.getSvgSize();
     let newNode = {
       type: type.id,
       pos: [
-        newCoords.x - nodeLayout.width / 2.0 - this.state.pan[0],
-        newCoords.y - nodeLayout.height / 2.0 - this.state.pan[1]
-      ]
+        newCoords.x - nodeLayout.width / 2.0 - this.state.pan[0] - svgSize[0] / 2.0,
+        newCoords.y - nodeLayout.height / 2.0 - this.state.pan[1] - svgSize[1] / 2.0
+      ].map(v => v * this.state.zoom)
     };
     this.props.createNewNode(newNode);
   }
@@ -357,9 +372,13 @@ class SvgRenderer extends React.Component {
     }
 
     let m = mat3.create();
+    if(this.svg !== undefined) {
+      let svgSize = this.getSvgSize();
+      mat3.translate(m, m, [svgSize[0] / 2, svgSize[1] / 2]);
+    }
     let zoomVal = 1 / zoom;
-    mat3.scale(m, m, [zoomVal, zoomVal]);
     mat3.translate(m, m, pan);
+    mat3.scale(m, m, [zoomVal, zoomVal]);
     mat3.transpose(m, m);
     let svgMat = `${m[0]}, ${m[3]}, ${m[1]}, ${m[4]}, ${m[2]}, ${m[5]}`;
 

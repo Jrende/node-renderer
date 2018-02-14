@@ -1,4 +1,3 @@
-/* globals gl */
 export default class VertexArray {
   constructor(gl, vertexData, indexData, attrs, drawMode = gl.TRIANGLES) {
     if (vertexData instanceof Float32Array) {

@@ -1,8 +1,7 @@
 import VertexArray from '../VertexArray';
-import { radToDeg } from '../Utils.js';
-/* global gl */
+import Geometry from './Geometry';
 
-function generateGeometry(numPoints, innerRadius) {
+function generateGeometry(gl, numPoints, innerRadius) {
   let points = [0, 0, 0];
   let indices = [];
   for(let i = 0; i < (numPoints + 1) * 2; i++) {
@@ -27,19 +26,13 @@ function generateGeometry(numPoints, innerRadius) {
       .map(n => n + i*2)
       .forEach(n => indices.push(n));
   }
-  return new VertexArray(points, indices, [3], gl.TRIANGLES);
+  return new VertexArray(gl, points, indices, [3], gl.TRIANGLES);
 }
 
-export default class Line {
-  constructor(points = 6, innerRadius = 0.5) {
+export default class Ring extends Geometry {
+  constructor(gl, points = 6, innerRadius = 0.5) {
+    super();
     this.points = points;
-
-    this.vertexArray = generateGeometry(points, innerRadius);
-  }
-
-  addToWorld(world, material) {
-    let child = world.createChild();
-    child.material = material;
-    child.geometry = this.vertexArray;
+    this.geometry = generateGeometry(gl, points, innerRadius);
   }
 }
