@@ -60,7 +60,11 @@ module.exports = {
               loader: 'postcss-loader'
             },
             {
-              loader: 'less-loader' // compiles Less to CSS
+              loader: 'less-loader',
+              options: {
+                strictMath: true,
+                noIeCompat: true
+              }
             }
           ]
         })
