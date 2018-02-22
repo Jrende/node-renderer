@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import tinycolor from 'tinycolor2';
 import './GradientInput.less';
+import ColorInput from './ColorInput/ColorInput';
 
 let root = document.querySelector('#root');
 class GradientInput extends React.Component {
@@ -9,7 +10,8 @@ class GradientInput extends React.Component {
     super(props);
     this.state = {
       lastPos: 0,
-      dragId: -1
+      dragId: -1,
+      selected: -1
     };
 
     this.setGradientDisplay = this.setGradientDisplay.bind(this);
@@ -22,6 +24,7 @@ class GradientInput extends React.Component {
     root.addEventListener('mousemove', this.onMarkerMouseMove);
     this.setState({
       dragId: id,
+      selected: id,
       lastPos: event.clientX
     });
   }
@@ -67,13 +70,27 @@ class GradientInput extends React.Component {
     let sorted = newGradient.concat().sort((a, b) => a.position - b.position);
     let newSelected = sorted[this.state.dragId];
     if(selected !== newSelected) {
-      this.setState({ dragId: sorted.indexOf(selected) });
+      let newDragId = sorted.indexOf(selected);
+      this.setState({ dragId: newDragId, selected: newDragId });
     }
     this.props.onChange(sorted);
   }
 
+  colorChange(newColor, id) {
+    let stopToChange = this.props.value[id];
+    let newGradient = this.props.value.map(stop => {
+      if(stop === stopToChange) {
+        return Object.assign({}, stop, {
+          color: newColor
+        });
+      }
+      return stop;
+    });
+    this.props.onChange(newGradient);
+  }
   render() {
     let { value } = this.props;
+    let { selected } = this.state;
     let gradientString = '';
     let markers = [];
     for(let i = 0; i < value.length; i++) {
@@ -113,6 +130,12 @@ class GradientInput extends React.Component {
         <div className="markers">
           {markers}
         </div>
+        {selected !== -1 &&
+          <ColorInput
+            value={value[selected].color}
+            onChange={(newValue) => this.colorChange(newValue, selected)}
+          />
+        }
       </div>
     );
   }
