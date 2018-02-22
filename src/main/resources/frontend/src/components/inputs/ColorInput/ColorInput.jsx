@@ -47,11 +47,10 @@ let root = document.querySelector('#root');
 class ColorInput extends React.Component {
   constructor(props) {
     super(props);
-    let col = tinycolor(props.value).toHsv();
     this.state = {
-      hue: col.h,
-      saturation: col.s,
-      value: col.v,
+      hue: -1,
+      saturation: -1,
+      value: -1,
       mouseDown: false,
       colorWheelToggle: false,
       triangleToggle: false
@@ -201,7 +200,6 @@ class ColorInput extends React.Component {
     let v = (p[0]*c[1] - p[1]*c[0])/d;
     let w = (p[1]*b[0]-p[0]*b[1])/d;
 
-    // console.log(`u: ${u}, v: ${v}, w: ${w}`);
     if(!this.state.colorWheelToggle && (this.state.triangleToggle || (u > 0.0 && u < 1.0 &&
       v > 0.0 && v < 1.0 &&
       w > 0.0 && w < 1.0))) {
@@ -212,25 +210,9 @@ class ColorInput extends React.Component {
     return undefined;
   }
 
-  /*
-      let { u, v, w } = positionInTriangle;
-      let t = vec2.create();
-      let v1 = vec2.mul(vec2.create(), this.triUV[0], [u, u]);
-      let v2 = vec2.mul(vec2.create(), this.triUV[1], [v, v]);
-      let v3 = vec2.mul(vec2.create(), this.triUV[2], [w, w]);
-      v1
-      vec2.add(t, t, v1);
-      vec2.add(t, t, v2);
-      vec2.add(t, t, v3);
-      console.log(`t: [${t}]`);
-      saturation = t[0];
-      value = t[1];
-      */
-
   getTriangleCoordinateFromColor(color) {
     let u = color.saturation;
     let v = -color.value;
-
 
     let a = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
     let b = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
@@ -300,11 +282,7 @@ class ColorInput extends React.Component {
 
     this.solidShader.bind(this.gl);
     this.ring.bind(this.gl);
-    let pos = this.getTriangleCoordinateFromColor({
-      hue: this.state.hue,
-      saturation: this.state.saturation,
-      value: this.state.value
-    });
+    let pos = this.getTriangleCoordinateFromColor(this.state);
 
     let color = tinycolor.fromRatio({
       h: this.state.hue,
@@ -346,30 +324,40 @@ class ColorInput extends React.Component {
     this.solidShader.unbind(this.gl);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if(!this.state.mouseDown) {
+      let color = tinycolor.fromRatio(nextProps.value)
+      if(!tinycolor.equals(color, this.props.value)) {
+        let hsv = color.toHsv();
+        this.setState({
+          hue: hsv.h / 360,
+          value: hsv.v,
+          saturation: hsv.s
+        });
+      }
+    }
+  }
+
   render() {
-    let { name, value } = this.props;
-    let color = tinycolor(value);
+    let color = tinycolor(this.props.value);
     if(this.gl !== undefined) {
       this.renderCanvas(color);
     }
-    return (
-      <fieldset>
-        <canvas
-          onMouseDown={this.onCanvasMouseDown}
-          onMouseUp={this.onCanvasMouseUp}
-          width="256"
-          height="256"
-          className="color-input-canvas"
-          ref={this.setCanvas}
-        />
-        <div className="color-input-color" style={{ backgroundColor: color.toHexString() }} />
-      </fieldset>
-    );
+    return [
+      <canvas
+        onMouseDown={this.onCanvasMouseDown}
+        onMouseUp={this.onCanvasMouseUp}
+        width="256"
+        height="256"
+        className="color-input-canvas"
+        ref={this.setCanvas}
+      />,
+      <div className="color-input-color" style={{ backgroundColor: color.toHexString() }} />
+    ];
   }
 }
 
 ColorInput.propTypes = {
-  name: PropTypes.string.isRequired,
   value: PropTypes.object,
   onChange: PropTypes.func
 };
