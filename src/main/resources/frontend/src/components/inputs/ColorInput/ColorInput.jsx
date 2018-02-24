@@ -47,10 +47,12 @@ let root = document.querySelector('#root');
 class ColorInput extends React.Component {
   constructor(props) {
     super(props);
+    let color = tinycolor(props.value)
+    let hsv = color.toHsv();
     this.state = {
-      hue: -1,
-      saturation: -1,
-      value: -1,
+      hue: hsv.h / 360,
+      value: hsv.v,
+      saturation: hsv.s,
       mouseDown: false,
       colorWheelToggle: false,
       triangleToggle: false
