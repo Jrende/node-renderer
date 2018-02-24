@@ -21,6 +21,10 @@
     width: @markerWidth;
     height: @markerHeight;
 
+    &.selected {
+      top: 3.5em;
+    }
+
     .triangle:before, .triangle:after {
       content: '';
       position: relative;
@@ -61,6 +65,9 @@
 
     &:hover {
       cursor: grab;
+    }
+    &:first-child:hover, &:last-child:hover {
+      cursor: auto;
     }
   }
 }
