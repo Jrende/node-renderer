@@ -92,21 +92,22 @@ class ColorInput extends React.Component {
       [0.8660253882408142, -0.5]
     ];
     this.triP = t;
-    this.triUV = [
-      [1.0, 1.0],
-      [0.0, 0.0],
-      [0.0, 1.0]
+    let uv = [
+      [1.0, 0.0, 0.0],
+      [0.0, 1.0, 0.0],
+      [0.0, 0.0, 1.0],
     ];
+    this.triUV = uv;
     this.triangle = new VertexArray(this.gl,
       [
-        t[0][0], t[0][1], 1.0, 1.0,
-        t[1][0], t[1][1], 0.0, 0.0,
-        t[2][0], t[2][1], 0.0, 1.0,
+        t[0][0], t[0][1], uv[0][0], uv[0][1], uv[0][2],
+        t[1][0], t[1][1], uv[1][0], uv[1][1], uv[1][2],
+        t[2][0], t[2][1], uv[2][0], uv[2][1], uv[2][2],
       ],
       [
         0, 1, 2
       ],
-      [2, 2]);
+      [2, 3]);
     this.ring = new Ring(this.gl, 24, 0.6);
     this.triangleModel = mat4.create();
 
@@ -161,15 +162,8 @@ class ColorInput extends React.Component {
     let positionInTriangle = this.positionInTriangle(coords);
     if (positionInTriangle !== undefined) {
       let { u, v, w } = positionInTriangle;
-      let t = vec2.create();
-      let v1 = vec2.mul(vec2.create(), this.triUV[0], [u, u]);
-      let v2 = vec2.mul(vec2.create(), this.triUV[1], [v, v]);
-      let v3 = vec2.mul(vec2.create(), this.triUV[2], [w, w]);
-      vec2.add(t, t, v1);
-      vec2.add(t, t, v2);
-      vec2.add(t, t, v3);
-      saturation = t[0];
-      value = t[1];
+      saturation = 1.0 - v;
+      value = 1.0 - w;
       this.setState({ triangleToggle: true });
     }
     // console.log(`h: ${hue}, s: ${saturation}, v: ${value}`);
@@ -213,23 +207,20 @@ class ColorInput extends React.Component {
   }
 
   getTriangleCoordinateFromColor(color) {
-    let u = color.saturation;
-    let v = -color.value;
+    let s = 1.0 - color.saturation;
+    let v = 1.0 - color.value;
 
     let a = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
     let b = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
     let c = vec2.transformMat4(vec2.create(), this.triP[2], this.triangleModel);
 
-    let w = 1 - u - v;
-    let v1 = vec2.mul(vec2.create(), a, [u, u]);
-    let v2 = vec2.mul(vec2.create(), b, [v, v]);
-    let v3 = vec2.mul(vec2.create(), c, [w, w]);
+    let v1 = vec2.sub(vec2.create(), b, a);
+    let v2 = vec2.sub(vec2.create(), c, a);
 
-    let res = vec2.create();
-    vec2.add(res, v1, v2);
-    vec2.add(res, res, v3);
-    vec2.add(res, res, b);
-    vec2.sub(res, res, c);
+    let r1 = vec2.mul(vec2.create(), v1, [s, s]);
+    let r2 = vec2.mul(vec2.create(), v2, [v, v]);
+    let res = vec2.add(vec2.create(), r1, r2);
+    vec2.add(res, res, a);
     return res;
   }
 
@@ -347,6 +338,7 @@ class ColorInput extends React.Component {
     }
     return [
       <canvas
+        key="color-canvas"
         onMouseDown={this.onCanvasMouseDown}
         onMouseUp={this.onCanvasMouseUp}
         width="256"
@@ -354,7 +346,11 @@ class ColorInput extends React.Component {
         className="color-input-canvas"
         ref={this.setCanvas}
       />,
-      <div className="color-input-color" style={{ backgroundColor: color.toHexString() }} />
+      <div
+        key="color-display"
+        className="color-input-color"
+        style={{ backgroundColor: color.toHexString() }}
+      />
     ];
   }
 }

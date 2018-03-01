@@ -1,7 +1,7 @@
 precision highp float;
 uniform vec2 resolution;
 uniform float hue;
-varying vec2 uv;
+varying vec3 uvw;
 
 #define PI2 6.28318530718
 
@@ -22,6 +22,6 @@ vec3 rgb2hsv(vec3 c) {
 }
 
 void main(void) {
-  vec3 color = hsv2rgb(vec3(hue, uv.x, uv.y));
+  vec3 color = hsv2rgb(vec3(hue, 1.0 - uvw.y, 1.0 - uvw.z));
   gl_FragColor = vec4(color, 1.0);
 }

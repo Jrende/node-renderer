@@ -1,11 +1,11 @@
 attribute vec2 aVertexPosition;
-attribute vec2 uvAttr;
+attribute vec3 barycentric;
 
-varying vec2 uv;
+varying vec3 uvw;
 uniform mat4 mvp;
 
 void main(void) {
-  uv = uvAttr;
+  uvw = barycentric;
   gl_Position = mvp * vec4(vec3(aVertexPosition, 1.0), 1.0);
 }
 
