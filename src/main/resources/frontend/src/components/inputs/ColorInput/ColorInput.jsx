@@ -53,10 +53,10 @@ class ColorInput extends React.Component {
       hue: hsv.h / 360,
       value: hsv.v,
       saturation: hsv.s,
-      mouseDown: false,
-      colorWheelToggle: false,
-      triangleToggle: false
     };
+    this.mouseDown = false;
+    this.colorWheelToggle = false;
+    this.triangleToggle = false;
     [
       'setCanvas',
       'onCanvasMouseDown',
@@ -124,7 +124,8 @@ class ColorInput extends React.Component {
   onCanvasMouseDown(event) {
     event.preventDefault();
     root.addEventListener('mousemove', this.onCanvasMouseMove);
-    this.setState({ mouseDown: true });
+    this.mouseDown = true;
+    console.log('onCanvasMouseDown');
     let coords = [
       (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
       -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
@@ -136,12 +137,14 @@ class ColorInput extends React.Component {
 
   onCanvasMouseMove(event) {
     event.preventDefault();
-    if(this.state.mouseDown === true && event.buttons === 0) {
-      this.setState({ mouseDown: false });
+    if(this.mouseDown === true && event.buttons === 0) {
+      this.mouseDown = false;
+      this.colorWheelToggle = false;
+      this.triangleToggle = false;
       root.removeEventListener('mousemove', this.onCanvasMouseMove);
       return;
     }
-    if(this.state.mouseDown) {
+    if(this.mouseDown) {
       let coords = [
         (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
         -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
@@ -152,17 +155,23 @@ class ColorInput extends React.Component {
   }
 
   onCanvasMouseUp(event) {
+    console.log('onCanvasMouseUp');
     event.preventDefault();
     root.removeEventListener('mousemove', this.onCanvasMouseMove);
-    this.setState({ mouseDown: false, colorWheelToggle: false, triangleToggle: false });
+    this.mouseDown = false;
+    this.colorWheelToggle = false;
+    this.triangleToggle = false;
   }
 
   handleInput(coords) {
     let { hue, saturation, value } = this.state;
     let positionInWheel = this.positionInWheel(coords);
+    console.log(`mouseDown: ${this.mouseDown}`);
+    console.log(`colorWheelToggle: ${this.colorWheelToggle}`);
+    console.log(`triangleToggle: ${this.triangleToggle}`);
     if(positionInWheel !== undefined) {
       hue = positionInWheel;
-      this.setState({ colorWheelToggle: true });
+      this.colorWheelToggle = true;
     }
     let positionInTriangle = this.positionInTriangle(coords);
     if (positionInTriangle !== undefined) {
@@ -194,7 +203,7 @@ class ColorInput extends React.Component {
 
       saturation = Math.max(0, Math.min(1.0, 1.0 - pos.v));
       value = Math.max(0, Math.min(1.0, 1.0 - pos.w));
-      this.setState({ triangleToggle: true });
+      this.triangleToggle = true;
     }
     return { hue, saturation, value };
   }
@@ -225,7 +234,7 @@ class ColorInput extends React.Component {
     let v = (p[0]*c[1] - p[1]*c[0])/d;
     let w = (p[1]*b[0]-p[0]*b[1])/d;
 
-    if(!this.state.colorWheelToggle && (this.state.triangleToggle || (u > 0.0 && u < 1.0 &&
+    if(!this.colorWheelToggle && (this.triangleToggle || (u > 0.0 && u < 1.0 &&
       v > 0.0 && v < 1.0 &&
       w > 0.0 && w < 1.0))) {
       return {
@@ -256,7 +265,7 @@ class ColorInput extends React.Component {
   positionInWheel(p) {
     let center = [0, 0];
     let dist = vec2.distance(p, center);
-    if(!this.state.triangleToggle && (this.state.colorWheelToggle || dist > 0.8 && dist < 1.0)) {
+    if(!this.triangleToggle && (this.colorWheelToggle || dist > 0.8 && dist < 1.0)) {
       return getAngle([1, 0], p) / (2.0 * Math.PI);
     }
     return undefined;
@@ -358,10 +367,11 @@ class ColorInput extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(!this.state.mouseDown) {
+    if(!this.mouseDown) {
       let color = tinycolor.fromRatio(nextProps.value)
       if(!tinycolor.equals(color, this.props.value)) {
         let hsv = color.toHsv();
+        console.log(`received props, set hue to ${hsv.h / 360}`);
         this.setState({
           hue: hsv.h / 360,
           value: hsv.v,
