@@ -382,9 +382,9 @@ class ColorInput extends React.Component {
   }
 
   render() {
-    let color = tinycolor(this.props.value);
+    let color = tinycolor.fromRatio(this.props.value);
     if(this.gl !== undefined) {
-      this.renderCanvas(color);
+      this.renderCanvas();
     }
     return [
       <canvas
