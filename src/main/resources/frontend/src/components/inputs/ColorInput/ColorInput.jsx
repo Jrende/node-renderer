@@ -86,12 +86,17 @@ class ColorInput extends React.Component {
       [1, 0, 2,
         2, 0, 3],
       [2]);
-    let t = [
-      [0, 1.0],
-      [-0.8660253882408142, -0.5],
-      [0.8660253882408142, -0.5]
-    ];
+    let t = [];
+    for(let i = 0; i < 3; i++) {
+      let deg = ((2*Math.PI) / 3) * i;
+      t.push([Math.sin(deg), Math.cos(deg)]);
+    }
     this.triP = t;
+    this.triPT = [
+      vec2.create(),
+      vec2.create(),
+      vec2.create()
+    ];
     let uv = [
       [1.0, 0.0, 0.0],
       [0.0, 1.0, 0.0],
@@ -161,12 +166,36 @@ class ColorInput extends React.Component {
     }
     let positionInTriangle = this.positionInTriangle(coords);
     if (positionInTriangle !== undefined) {
-      let { u, v, w } = positionInTriangle;
-      saturation = 1.0 - v;
-      value = 1.0 - w;
+      let pos = positionInTriangle;
+      if(pos.w + pos.v > 1.0 || pos.v < 0 || pos.w < 0) {
+        let from, to
+        let add = vec2.create();
+        if(pos.w + pos.v > 1.0) {
+          from = this.triPT[1];
+          to = this.triPT[2];
+        } else if(pos.v < 0) {
+          from = this.triPT[0];
+          to = this.triPT[2];
+        } else if(pos.w < 0) {
+          from = this.triPT[0];
+          to = this.triPT[1];
+        }
+        let line = vec2.sub(vec2.create(), from, to);
+        var len = vec2.len(line);
+
+        vec2.normalize(line, line);
+
+        let v = vec2.sub(vec2.create(), coords, to);
+        let d = vec2.dot(v, line);
+        d = Math.max(0, Math.min(len, d));
+        let res = vec2.scaleAndAdd(vec2.create(), to, line, d);
+        pos = this.positionInTriangle(res);
+      }
+
+      saturation = 1.0 - pos.v;
+      value = 1.0 - pos.w;
       this.setState({ triangleToggle: true });
     }
-    // console.log(`h: ${hue}, s: ${saturation}, v: ${value}`);
     return { hue, saturation, value };
   }
 
@@ -182,10 +211,10 @@ class ColorInput extends React.Component {
   }
 
   positionInTriangle(coord) {
-    let p = coord;
-    let a = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
-    let b = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
-    let c = vec2.transformMat4(vec2.create(), this.triP[2], this.triangleModel);
+    let p = vec2.clone(coord);
+    let a = vec2.clone(this.triPT[0]);
+    let b = vec2.clone(this.triPT[1]);
+    let c = vec2.clone(this.triPT[2]);
 
     vec2.sub(b, b, a);
     vec2.sub(c, c, a);
@@ -210,9 +239,9 @@ class ColorInput extends React.Component {
     let s = 1.0 - color.saturation;
     let v = 1.0 - color.value;
 
-    let a = vec2.transformMat4(vec2.create(), this.triP[0], this.triangleModel);
-    let b = vec2.transformMat4(vec2.create(), this.triP[1], this.triangleModel);
-    let c = vec2.transformMat4(vec2.create(), this.triP[2], this.triangleModel);
+    let a = this.triPT[0];
+    let b = this.triPT[1];
+    let c = this.triPT[2];
 
     let v1 = vec2.sub(vec2.create(), b, a);
     let v2 = vec2.sub(vec2.create(), c, a);
@@ -263,7 +292,11 @@ class ColorInput extends React.Component {
       this.triangleModel,
       hueRot,
       vec3.create(),
-      [0.8, 0.8, 1.0]);
+      [0.8, 0.8, 0.8]);
+    vec2.transformMat4(this.triPT[0], this.triP[0], this.triangleModel);
+    vec2.transformMat4(this.triPT[1], this.triP[1], this.triangleModel);
+    vec2.transformMat4(this.triPT[2], this.triP[2], this.triangleModel);
+
     this.satValShader.setUniforms(this.gl, {
       resolution,
       mvp: this.triangleModel,
@@ -314,6 +347,49 @@ class ColorInput extends React.Component {
     });
 
     this.quad.draw(this.gl);
+
+    this.solidShader.setUniforms(this.gl, {
+      color: hueMarkerColor,
+      mvp: hueMarkerMatrix
+    });
+    this.quad.draw(this.gl);
+    this.quad.unbind(this.gl);
+
+
+    this.ring.bind(this.gl);
+    let tri = this.triPT[0]
+    this.solidShader.setUniforms(this.gl, {
+      color: [1.0, 0.0, 0.0, 1.0],
+      mvp: mat4.fromRotationTranslationScale(
+        mat4.create(),
+        quat.create(),
+        [tri[0], tri[1], 0],
+        [0.05, 0.05, 1.0])
+    });
+    this.ring.draw(this.gl);
+
+    tri = this.triPT[1]
+    this.solidShader.setUniforms(this.gl, {
+      color: [0.0, 1.0, 0.0, 1.0],
+      mvp: mat4.fromRotationTranslationScale(
+        mat4.create(),
+        quat.create(),
+        [tri[0], tri[1], 0],
+        [0.05, 0.05, 1.0])
+    });
+    this.ring.draw(this.gl);
+
+    tri = this.triPT[2]
+    this.solidShader.setUniforms(this.gl, {
+      color: [0.0, 0.0, 1.0, 1.0],
+      mvp: mat4.fromRotationTranslationScale(
+        mat4.create(),
+        quat.create(),
+        [tri[0], tri[1], 0],
+        [0.05, 0.05, 1.0])
+    });
+    this.ring.draw(this.gl);
+
     this.solidShader.unbind(this.gl);
   }
 
