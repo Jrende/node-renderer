@@ -8,12 +8,11 @@ export default class GradientRenderer extends Renderer {
     super(gl);
     this.shader = shaders.getShader('gradient');
     this.quad = new VertexArray(this.gl,
-        [1, 1, 1,
-         0, 1, 0,
-         0, -1, 0,
-         1, -1, 1],
-      [1, 0, 2,
-        2, 0, 3],
+      [1, 1, 1,
+        0, 1, 0,
+        0, -1, 0,
+        1, -1, 1],
+      [1, 0, 2, 2, 0, 3],
       [2, 1]);
   }
 
@@ -27,9 +26,8 @@ export default class GradientRenderer extends Renderer {
         let from = values.gradient[i];
         let to = values.gradient[i + 1];
 
-        let width = to.position - from.position;
+        let width = (to.position - from.position) * 2.0;
         let mvp = mat4.create();
-        //mat4.translate(mvp, mvp, [-1.0, 0, 0]);
         mat4.translate(mvp, mvp, [sum, 0, 0]);
         mat4.scale(mvp, mvp, [width, 1.0, 1.0]);
         this.shader.setUniforms(this.gl, {
