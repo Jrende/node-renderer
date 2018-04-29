@@ -53,6 +53,7 @@ class ColorInput extends React.Component {
       hue: hsv.h / 360,
       value: hsv.v,
       saturation: hsv.s,
+      hexInput: color.toHex()
     };
     this.mouseDown = false;
     this.colorWheelToggle = false;
@@ -61,7 +62,8 @@ class ColorInput extends React.Component {
       'setCanvas',
       'onCanvasMouseDown',
       'onCanvasMouseMove',
-      'onCanvasMouseUp'
+      'onCanvasMouseUp',
+      'onHexInputChange'
     ].forEach(name => this[name] = this[name].bind(this));
   }
 
@@ -123,6 +125,22 @@ class ColorInput extends React.Component {
     let color = tinycolor(this.props.value);
     this.renderCanvas(color);
 
+  }
+
+  onHexInputChange(event) {
+    let hexRegex = /[0-9a-f]{6}/
+    let str = event.target.value;
+    let color = tinycolor(`#${str}`);
+    if(hexRegex.test(str.toLowerCase())) {
+      let hsv = color.toHsv();
+      this.updateColor(
+        hsv.h / 360,
+        hsv.s,
+        hsv.v
+      );
+    } else {
+      this.setState({hexInput: str});
+    }
   }
 
   onCanvasMouseDown(event) {
@@ -191,13 +209,12 @@ class ColorInput extends React.Component {
   }
 
   updateColor(hue, saturation, value) {
-    this.setState({ hue, saturation, value });
-
     let newColor = tinycolor.fromRatio({
       h: hue,
       s: saturation,
       v: value
     });
+    this.setState({ hue, saturation, value, hexInput: newColor.toHex() });
     this.props.onChange(newColor.toRgb());
   }
 
@@ -224,8 +241,6 @@ class ColorInput extends React.Component {
   }
 
   getTriangleCoordinateFromColor(color) {
-    //float value = 1.0 - uvw.z;
-    //float saturation = uvw.x / value;
     let v = 1.0 - color.value;
     let s = (1.0 - color.saturation) * color.value;
 
@@ -382,7 +397,8 @@ class ColorInput extends React.Component {
         this.setState({
           hue: hsv.h / 360,
           value: hsv.v,
-          saturation: hsv.s
+          saturation: hsv.s,
+          hexInput: color.toHex()
         });
       }
     }
@@ -410,37 +426,44 @@ class ColorInput extends React.Component {
         height="256"
         className="color-input-canvas"
         ref={this.setCanvas}
-      />,
+      />
       <div
         key="color-display"
         className="color-input-color"
-        style={{ backgroundColor: color.toHexString() }}
-      />,
+        style={{ backgroundColor: color.toHexString() }}>
+        <input
+          type="text"
+          spellcheck="false"
+          style={{color: (color.isLight() ?  'black' : 'white')}}
+          value={this.state.hexInput}
+          onChange={this.onHexInputChange}
+          onPaste={this.onHexInputChange} />
+      </div>
       <div className="slider" key="r">
         <label htmlFor="r">r</label>
         <input name="r" type="range" value={r} />
         <span>{Math.floor(r)}</span>
-      </div>,
+      </div>
       <div className="slider" key="g">
         <label htmlFor="g">g</label>
         <input name="g" type="range" value={g} />
         <span>{Math.floor(g)}</span>
-      </div>,
+      </div>
       <div className="slider" key="b">
         <label htmlFor="b">b</label>
         <input name="b" type="range" value={b} />
         <span>{Math.floor(b)}</span>
-      </div>,
+      </div>
       <div className="slider" key="h">
         <label htmlFor="h">h</label>
         <input name="h" type="range" value={h} />
         <span>{Math.floor(h * 3.6)}</span>
-      </div>,
+      </div>
       <div className="slider" key="s">
         <label htmlFor="s">s</label>
         <input name="s" type="range" value={s} />
         <span>{Math.floor(s)}</span>
-      </div>,
+      </div>
       <div className="slider" key="v">
         <label htmlFor="v">v</label>
         <input name="v" type="range" value={v} />
