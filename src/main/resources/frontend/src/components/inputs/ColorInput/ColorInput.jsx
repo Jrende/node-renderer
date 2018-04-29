@@ -134,8 +134,6 @@ class ColorInput extends React.Component {
       -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
     ].map(c => c * 2.0);
     let { hue, saturation, value } = this.handleInput(coords);
-    console.log(`mouseDown coords: ${coords}`);
-    console.log(`hsv: ${hue}, ${saturation}, ${value}`);
     this.updateColor(hue, saturation, value);
   }
 
