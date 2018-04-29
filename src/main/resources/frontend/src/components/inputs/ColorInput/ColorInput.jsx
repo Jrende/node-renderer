@@ -378,7 +378,8 @@ class ColorInput extends React.Component {
   componentWillReceiveProps(nextProps) {
     if(!this.mouseDown) {
       let color = tinycolor.fromRatio(nextProps.value)
-      if(!tinycolor.equals(color, this.props.value)) {
+      let currentColor = tinycolor.fromRatio(this.props.value)
+      if(!tinycolor.equals(color, currentColor)) {
         let hsv = color.toHsv();
         this.setState({
           hue: hsv.h / 360,
