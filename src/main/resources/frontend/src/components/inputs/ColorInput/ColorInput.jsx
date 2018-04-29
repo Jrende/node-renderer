@@ -88,8 +88,8 @@ class ColorInput extends React.Component {
       [2]);
     let t = [
       [0, 1.0],
+      [0.8660253882408142, -0.5],
       [-0.8660253882408142, -0.5],
-      [0.8660253882408142, -0.5]
     ]
     this.triP = t;
     this.triPT = [
@@ -101,6 +101,7 @@ class ColorInput extends React.Component {
       [1.0, 0.0, 0.0],
       [0.0, 1.0, 0.0],
       [0.0, 0.0, 1.0],
+      //[1.0, 1.0, 1.0],
     ];
     this.triUV = uv;
     this.triangle = new VertexArray(this.gl,
@@ -108,9 +109,11 @@ class ColorInput extends React.Component {
         t[0][0], t[0][1], uv[0][0], uv[0][1], uv[0][2],
         t[1][0], t[1][1], uv[1][0], uv[1][1], uv[1][2],
         t[2][0], t[2][1], uv[2][0], uv[2][1], uv[2][2],
+        //t[3][0], t[3][1], uv[3][0], uv[3][1], uv[3][2],
       ],
       [
-        0, 1, 2
+        //0, 1, 2
+        1, 0, 2//, 2, 0, 3
       ],
       [2, 3]);
     this.ring = new Ring(this.gl, 24, 0.6);
@@ -119,18 +122,20 @@ class ColorInput extends React.Component {
     this.gl.clearColor(0, 0, 0, 1.0);
     let color = tinycolor(this.props.value);
     this.renderCanvas(color);
+
   }
 
   onCanvasMouseDown(event) {
     event.preventDefault();
     root.addEventListener('mousemove', this.onCanvasMouseMove);
     this.mouseDown = true;
-    console.log('onCanvasMouseDown');
     let coords = [
       (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
       -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
     ].map(c => c * 2.0);
     let { hue, saturation, value } = this.handleInput(coords);
+    console.log(`mouseDown coords: ${coords}`);
+    console.log(`hsv: ${hue}, ${saturation}, ${value}`);
     this.updateColor(hue, saturation, value);
   }
 
@@ -155,7 +160,6 @@ class ColorInput extends React.Component {
   }
 
   onCanvasMouseUp(event) {
-    console.log('onCanvasMouseUp');
     event.preventDefault();
     root.removeEventListener('mousemove', this.onCanvasMouseMove);
     this.mouseDown = false;
@@ -166,9 +170,6 @@ class ColorInput extends React.Component {
   handleInput(coords) {
     let { hue, saturation, value } = this.state;
     let positionInWheel = this.positionInWheel(coords);
-    console.log(`mouseDown: ${this.mouseDown}`);
-    console.log(`colorWheelToggle: ${this.colorWheelToggle}`);
-    console.log(`triangleToggle: ${this.triangleToggle}`);
     if(positionInWheel !== undefined) {
       hue = positionInWheel;
       this.colorWheelToggle = true;
@@ -177,32 +178,15 @@ class ColorInput extends React.Component {
     if (positionInTriangle !== undefined) {
       let pos = positionInTriangle;
       if(pos.w + pos.v > 1.0 || pos.v < 0 || pos.w < 0) {
-        let from, to
-        let add = vec2.create();
-        if(pos.w + pos.v > 1.0) {
-          from = this.triPT[1];
-          to = this.triPT[2];
-        } else if(pos.v < 0) {
-          from = this.triPT[0];
-          to = this.triPT[2];
-        } else if(pos.w < 0) {
-          from = this.triPT[0];
-          to = this.triPT[1];
-        }
-        let line = vec2.sub(vec2.create(), from, to);
-        var len = vec2.len(line);
-
-        vec2.normalize(line, line);
-
-        let v = vec2.sub(vec2.create(), coords, to);
-        let d = vec2.dot(v, line);
-        d = Math.max(0, Math.min(len, d));
-        let res = vec2.scaleAndAdd(vec2.create(), to, line, d);
-        pos = this.positionInTriangle(res);
+        pos = this.getClosestPointToTriangle(pos, coords);
       }
 
-      saturation = Math.max(0, Math.min(1.0, 1.0 - pos.v));
       value = Math.max(0, Math.min(1.0, 1.0 - pos.w));
+      saturation = Math.max(0, Math.min(1.0, pos.u / value));
+      //Still some weirdness when value is around zero
+      if(isNaN(saturation)) {
+        saturation = 0.0;
+      }
       this.triangleToggle = true;
     }
     return { hue, saturation, value };
@@ -220,14 +204,11 @@ class ColorInput extends React.Component {
   }
 
   positionInTriangle(coord) {
-    let p = vec2.clone(coord);
-    let a = vec2.clone(this.triPT[0]);
-    let b = vec2.clone(this.triPT[1]);
-    let c = vec2.clone(this.triPT[2]);
+    let a = this.triPT[0];
 
-    vec2.sub(b, b, a);
-    vec2.sub(c, c, a);
-    vec2.sub(p, p, a);
+    let b = vec2.sub(vec2.create(), this.triPT[1], a);
+    let c = vec2.sub(vec2.create(), this.triPT[2], a);
+    let p = vec2.sub(vec2.create(), coord, a);
 
     let d = b[0]*c[1] - c[0]*b[1];
     let u = (p[0]*(b[1]-c[1]) + p[1]*(c[0]-b[0]) + b[0]*c[1] - c[0]*b[1])/d;
@@ -245,8 +226,10 @@ class ColorInput extends React.Component {
   }
 
   getTriangleCoordinateFromColor(color) {
-    let s = 1.0 - color.saturation;
+    //float value = 1.0 - uvw.z;
+    //float saturation = uvw.x / value;
     let v = 1.0 - color.value;
+    let s = (1.0 - color.saturation) * color.value;
 
     let a = this.triPT[0];
     let b = this.triPT[1];
@@ -260,6 +243,31 @@ class ColorInput extends React.Component {
     let res = vec2.add(vec2.create(), r1, r2);
     vec2.add(res, res, a);
     return res;
+  }
+
+  getClosestPointToTriangle(pos, coords) {
+    let from, to;
+    let add = vec2.create();
+    if(pos.w + pos.v > 1.0) {
+      from = this.triPT[1];
+      to = this.triPT[2];
+    } else if(pos.v < 0) {
+      from = this.triPT[0];
+      to = this.triPT[2];
+    } else if(pos.w < 0) {
+      from = this.triPT[0];
+      to = this.triPT[1];
+    }
+    let line = vec2.sub(vec2.create(), from, to);
+    var len = vec2.len(line);
+
+    vec2.normalize(line, line);
+
+    let v = vec2.sub(vec2.create(), coords, to);
+    let d = vec2.dot(v, line);
+    d = Math.max(0, Math.min(len, d));
+    let res = vec2.scaleAndAdd(vec2.create(), to, line, d);
+    return this.positionInTriangle(res);
   }
 
   positionInWheel(p) {
@@ -293,10 +301,13 @@ class ColorInput extends React.Component {
 
     this.satValShader.bind(this.gl);
     this.triangle.bind(this.gl);
+
+    this.triangleModel = mat4.create();
+    let rot = this.state.hue * Math.PI * 2.0 - Math.PI/2.0
     let hueRot = quat.setAxisAngle(
       quat.create(),
       [0, 0, 1],
-      this.state.hue * Math.PI * 2.0 - Math.PI/2.0);
+      rot);
     mat4.fromRotationTranslationScale(
       this.triangleModel,
       hueRot,
@@ -306,8 +317,12 @@ class ColorInput extends React.Component {
     vec2.transformMat4(this.triPT[1], this.triP[1], this.triangleModel);
     vec2.transformMat4(this.triPT[2], this.triP[2], this.triangleModel);
 
+    let mvp2 = mat4.create();
+    mat4.translate(mvp2, mvp2, [0.5, 0.5, 0.0]);
+    mat4.rotate(mvp2, mvp2, rot, [0, 0, 1.0]);
+    mat4.scale(mvp2, mvp2, [0.8, 0.8, 0.8]);
+
     this.satValShader.setUniforms(this.gl, {
-      resolution,
       mvp: this.triangleModel,
       hue: this.state.hue
     });
@@ -332,7 +347,7 @@ class ColorInput extends React.Component {
         mat4.create(),
         quat.create(),
         [pos[0], pos[1], 0],
-        [0.05, 0.05, 1.0])
+        [0.03, 0.03, 1.0])
     });
 
     this.ring.draw(this.gl);
@@ -356,12 +371,6 @@ class ColorInput extends React.Component {
     });
 
     this.quad.draw(this.gl);
-
-    this.solidShader.setUniforms(this.gl, {
-      color: hueMarkerColor,
-      mvp: hueMarkerMatrix
-    });
-    this.quad.draw(this.gl);
     this.quad.unbind(this.gl);
     this.solidShader.unbind(this.gl);
   }
@@ -371,7 +380,6 @@ class ColorInput extends React.Component {
       let color = tinycolor.fromRatio(nextProps.value)
       if(!tinycolor.equals(color, this.props.value)) {
         let hsv = color.toHsv();
-        console.log(`received props, set hue to ${hsv.h / 360}`);
         this.setState({
           hue: hsv.h / 360,
           value: hsv.v,
@@ -386,7 +394,15 @@ class ColorInput extends React.Component {
     if(this.gl !== undefined) {
       this.renderCanvas();
     }
+    let {r, g, b} = color.toRgb();
+    r *= 100/255;
+    g *= 100/255;
+    b *= 100/255;
+    let h = this.state.hue * 100;
+    let s = this.state.saturation * 100;
+    let v = this.state.value * 100;
     return [
+      <div class="test">
       <canvas
         key="color-canvas"
         onMouseDown={this.onCanvasMouseDown}
@@ -400,7 +416,38 @@ class ColorInput extends React.Component {
         key="color-display"
         className="color-input-color"
         style={{ backgroundColor: color.toHexString() }}
-      />
+      />,
+      <div className="slider" key="r">
+        <label htmlFor="r">r</label>
+        <input name="r" type="range" value={r} />
+        <span>{Math.floor(r)}</span>
+      </div>,
+      <div className="slider" key="g">
+        <label htmlFor="g">g</label>
+        <input name="g" type="range" value={g} />
+        <span>{Math.floor(g)}</span>
+      </div>,
+      <div className="slider" key="b">
+        <label htmlFor="b">b</label>
+        <input name="b" type="range" value={b} />
+        <span>{Math.floor(b)}</span>
+      </div>,
+      <div className="slider" key="h">
+        <label htmlFor="h">h</label>
+        <input name="h" type="range" value={h} />
+        <span>{Math.floor(h * 3.6)}</span>
+      </div>,
+      <div className="slider" key="s">
+        <label htmlFor="s">s</label>
+        <input name="s" type="range" value={s} />
+        <span>{Math.floor(s)}</span>
+      </div>,
+      <div className="slider" key="v">
+        <label htmlFor="v">v</label>
+        <input name="v" type="range" value={v} />
+        <span>{Math.floor(v)}</span>
+      </div>
+    </div>
     ];
   }
 }
