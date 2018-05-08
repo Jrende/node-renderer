@@ -23,7 +23,9 @@
       "no-return-assign": "off",
       "no-bitwise": "off",
       "no-mixed-operators": "off",
-      "react/require-default-props": "off"
+      "react/require-default-props": "off",
+      "react/sort-comp": "off",
+      "space-infix-ops": "off"
     },
     "globals": {
       "document": true,

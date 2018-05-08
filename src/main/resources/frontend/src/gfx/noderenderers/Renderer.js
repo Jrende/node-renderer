@@ -63,9 +63,9 @@ export default class Renderer {
 
   fromColor(color) {
     return [
-      color.r / 255,
-      color.g / 255,
-      color.b / 255,
+      color.r,
+      color.g,
+      color.b,
       color.a
     ];
   }

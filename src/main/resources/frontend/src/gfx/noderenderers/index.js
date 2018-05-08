@@ -12,7 +12,7 @@ let constructors = {
   [types.clouds.id]: CloudRenderer,
   [types.solidColor.id]: SolidColorRenderer,
   [types.blend.id]: BlendRenderer,
-  [types.gradientMap.id]: GradientRenderer
+  [types.gradient.id]: GradientRenderer
 };
 
 export default function getRenderer(type) {

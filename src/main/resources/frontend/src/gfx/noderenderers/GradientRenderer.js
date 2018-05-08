@@ -36,12 +36,8 @@ export default class GradientRenderer extends Renderer {
           from: this.fromColor(from.color)
         });
         this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
-
-
-        console.log(`${i}: width: ${width}, pos: ${sum}`);
         sum += width;
       }
-      console.log('');
       this.quad.unbind(this.gl);
       this.shader.unbind(this.gl);
     });

@@ -173,9 +173,25 @@ export const types = {
       },
     }
   },
-  gradientMap: {
+  gradient: {
     id: 6,
-    name: "Gradient Map",
+    name: "Gradient",
+    values: {
+      gradient: {
+        name: "Gradient",
+        type: "gradient"
+      }
+    },
+    output: {
+      out: {
+        type: 'FrameBuffer',
+        name: 'Output'
+      },
+    }
+  },
+  colorMap: {
+    id: 7,
+    name: "Color Map",
     values: {
       gradient: {
         name: "Gradient",

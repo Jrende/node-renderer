@@ -13,6 +13,11 @@ import Shader from '../../../gfx/shader/Shader';
 import Ring from '../../../gfx/geometry/Ring';
 import './style.less';
 
+function isHex(h) {
+  var a = parseInt(h,16);
+  return (a.toString(16) === h)
+}
+
 function getAllOffsetLeft(elm) {
   let offsetLeft = 0;
   while(elm !== null) {
@@ -47,7 +52,7 @@ let root = document.querySelector('#root');
 class ColorInput extends React.Component {
   constructor(props) {
     super(props);
-    let color = tinycolor(props.value)
+    let color = tinycolor.fromRatio(props.value)
     let hsv = color.toHsv();
     this.state = {
       hue: hsv.h / 360,
@@ -131,15 +136,15 @@ class ColorInput extends React.Component {
     let hexRegex = /[0-9a-f]{6}/
     let str = event.target.value;
     let color = tinycolor(`#${str}`);
-    if(hexRegex.test(str.toLowerCase())) {
+    if(str.length === 6 && color.isValid()) {
       let hsv = color.toHsv();
       this.updateColor(
         hsv.h / 360,
         hsv.s,
         hsv.v
       );
-    } else {
-      this.setState({hexInput: str});
+    } else if (str.length <= 6 && (str == '' || isHex(str))) {
+      this.setState({ hexInput: str });
     }
   }
 
@@ -215,7 +220,15 @@ class ColorInput extends React.Component {
       v: value
     });
     this.setState({ hue, saturation, value, hexInput: newColor.toHex() });
-    this.props.onChange(newColor.toRgb());
+    let rgb = newColor.toRgb();
+    let ratio = {
+      r: rgb.r / 255,
+      g: rgb.g / 255,
+      b: rgb.b / 255,
+      a: rgb.a
+    };
+
+    this.props.onChange(ratio);
   }
 
   positionInTriangle(coord) {
@@ -417,59 +430,29 @@ class ColorInput extends React.Component {
     let s = this.state.saturation * 100;
     let v = this.state.value * 100;
     return [
-      <div class="test">
-      <canvas
-        key="color-canvas"
-        onMouseDown={this.onCanvasMouseDown}
-        onMouseUp={this.onCanvasMouseUp}
-        width="256"
-        height="256"
-        className="color-input-canvas"
-        ref={this.setCanvas}
-      />
-      <div
-        key="color-display"
-        className="color-input-color"
-        style={{ backgroundColor: color.toHexString() }}>
-        <input
-          type="text"
-          spellcheck="false"
-          style={{color: (color.isLight() ?  'black' : 'white')}}
-          value={this.state.hexInput}
-          onChange={this.onHexInputChange}
-          onPaste={this.onHexInputChange} />
+      <div>
+        <canvas
+          key="color-canvas"
+          onMouseDown={this.onCanvasMouseDown}
+          onMouseUp={this.onCanvasMouseUp}
+          width="256"
+          height="256"
+          className="color-input-canvas"
+          ref={this.setCanvas}
+        />
+        <div
+          key="color-display"
+          className="color-input-color"
+          style={{ backgroundColor: color.toHexString() }}>
+          <input
+            type="text"
+            spellcheck="false"
+            style={{color: (color.isLight() ?  'black' : 'white')}}
+            value={this.state.hexInput}
+            onChange={this.onHexInputChange}
+            onPaste={this.onHexInputChange} />
+        </div>
       </div>
-      <div className="slider" key="r">
-        <label htmlFor="r">r</label>
-        <input name="r" type="range" value={r} />
-        <span>{Math.floor(r)}</span>
-      </div>
-      <div className="slider" key="g">
-        <label htmlFor="g">g</label>
-        <input name="g" type="range" value={g} />
-        <span>{Math.floor(g)}</span>
-      </div>
-      <div className="slider" key="b">
-        <label htmlFor="b">b</label>
-        <input name="b" type="range" value={b} />
-        <span>{Math.floor(b)}</span>
-      </div>
-      <div className="slider" key="h">
-        <label htmlFor="h">h</label>
-        <input name="h" type="range" value={h} />
-        <span>{Math.floor(h * 3.6)}</span>
-      </div>
-      <div className="slider" key="s">
-        <label htmlFor="s">s</label>
-        <input name="s" type="range" value={s} />
-        <span>{Math.floor(s)}</span>
-      </div>
-      <div className="slider" key="v">
-        <label htmlFor="v">v</label>
-        <input name="v" type="range" value={v} />
-        <span>{Math.floor(v)}</span>
-      </div>
-    </div>
     ];
   }
 }

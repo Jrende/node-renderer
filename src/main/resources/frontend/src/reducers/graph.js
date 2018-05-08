@@ -21,7 +21,7 @@ function getDefault(value) {
       return 0;
     case 'color':
       return {
-        r: 0,
+        r: 1,
         g: 0,
         b: 0,
         a: 1
@@ -33,11 +33,11 @@ function getDefault(value) {
           position: 0.0
         },
         {
-          color: {r: 255, g: 0, b: 0, a: 1.0},
+          color: {r: 1, g: 0, b: 0, a: 1.0},
           position: 0.5
         },
         {
-          color: {r: 255, g: 255, b: 255, a:1.0},
+          color: {r: 1, g: 1, b: 1, a: 1.0},
           position: 1.0
         }
       ];

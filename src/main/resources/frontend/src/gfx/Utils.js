@@ -75,9 +75,3 @@ export function degToRad(deg) {
 export function radToDeg(rad) {
   return rad * 180 / Math.PI;
 }
-
-export function colorToArray(col) {
-  let c = col.toRgb();
-  return [c.r, c.g, c.b].map(i => i / 255.0);
-}
-

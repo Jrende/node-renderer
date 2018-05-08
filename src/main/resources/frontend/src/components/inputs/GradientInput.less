@@ -1,4 +1,6 @@
 .gradient-editor {
+  @markerWidth: 2em;
+  @markerHeight: 1em;
   position: relative;
   height: 4em;
   width: 20em;
@@ -14,33 +16,46 @@
   }
 
   .marker {
-    @markerWidth: 2em;
-    @markerHeight: 1em;
-    @triangleWidth: (@markerWidth / 2);
     position: absolute;
     width: @markerWidth;
     height: @markerHeight;
+
+    .triangle-outline {
+      background: black;
+      &:before {
+        content: "";
+        display: block;
+        background: white;
+        clip-path: polygon(0 100%,100% 100%,50% 0);
+        z-index: 3;
+        position: absolute;
+        height: 100%;
+        width: calc(100% - 2px);
+        top: 1px;
+        left: 1px;
+      }
+    }
 
     &.selected {
       top: 3.5em;
     }
 
-    .triangle:before, .triangle:after {
-      content: '';
-      position: relative;
-      width: 0;
-      height: 0;
-      top: -1em;
-      border-left: @triangleWidth solid transparent;
-      border-right: @triangleWidth solid transparent;
-      border-bottom: @triangleWidth solid black;
+    &:hover {
+      cursor: grab;
     }
 
-    .triangle:after {
-      top: -2em;
-      border-left: @triangleWidth solid transparent;
-      border-right: @triangleWidth solid transparent;
-      border-bottom: @triangleWidth solid white;
+    &:first-child:hover, &:last-child:hover {
+      cursor: auto;
+    }
+
+    &:before {
+      content: "";
+      display: block;
+      height: 100%;
+      background: #000;
+      clip-path: polygon(0 100%, 100% 100%, 50% 0);
+      height: 100%;
+      width: 100%;
     }
 
     .color-display {
@@ -48,8 +63,6 @@
       border-top: 0;
 
       position: relative;
-      top: calc(-1em - 3px);
-
 
       height: @markerHeight;
 
@@ -61,13 +74,6 @@
         height: 100%;
         outline: 1px solid black;
       }
-    }
-
-    &:hover {
-      cursor: grab;
-    }
-    &:first-child:hover, &:last-child:hover {
-      cursor: auto;
     }
   }
 }

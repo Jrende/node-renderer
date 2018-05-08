@@ -185,7 +185,7 @@ class GradientInput extends React.Component {
           onMouseDown={(event) => this.onMarkerMouseDown(event, i)}
           style={markerStyle}
         >
-          <div className="triangle" />
+          <div className="triangle-outline"></div>
           <div className="color-display">
             <div className="inner" style={{ backgroundColor: color.toHexString() }} />
           </div>
