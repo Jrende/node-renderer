@@ -39,8 +39,8 @@ class Editor extends React.Component {
       </div>,
       <div key="RenderCanvas" className="canvas">
         <RenderCanvas />
-        {input}
       </div>,
+      input
     ];
   }
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgRenderer.less';
 import SvgNode from './SvgNode';
-import { addInSvgSpace, transformPointToSvgSpace } from '../../utils/SvgUtils';
+import { addInSvgSpace, transformPointToSvgSpace, getSvgSize } from '../../utils/SvgUtils';
 
 function getSvgNodeFromTarget(target) {
   let parent = target;
@@ -79,7 +79,7 @@ class SvgRenderer extends React.Component {
     let grabNodeId = svgNode.getAttribute('data-node-id') | 0;
 
     let node = this.props.nodes[grabNodeId];
-    let svgSize = this.getSvgSize();
+    let svgSize = getSvgSize(this.svg);
     let coord = transformPointToSvgSpace(
       [
         event.clientX + node.pos[0],
@@ -227,22 +227,11 @@ class SvgRenderer extends React.Component {
     }
   }
 
-  getSvgSize() {
-    let size = [0, 0];
-    if(this.svg !== undefined) {
-      size = [
-        this.svg.clientWidth || this.svg.parentNode.clientWidth,
-        this.svg.clientHeight || this.svg.parentNode.clientHeight
-      ];
-    }
-    return size;
-  }
-
   setSvg(svg) {
     if(svg != null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
-      let s = this.getSvgSize();
+      let s = getSvgSize(this.svg);
       this.setState({
         pan: [0, 0]
       });
@@ -299,7 +288,7 @@ class SvgRenderer extends React.Component {
     this.point.x = event.clientX;
     this.point.y = event.clientY;
     let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
-    let svgSize = this.getSvgSize();
+    let svgSize = getSvgSize(this.svg);
     let newNode = {
       type: type.id,
       pos: [
@@ -373,7 +362,7 @@ class SvgRenderer extends React.Component {
 
     let m = mat3.create();
     if(this.svg !== undefined) {
-      let svgSize = this.getSvgSize();
+      let svgSize = getSvgSize(this.svg);
       mat3.translate(m, m, [svgSize[0] / 2, svgSize[1] / 2]);
     }
     let zoomVal = 1 / zoom;

@@ -20,3 +20,13 @@ export function addInSvgSpace(pos, add, svg, point) {
   return [newCoords.x, newCoords.y];
 }
 
+export function getSvgSize(svg) {
+  let size = [0, 0];
+  if(svg !== undefined) {
+    size = [
+      svg.clientWidth || svg.parentNode.clientWidth,
+      svg.clientHeight || svg.parentNode.clientHeight
+    ];
+  }
+  return size;
+}

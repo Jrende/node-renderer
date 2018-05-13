@@ -41,6 +41,8 @@ function getDefault(value) {
           position: 1.0
         }
       ];
+    case 'enum':
+      return value.values[0];
     default:
       return null;
   }

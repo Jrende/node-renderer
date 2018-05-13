@@ -58,8 +58,7 @@ export const types = {
           'Normal',
           'Screen',
           'Multiply'
-        ],
-        default: 'Normal'
+        ]
       },
       factor: {
         name: 'Factor',
@@ -175,11 +174,25 @@ export const types = {
   },
   gradient: {
     id: 6,
-    name: "Gradient",
+    name: 'Gradient',
     values: {
       gradient: {
-        name: "Gradient",
-        type: "gradient"
+        name: 'Gradient',
+        type: 'gradient'
+      },
+      repeat: {
+        name: 'Repeat mode',
+        type: 'enum',
+        values: [
+          'Repeat',
+          'Mirrored repeat',
+          'Clamp to edge'
+        ],
+      },
+      vector: {
+        name: 'Direction',
+        type: 'vector',
+        default: [[0, 0], [1.0, 0]]
       }
     },
     output: {
@@ -191,11 +204,11 @@ export const types = {
   },
   colorMap: {
     id: 7,
-    name: "Color Map",
+    name: 'Color Map',
     values: {
       gradient: {
-        name: "Gradient",
-        type: "gradient"
+        name: 'Gradient',
+        type: 'gradient'
       }
     },
     input: {

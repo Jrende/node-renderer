@@ -40,12 +40,12 @@ class GradientInput extends React.Component {
 
   onMarkerMouseDown(event, id) {
     event.preventDefault();
-      root.addEventListener('mousemove', this.onMarkerMouseMove);
-      this.setState({
-        dragId: id,
-        selected: id,
-        lastPos: event.clientX
-      });
+    root.addEventListener('mousemove', this.onMarkerMouseMove);
+    this.setState({
+      dragId: id,
+      selected: id,
+      lastPos: event.clientX
+    });
   }
 
   onMarkerMouseMove(event) {

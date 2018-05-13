@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
 import RenderCanvas from '../components/RenderCanvas';
+import * as actions from '../actions';
 
 function createGraph(nodes, connections, id) {
   let graph = {
-    id,
     node: nodes[id],
     input: {}
   };
@@ -19,12 +19,26 @@ function createGraph(nodes, connections, id) {
 
 const mapStateToProps = state => (
   {
-    graph: createGraph(state.graph.nodes, state.graph.connections, 0)
+    id: state.graph.selectedNode,
+    graph: createGraph(state.graph.nodes, state.graph.connections, 0),
+    selectedNode: state.graph.nodes[state.graph.selectedNode]
+  }
+);
+
+const mapDispatchToProps = dispatch => (
+  {
+    changeValue: (nodeId, value) => {
+      dispatch(actions.changeValue(nodeId, value));
+    },
+    selectNode: (nodeId) => {
+      dispatch(actions.selectNode(nodeId));
+    }
   }
 );
 
 const Component = connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(RenderCanvas);
 
 export default Component;

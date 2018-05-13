@@ -4,6 +4,7 @@ import NumberInput from './inputs/NumberInput';
 import ColorInput from './inputs/ColorInput';
 import EnumInput from './inputs/EnumInput';
 import GradientInput from './inputs/GradientInput';
+import VectorInput from './inputs/VectorInput';
 
 import './NodeInputs.less';
 
@@ -54,6 +55,16 @@ class NodeInputs extends React.Component {
           case 'gradient':
             return (
               <GradientInput
+                key={key}
+                name={key}
+                type={nodeValue}
+                value={selectedNode.values[key]}
+                onChange={(value) => this.onValueChange(key, value)}
+              />
+            );
+          case 'vector':
+            return (
+              <VectorInput
                 key={key}
                 name={key}
                 type={nodeValue}
