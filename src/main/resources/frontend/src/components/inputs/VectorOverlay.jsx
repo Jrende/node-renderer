@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import './VectorOverlay.less';
 import draggable from '../../utils/DragDrop';
 import { getSvgSize, addInSvgSpace } from '../../utils/SvgUtils';
+import { mat4, vec2 } from 'gl-matrix';
 
 let root = document.querySelector('#root');
 class VectorOverlay extends React.Component {
@@ -12,8 +13,10 @@ class VectorOverlay extends React.Component {
     this.onVectorHandleMouseDown = this.onVectorHandleMouseDown.bind(this);
     this.onVectorHandleMouseMove = this.onVectorHandleMouseMove.bind(this);
     this.onVectorHandleMouseUp = this.onVectorHandleMouseUp.bind(this);
+    this.resize = this.resize.bind(this);
     this.state = {
-      size: [1, 1],
+      width: 1,
+      height: 1,
       lastPos: [0, 0],
       drag: null
     };
@@ -22,8 +25,22 @@ class VectorOverlay extends React.Component {
   setSvg(svg) {
     this.svg = svg;
     this.point = svg.createSVGPoint();
+    this.resize();
+  }
+
+  componentDidMount() {
+    window.addEventListener("resize", this.resize);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.resize);
+  }
+
+  resize() {
+    let size = getSvgSize(this.svg);
     this.setState({
-      size: getSvgSize(this.svg)
+      width: size[0],
+      height: size[1]
     });
   }
 
@@ -44,6 +61,8 @@ class VectorOverlay extends React.Component {
 
     let deltaX = event.clientX - this.state.lastPos[0];
     let deltaY = event.clientY - this.state.lastPos[1];
+    deltaX /= this.state.width;
+    deltaY /= this.state.height;
     console.log(`drag ${this.state.drag}`);
     let value = JSON.parse(JSON.stringify(this.props.value));
     console.log(`delta: [${deltaX}, ${deltaY}]`);
@@ -73,17 +92,27 @@ class VectorOverlay extends React.Component {
     if(type.name !== undefined) {
       typeName = name;
     }
-    let to = value[0];
-    let from = value[1];
-    let width = this.state.size[0];
-    let height = this.state.size[1];
+
+    let width = this.state.width;
+    let height = this.state.height;
     let aspectRatio = height / width;
+
+    let from = vec2.clone(value[0]);
+    from[0] *= width;
+    from[1] *= height;
+    let to = vec2.clone(value[1]);
+    to[0] *= width;
+    to[1] *= height;
+    vec2.add(to, to, [0, height/2]);
+    vec2.add(from, from, [0, height/2]);
+    //vec2.scale(to, to, [width, height]);
+    //vec2.scale(to, to, [width, height]);
+    let strokeWidth = 10;
+
     return (
       <svg
         className="vector-overlay"
         ref={this.setSvg}
-        viewBox={`0 0 1 1`}
-        preserveAspectRatio="none"
       >
         <g transform={`translate(0 0.5)`}>
           <line
@@ -92,27 +121,27 @@ class VectorOverlay extends React.Component {
             x2={from[0]}
             y2={from[1]}
             stroke="rebeccapurple"
-            strokeWidth="0.01"
+            strokeWidth={strokeWidth}
           />
           <circle
-            transform={`scale(${aspectRatio} 1)`}
             onMouseDown={this.onVectorHandleMouseDown}
-            data-handle="from"
+            data-handle="to"
             cx={to[0]}
             cy={to[1]}
             fill="red"
-            r="0.01"
+            r={strokeWidth}
           />
+          <g>
           <circle
-            transform={`scale(${aspectRatio} 1) translate(${1.0/aspectRatio - 1.0})`}
             onMouseDown={this.onVectorHandleMouseDown}
-            data-handle="to"
+            data-handle="from"
             cx={from[0]}
             cy={from[1]}
             preserveAspectRatio="none"
             fill="rebeccapurple"
-            r="0.01"
+            r={strokeWidth}
           />
+        </g>
         </g>
       </svg>
     );

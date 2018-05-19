@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './VectorInput.less';
 
-function round(num, n) {
-  return Math.round( num * n) / n
+function round(num, n2) {
+  let n = Math.pow(10, n2);
+  return Math.round( num * n) / n;
 }
 class VectorInput extends React.Component {
   constructor(props) {
@@ -23,6 +24,12 @@ class VectorInput extends React.Component {
     }
     return (
       <div className="vector-input">
+        <div>
+          <span>{round(value[0][0], 3)}</span>,<span>{round(value[0][1], 3)}</span>
+        </div>
+        <div>
+          <span>{round(value[1][0], 3)}</span>,<span>{round(value[1][1], 3)}</span>
+        </div>
       </div>
     );
   }

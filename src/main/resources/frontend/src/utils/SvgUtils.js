@@ -23,9 +23,10 @@ export function addInSvgSpace(pos, add, svg, point) {
 export function getSvgSize(svg) {
   let size = [0, 0];
   if(svg !== undefined) {
+    let bb = svg.getBoundingClientRect();
     size = [
-      svg.clientWidth || svg.parentNode.clientWidth,
-      svg.clientHeight || svg.parentNode.clientHeight
+      bb.width,
+      bb.height
     ];
   }
   return size;
