@@ -1,26 +1,16 @@
-import { mat4, vec2, vec3, quat } from 'gl-matrix';
+import { mat4 } from 'gl-matrix';
 import Renderer from './Renderer';
 import VertexArray from '../VertexArray';
 import Framebuffer from '../Framebuffer';
-
-function getAngle(v1, v2) {
-  let v1n = vec2.normalize(vec2.create(), v1);
-  let v2n = vec2.normalize(vec2.create(), v2);
-  let dot = vec2.dot(v1n, v2n);
-  let det = v1n[0]*v2n[1] - v1n[1]*v2n[0];
-  let rad = Math.atan2(det, dot);
-  if(rad < 0) {
-    rad += 2*Math.PI;
-  }
-  return rad;
-}
 
 export default class GradientRenderer extends Renderer {
   constructor(gl, shaders) {
     super(gl);
     this.gradientShader = shaders.getShader('gradient');
     this.colorMapShader = shaders.getShader('colorMap');
-    this.gradientBuffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height);
+    this.gradientBuffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height, {
+      wrap: gl.CLAMP_TO_EDGE
+    });
     this.quad = new VertexArray(
       this.gl,
       [
@@ -77,15 +67,16 @@ export default class GradientRenderer extends Renderer {
       mat4.translate(mvp, mvp, [-1.0, -1.0, 0]);
       mat4.scale(mvp, mvp, [2.0, 2.0, 1.0]);
 
+
       this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, this.gradientBuffer.texture);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, inputTexture);
 
       this.gl.activeTexture(this.gl.TEXTURE1);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, inputTexture);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.gradientBuffer.texture);
       this.colorMapShader.setUniforms(this.gl, {
         mvp,
-        gradient: 0,
-        inputTexture: 1
+        inputTexture: 0,
+        gradient: 1
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
       this.quad.unbind(this.gl);
