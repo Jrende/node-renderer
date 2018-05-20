@@ -20,19 +20,17 @@ export default class GradientRenderer extends Renderer {
     super(gl);
     this.shader = shaders.getShader('gradient');
     this.gradientTextureShader = shaders.getShader('gradientTexture');
-    this.options = {
-    };
-    this.buffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height, this.options);
+    this.buffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height);
     this.quad = new VertexArray(
       this.gl,
-      [ 
-        1, 1, 1, 1,
-        -1, 1, 0, 1,
-        -1, -1, 0, 0,
+      [1, 1, 1, 1,
+        -0, 1, 0, 1,
+        -0, -1, 0, 0,
         1, -1, 1, 0],
       [1, 0, 2, 2, 0, 3],
       [2, 2]
     );
+    this.wrapMode = 'Repeat';
   }
 
   renderGradient(gradient) {
@@ -55,6 +53,18 @@ export default class GradientRenderer extends Renderer {
   }
 
   render(values) {
+    if(values.repeat !== this.wrap) {
+      this.wrapMode = values.repeat;
+      let wrap;
+      switch(values.repeat) {
+        case 'Repeat': wrap = this.gl.REPEAT; break;
+        case 'Mirrored repeat': wrap = this.gl.MIRRORED_REPEAT; break;
+        case 'Clamp to edge': wrap = this.gl.CLAMP_TO_EDGE; break;
+        default: wrap = this.gl.REPEAT;
+      }
+      // TODO: Maybe clean up the previous buffer?
+      this.buffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height, { wrap });
+    }
     this.buffer.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
       this.shader.bind(this.gl);
@@ -83,17 +93,18 @@ export default class GradientRenderer extends Renderer {
       let angle = getAngle(dir, [1, 0]);
 
       let uvMvp = mat4.create();
-      mat4.scale(uvMvp, uvMvp, [len, len, 1.0]);
-      mat4.translate(uvMvp, uvMvp, [0.5 - midpoint[0], -midpoint[1], 0.0]);
-      mat4.rotate(uvMvp, uvMvp, -angle, [0, 0, 1.0]);
+      //mat4.translate(uvMvp, uvMvp, [-1.0, 0.0, 0.0]);
+      //mat4.scale(uvMvp, uvMvp, [2.0, 2.0, 1.0]);
+      //mat4.scale(uvMvp, uvMvp, [len, len, 1.0]);
+      //mat4.translate(uvMvp, uvMvp, [0.5 - midpoint[0], -midpoint[1], 0.0]);
+      //mat4.rotate(uvMvp, uvMvp, -angle, [0, 0, 1.0]);
 
       let mvp = mat4.create();
-      mat4.translate(mvp, mvp, [-1.0, 0, 0]);
-      mat4.scale(mvp, mvp, [2.0, 1.0, 1.0]);
+      //mat4.translate(mvp, mvp, [-1.0, 0, 0]);
+      //mat4.scale(mvp, mvp, [2.0, 1.0, 1.0]);
       this.gradientTextureShader.setUniforms(this.gl, {
         sampler: 0,
         opacity: 1.0,
-        mvp,
         uvMvp
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);

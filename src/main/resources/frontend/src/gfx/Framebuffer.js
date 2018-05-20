@@ -1,12 +1,14 @@
-/* global gl */
-
-function initTexture(gl, width, height, format, attachment) {
+function initTexture(gl, width, height, format, attachment, options) {
   const texture = gl.createTexture();
 
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, null);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  if(options.wrap) {
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, options.wrap);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, options.wrap);
+  }
   gl.generateMipmap(gl.TEXTURE_2D);
   gl.bindTexture(gl.TEXTURE_2D, null);
   gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture, 0);
@@ -22,14 +24,12 @@ function initRenderBuffer(gl, width, height, component, attachment) {
   return renderBuffer;
 }
 
-//gl.DEPTH_COMPONENT16
-//gl.DEPTH_ATTACHMENT
 export default class Framebuffer {
   constructor(gl, width, height, options={}) {
     const framebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
-    this.texture = initTexture(gl, width, height, gl.RGBA, gl.COLOR_ATTACHMENT0);
+    this.texture = initTexture(gl, width, height, gl.RGBA, gl.COLOR_ATTACHMENT0, options);
 
     if(options.withDepth) {
       this.depth = initRenderBuffer(
