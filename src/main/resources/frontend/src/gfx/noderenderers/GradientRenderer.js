@@ -23,12 +23,17 @@ export default class GradientRenderer extends Renderer {
     this.buffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height);
     this.quad = new VertexArray(
       this.gl,
-      [1, 1, 1, 1,
-        -0, 1, 0, 1,
-        -0, -1, 0, 0,
-        1, -1, 1, 0],
-      [1, 0, 2, 2, 0, 3],
-      [2, 2]
+      [
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1,
+      ],
+      [
+        0, 1, 3,
+        2, 3, 0
+      ],
+      [2]
     );
     this.wrapMode = 'Repeat';
   }
@@ -38,10 +43,10 @@ export default class GradientRenderer extends Renderer {
     for(let i = 0; i < gradient.length - 1; i++) {
       let from = gradient[i];
       let to = gradient[i + 1];
-      let width = (to.position - from.position) * 2.0;
+      let width = (to.position - from.position) * 2;
       let mvp = mat4.create();
-      mat4.translate(mvp, mvp, [sum, 0, 0]);
-      mat4.scale(mvp, mvp, [width, 1.0, 1.0]);
+      mat4.translate(mvp, mvp, [sum, -1.0, 0]);
+      mat4.scale(mvp, mvp, [width, 2.0, 1.0]);
       this.shader.setUniforms(this.gl, {
         mvp,
         to: this.fromColor(to.color),
@@ -63,6 +68,7 @@ export default class GradientRenderer extends Renderer {
         default: wrap = this.gl.REPEAT;
       }
       // TODO: Maybe clean up the previous buffer?
+      // Also, maybe lazy-create it. Only 3 possible values.
       this.buffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height, { wrap });
     }
     this.buffer.renderTo(this.gl, () => {
@@ -73,6 +79,7 @@ export default class GradientRenderer extends Renderer {
       this.quad.unbind(this.gl);
       this.shader.unbind(this.gl);
     });
+    
     this.output.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
       this.gradientTextureShader.bind(this.gl);
@@ -87,25 +94,25 @@ export default class GradientRenderer extends Renderer {
       vec2.add(midpoint, from, to);
       vec2.scale(midpoint, midpoint, 0.5);
       let dir = vec2.sub(vec2.create(), to, from);
-      vec2.normalize(dir, dir);
 
       let len = 1.0/vec2.distance(from, to);
       let angle = getAngle(dir, [1, 0]);
 
       let uvMvp = mat4.create();
-      //mat4.translate(uvMvp, uvMvp, [-1.0, 0.0, 0.0]);
-      //mat4.scale(uvMvp, uvMvp, [2.0, 2.0, 1.0]);
-      //mat4.scale(uvMvp, uvMvp, [len, len, 1.0]);
-      //mat4.translate(uvMvp, uvMvp, [0.5 - midpoint[0], -midpoint[1], 0.0]);
-      //mat4.rotate(uvMvp, uvMvp, -angle, [0, 0, 1.0]);
+      //mat4.translate(uvMvp, uvMvp, [-1.0, -1.0, 0.0]);
+      //mat4.scale(uvMvp, uvMvp, [1.0/dir[0], 1.0/dir[1], 1.0]);
+      mat4.translate(uvMvp, uvMvp, [-midpoint[0] + 0.5, -midpoint[1], 0.0]);
+      mat4.scale(uvMvp, uvMvp, [len, len, 1.0]);
+      mat4.rotate(uvMvp, uvMvp, -angle, [0, 0, 1.0]);
 
       let mvp = mat4.create();
-      //mat4.translate(mvp, mvp, [-1.0, 0, 0]);
-      //mat4.scale(mvp, mvp, [2.0, 1.0, 1.0]);
+      mat4.translate(mvp, mvp, [-1.0, -1.0, 0]);
+      mat4.scale(mvp, mvp, [2.0, 2.0, 1.0]);
       this.gradientTextureShader.setUniforms(this.gl, {
         sampler: 0,
         opacity: 1.0,
-        uvMvp
+        uvMvp,
+        mvp
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
 

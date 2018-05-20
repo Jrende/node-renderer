@@ -12,6 +12,10 @@ let initialState = {
   }]
 };
 
+/*
+let initialState = JSON.parse("{\"selectedNode\":1,\"connections\":[{\"to\":{\"id\":0,\"name\":\"finalResult\"},\"from\":{\"id\":1,\"name\":\"out\"}}],\"nodes\":[{\"pos\":[0,0],\"values\":{},\"type\":{\"id\":0,\"name\":\"Output\",\"input\":{\"finalResult\":{\"type\":\"FrameBuffer\",\"name\":\"Final result\"}},\"output\":{},\"values\":{}}},{\"type\":{\"id\":6,\"name\":\"Gradient\",\"values\":{\"gradient\":{\"name\":\"Gradient\",\"type\":\"gradient\"},\"repeat\":{\"name\":\"Repeat mode\",\"type\":\"enum\",\"values\":[\"Repeat\",\"Mirrored repeat\",\"Clamp to edge\"]},\"vector\":{\"name\":\"Direction\",\"type\":\"vector\",\"default\":[[0,0],[1,0]]}},\"output\":{\"out\":{\"type\":\"FrameBuffer\",\"name\":\"Output\"}}},\"pos\":[-164.833251953125,14.5],\"values\":{\"gradient\":[{\"color\":{\"r\":0,\"g\":0,\"b\":0,\"a\":1},\"position\":0},{\"color\":{\"r\":1,\"g\":0,\"b\":0,\"a\":1},\"position\":0.5},{\"color\":{\"r\":1,\"g\":1,\"b\":1,\"a\":1},\"position\":1}],\"repeat\":\"Repeat\",\"vector\":[[0,0],[1,0]]}}]}");
+*/
+
 function getDefault(value) {
   if(value.default !== undefined) {
     return value.default;

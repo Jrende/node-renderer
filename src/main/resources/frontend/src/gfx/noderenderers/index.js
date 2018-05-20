@@ -1,4 +1,5 @@
 import CloudRenderer from './CloudRenderer';
+import ColorMapRenderer from './ColorMapRenderer';
 import SolidColorRenderer from './SolidColorRenderer';
 import BlendRenderer from './BlendRenderer';
 import GradientRenderer from './GradientRenderer';
@@ -12,7 +13,8 @@ let constructors = {
   [types.clouds.id]: CloudRenderer,
   [types.solidColor.id]: SolidColorRenderer,
   [types.blend.id]: BlendRenderer,
-  [types.gradient.id]: GradientRenderer
+  [types.gradient.id]: GradientRenderer,
+  [types.colorMap.id]: ColorMapRenderer
 };
 
 export default function getRenderer(type) {
