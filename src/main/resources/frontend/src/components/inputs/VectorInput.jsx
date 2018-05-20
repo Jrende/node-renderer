@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import './VectorInput.less';
 
 function round(num, n2) {
-  let n = Math.pow(10, n2);
-  return Math.round( num * n) / n;
+  let n = 10 ** n2;
+  return Math.round(num * n) / n;
 }
 class VectorInput extends React.Component {
   constructor(props) {

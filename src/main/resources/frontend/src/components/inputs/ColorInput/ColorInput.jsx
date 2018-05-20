@@ -14,8 +14,8 @@ import Ring from '../../../gfx/geometry/Ring';
 import './style.less';
 
 function isHex(h) {
-  var a = parseInt(h,16);
-  return (a.toString(16) === h)
+  let a = parseInt(h, 16);
+  return (a.toString(16) === h);
 }
 
 function getAllOffsetLeft(elm) {
@@ -52,7 +52,7 @@ let root = document.querySelector('#root');
 class ColorInput extends React.Component {
   constructor(props) {
     super(props);
-    let color = tinycolor.fromRatio(props.value)
+    let color = tinycolor.fromRatio(props.value);
     let hsv = color.toHsv();
     this.state = {
       hue: hsv.h / 360,
@@ -83,7 +83,8 @@ class ColorInput extends React.Component {
     this.satValShader.compile(this.gl);
     this.solidShader = new Shader({ frag: solidFrag, vert: solidVert });
     this.solidShader.compile(this.gl);
-    this.quad = new VertexArray(this.gl,
+    this.quad = new VertexArray(
+      this.gl,
       [
         1, 1,
         -1, 1,
@@ -92,12 +93,13 @@ class ColorInput extends React.Component {
       ],
       [1, 0, 2,
         2, 0, 3],
-      [2]);
+      [2]
+    );
     let t = [
       [0, 1.0],
       [0.8660253882408142, -0.5],
-      [-0.8660253882408142, -0.5],
-    ]
+      [-0.8660253882408142, -0.5]
+    ];
     this.triP = t;
     this.triPT = [
       vec2.create(),
@@ -108,32 +110,27 @@ class ColorInput extends React.Component {
       [1.0, 0.0, 0.0],
       [0.0, 1.0, 0.0],
       [0.0, 0.0, 1.0],
-      //[1.0, 1.0, 1.0],
     ];
     this.triUV = uv;
-    this.triangle = new VertexArray(this.gl,
+    this.triangle = new VertexArray(
+      this.gl,
       [
         t[0][0], t[0][1], uv[0][0], uv[0][1], uv[0][2],
         t[1][0], t[1][1], uv[1][0], uv[1][1], uv[1][2],
         t[2][0], t[2][1], uv[2][0], uv[2][1], uv[2][2],
-        //t[3][0], t[3][1], uv[3][0], uv[3][1], uv[3][2],
       ],
-      [
-        //0, 1, 2
-        1, 0, 2//, 2, 0, 3
-      ],
-      [2, 3]);
+      [1, 0, 2],
+      [2, 3]
+    );
     this.ring = new Ring(this.gl, 24, 0.6);
     this.triangleModel = mat4.create();
 
     this.gl.clearColor(0, 0, 0, 1.0);
     let color = tinycolor(this.props.value);
     this.renderCanvas(color);
-
   }
 
   onHexInputChange(event) {
-    let hexRegex = /[0-9a-f]{6}/
     let str = event.target.value;
     let color = tinycolor(`#${str}`);
     if(str.length === 6 && color.isValid()) {
@@ -143,7 +140,7 @@ class ColorInput extends React.Component {
         hsv.s,
         hsv.v
       );
-    } else if (str.length <= 6 && (str == '' || isHex(str))) {
+    } else if (str.length <= 6 && (str === '' || isHex(str))) {
       this.setState({ hexInput: str });
     }
   }
@@ -204,8 +201,8 @@ class ColorInput extends React.Component {
 
       value = Math.max(0, Math.min(1.0, 1.0 - pos.w));
       saturation = Math.max(0, Math.min(1.0, pos.u / value));
-      //Still some weirdness when value is around zero
-      if(isNaN(saturation)) {
+      // Still some weirdness when value is around zero
+      if(Number.isNaN(saturation)) {
         saturation = 0.0;
       }
       this.triangleToggle = true;
@@ -219,7 +216,12 @@ class ColorInput extends React.Component {
       s: saturation,
       v: value
     });
-    this.setState({ hue, saturation, value, hexInput: newColor.toHex() });
+    this.setState({
+      hue,
+      saturation,
+      value,
+      hexInput: newColor.toHex()
+    });
     let rgb = newColor.toRgb();
     let ratio = {
       r: rgb.r / 255,
@@ -272,8 +274,8 @@ class ColorInput extends React.Component {
   }
 
   getClosestPointToTriangle(pos, coords) {
-    let from, to;
-    let add = vec2.create();
+    let from;
+    let to;
     if(pos.w + pos.v > 1.0) {
       from = this.triPT[1];
       to = this.triPT[2];
@@ -285,7 +287,7 @@ class ColorInput extends React.Component {
       to = this.triPT[1];
     }
     let line = vec2.sub(vec2.create(), from, to);
-    var len = vec2.len(line);
+    let len = vec2.len(line);
 
     vec2.normalize(line, line);
 
@@ -329,16 +331,18 @@ class ColorInput extends React.Component {
     this.triangle.bind(this.gl);
 
     this.triangleModel = mat4.create();
-    let rot = this.state.hue * Math.PI * 2.0 - Math.PI/2.0
+    let rot = this.state.hue * Math.PI * 2.0 - Math.PI/2.0;
     let hueRot = quat.setAxisAngle(
       quat.create(),
       [0, 0, 1],
-      rot);
+      rot
+    );
     mat4.fromRotationTranslationScale(
       this.triangleModel,
       hueRot,
       vec3.create(),
-      [0.8, 0.8, 0.8]);
+      [0.8, 0.8, 0.8]
+    );
     vec2.transformMat4(this.triPT[0], this.triP[0], this.triangleModel);
     vec2.transformMat4(this.triPT[1], this.triP[1], this.triangleModel);
     vec2.transformMat4(this.triPT[2], this.triP[2], this.triangleModel);
@@ -373,7 +377,8 @@ class ColorInput extends React.Component {
         mat4.create(),
         quat.create(),
         [pos[0], pos[1], 0],
-        [0.03, 0.03, 1.0])
+        [0.03, 0.03, 1.0]
+      )
     });
 
     this.ring.draw(this.gl);
@@ -403,8 +408,8 @@ class ColorInput extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if(!this.mouseDown) {
-      let color = tinycolor.fromRatio(nextProps.value)
-      let currentColor = tinycolor.fromRatio(this.props.value)
+      let color = tinycolor.fromRatio(nextProps.value);
+      let currentColor = tinycolor.fromRatio(this.props.value);
       if(!tinycolor.equals(color, currentColor)) {
         let hsv = color.toHsv();
         this.setState({
@@ -422,13 +427,6 @@ class ColorInput extends React.Component {
     if(this.gl !== undefined) {
       this.renderCanvas();
     }
-    let {r, g, b} = color.toRgb();
-    r *= 100/255;
-    g *= 100/255;
-    b *= 100/255;
-    let h = this.state.hue * 100;
-    let s = this.state.saturation * 100;
-    let v = this.state.value * 100;
     return [
       <div>
         <canvas
@@ -443,14 +441,16 @@ class ColorInput extends React.Component {
         <div
           key="color-display"
           className="color-input-color"
-          style={{ backgroundColor: color.toHexString() }}>
+          style={{ backgroundColor: color.toHexString() }}
+        >
           <input
             type="text"
-            spellcheck="false"
-            style={{color: (color.isLight() ?  'black' : 'white')}}
+            spellCheck="false"
+            style={{ color: (color.isLight() ? 'black' : 'white') }}
             value={this.state.hexInput}
             onChange={this.onHexInputChange}
-            onPaste={this.onHexInputChange} />
+            onPaste={this.onHexInputChange}
+          />
         </div>
       </div>
     ];

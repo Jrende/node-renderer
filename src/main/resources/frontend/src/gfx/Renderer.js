@@ -41,7 +41,7 @@ export default class Renderer {
     let w = this.gl.canvas.width;
     let h = this.gl.canvas.height;
     this.gl.viewport(0, 0, w, h);
-    this.output = new Framebuffer(this.gl, 1024, 1024, false, false);
+    this.output = new Framebuffer(this.gl, 1024, 1024);
     this.quad = new VertexArray(this.gl,
       [1, 1, 1,
         -1, 1, 1,

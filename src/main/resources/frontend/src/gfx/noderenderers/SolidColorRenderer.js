@@ -1,5 +1,4 @@
 import Renderer from './Renderer';
-import shaders from '../shader';
 
 export default class SolidColorRenderer extends Renderer {
   constructor(gl, shaders) {

@@ -5,7 +5,8 @@ import * as actions from '../actions';
 function createGraph(nodes, connections, id) {
   let graph = {
     node: nodes[id],
-    input: {}
+    input: {},
+    id
   };
   connections
     .filter(c => c.to.id === id)

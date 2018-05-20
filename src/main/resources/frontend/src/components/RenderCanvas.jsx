@@ -47,7 +47,7 @@ class RenderCanvas extends React.Component {
                 value={selectedNode.values[key]}
                 onChange={(value) => this.onValueChange(key, value)}
               />
-          )
+            );
           default:
             break;
         }
@@ -56,7 +56,7 @@ class RenderCanvas extends React.Component {
     }
 
     return (
-      <div style={{width: 1024, height: 1024}}>
+      <div style={{ width: 1024, height: 1024 }}>
         <canvas
           width="1024"
           height="1024"

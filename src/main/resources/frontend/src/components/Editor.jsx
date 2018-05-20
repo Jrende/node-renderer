@@ -12,7 +12,7 @@ class Editor extends React.Component {
   /* global location */
   componentDidMount() {
     let id = +location.pathname.substr(1);
-    if(!isNaN(id) && id !== 0) {
+    if(!Number.isNaN(id) && id !== 0) {
       this.props.setGraph(window.initialGraph);
     } else {
       this.props.loadEmptyGraph();

@@ -226,8 +226,6 @@ export const types = {
   }
 };
 
-const typeReducer = (state = types, action) => {
-  return state;
-};
+const typeReducer = (state = types) => state;
 
 export default typeReducer;

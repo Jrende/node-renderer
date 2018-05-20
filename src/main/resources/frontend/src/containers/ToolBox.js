@@ -7,8 +7,6 @@ const mapStateToProps = state => (
   }
 );
 
-const Component = connect(
-  mapStateToProps
-)(ToolBox);
+const Component = connect(mapStateToProps)(ToolBox);
 
 export default Component;

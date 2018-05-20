@@ -29,15 +29,30 @@ function getDefault(value) {
     case 'gradient':
       return [
         {
-          color: {r: 0, g: 0, b: 0, a: 1.0},
+          color: {
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 1
+          },
           position: 0.0
         },
         {
-          color: {r: 1, g: 0, b: 0, a: 1.0},
+          color: {
+            r: 1,
+            g: 0,
+            b: 0,
+            a: 1
+          },
           position: 0.5
         },
         {
-          color: {r: 1, g: 1, b: 1, a: 1.0},
+          color: {
+            r: 1,
+            g: 1,
+            b: 1,
+            a: 1
+          },
           position: 1.0
         }
       ];

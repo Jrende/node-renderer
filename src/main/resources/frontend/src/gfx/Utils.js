@@ -2,7 +2,7 @@ import shaders from './shader';
 import VertexArray from './VertexArray';
 
 export function nextPowOf2(x) {
-  return Math.pow(2, Math.ceil(Math.log(x) / Math.log(2)));
+  return 2 ** Math.ceil(Math.log(x) / Math.log(2));
 }
 
 export function length(vec) {

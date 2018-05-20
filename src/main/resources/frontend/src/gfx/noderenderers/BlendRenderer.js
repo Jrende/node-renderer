@@ -24,13 +24,15 @@ export default class BlendRenderer extends Renderer {
         this.renderBlend(
           this.gl.DST_COLOR,
           this.gl.ONE_MINUS_SRC_ALPHA,
-          left, right, values.factor);
+          left, right, values.factor
+        );
         break;
       case 'Screen':
         this.renderBlend(
           this.gl.SRC_ALPHA,
           this.gl.ONE_MINUS_SRC_COLOR,
-          left, right, values.factor);
+          left, right, values.factor
+        );
         break;
       default:
         break;

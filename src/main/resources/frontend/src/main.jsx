@@ -10,8 +10,10 @@ import Editor from './containers/Editor';
 let store = createStore(reducer, applyMiddleware(thunk));
 
 render(
-  (<Provider store={store}>
-    <Editor />
-  </Provider>),
+  (
+    <Provider store={store}>
+      <Editor />
+    </Provider>
+  ),
   document.getElementById('root')
 );

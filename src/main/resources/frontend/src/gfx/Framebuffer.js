@@ -25,13 +25,13 @@ function initRenderBuffer(gl, width, height, component, attachment) {
 //gl.DEPTH_COMPONENT16
 //gl.DEPTH_ATTACHMENT
 export default class Framebuffer {
-  constructor(gl, width, height, withStencil = false, withDepth = false) {
+  constructor(gl, width, height, options={}) {
     const framebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
     this.texture = initTexture(gl, width, height, gl.RGBA, gl.COLOR_ATTACHMENT0);
 
-    if(withDepth) {
+    if(options.withDepth) {
       this.depth = initRenderBuffer(
         gl,
         width,
@@ -40,7 +40,7 @@ export default class Framebuffer {
         gl.DEPTH_ATTACHMENT);
     }
 
-    if(withStencil) {
+    if(options.withStencil) {
       this.stencilBuffer = initRenderBuffer(
         gl,
         width,
@@ -73,9 +73,9 @@ export default class Framebuffer {
 }
 
 export class Doublebuffer {
-  constructor(gl, width, height, withStencil = false, withDepth = false) {
-    this.front = new Framebuffer(width, height, withStencil, withDepth);
-    this.back = new Framebuffer(width, height, withStencil, withDepth);
+  constructor(gl, width, height, options={}) {
+    this.front = new Framebuffer(width, height, options);
+    this.back = new Framebuffer(width, height, options);
   }
 
 

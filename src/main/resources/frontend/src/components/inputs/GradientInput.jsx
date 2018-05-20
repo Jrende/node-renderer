@@ -99,8 +99,8 @@ class GradientInput extends React.Component {
   }
 
   onClickDisplay(event) {
-    let pos = (event.pageX - getAllOffsetLeft(this.gradientDisplay)) / this.gradientDisplay.offsetWidth;
-    let newStopIndex = -1;
+    let pos = (event.pageX - getAllOffsetLeft(this.gradientDisplay));
+    pos /= this.gradientDisplay.offsetWidth;
     let grad = this.props.value;
     for(let i = 1; i < grad.length; i++) {
       if(grad[i - 1].position < pos && grad[i].position > pos) {
@@ -117,7 +117,8 @@ class GradientInput extends React.Component {
   }
 
   getColorAtPos(position) {
-    let from, to;
+    let from;
+    let to;
     let grad = this.props.value;
     for(let i = 1; i < grad.length; i++) {
       if(grad[i - 1].position < position && grad[i].position > position) {
@@ -133,7 +134,6 @@ class GradientInput extends React.Component {
     let pos = position - from.position;
     let toPos = to.position - from.position;
     let amount = pos/toPos;
-    //let amount = (to.position - from.position) / to.position;
 
     let color = tinycolor.mix(fromCol, toCol, amount * 100).toRgb();
     color.r /= 255;
@@ -185,7 +185,7 @@ class GradientInput extends React.Component {
           onMouseDown={(event) => this.onMarkerMouseDown(event, i)}
           style={markerStyle}
         >
-          <div className="triangle-outline"></div>
+          <div className="triangle-outline" />
           <div className="color-display">
             <div className="inner" style={{ backgroundColor: color.toHexString() }} />
           </div>
@@ -203,13 +203,13 @@ class GradientInput extends React.Component {
         </div>
         {selected !== -1 &&
           <div>
-          {(selected !== 0 && selected !== this.props.value.length - 1) &&
-            <button onClick={event => this.onDeleteStopClick(selected)}>Delete stop</button>}
-          <ColorInput
-            value={value[selected].color}
-            onChange={(newValue) => this.colorChange(newValue, selected)}
-          />
-        </div>
+            {(selected !== 0 && selected !== this.props.value.length - 1) &&
+              <button onClick={() => this.onDeleteStopClick(selected)}>Delete stop</button>}
+            <ColorInput
+              value={value[selected].color}
+              onChange={(newValue) => this.colorChange(newValue, selected)}
+            />
+          </div>
         }
       </div>
     );

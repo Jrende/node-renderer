@@ -79,7 +79,6 @@ class SvgRenderer extends React.Component {
     let grabNodeId = svgNode.getAttribute('data-node-id') | 0;
 
     let node = this.props.nodes[grabNodeId];
-    let svgSize = getSvgSize(this.svg);
     let coord = transformPointToSvgSpace(
       [
         event.clientX + node.pos[0],
@@ -231,7 +230,6 @@ class SvgRenderer extends React.Component {
     if(svg != null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
-      let s = getSvgSize(this.svg);
       this.setState({
         pan: [0, 0]
       });
@@ -301,7 +299,13 @@ class SvgRenderer extends React.Component {
 
   render() {
     let { nodes, connections, selectedNode } = this.props;
-    let { grabTo, grabFrom, grabMode, zoom, pan } = this.state;
+    let {
+      grabTo,
+      grabFrom,
+      grabMode,
+      zoom,
+      pan
+    } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
     let nodeElements = Object.entries(nodes)
       .sort((a, b) => a[1].pos[0] - b[1].pos[0])

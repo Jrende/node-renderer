@@ -35,8 +35,7 @@ export function fetchImages() {
       )
       .then(json => {
         dispatch(receiveImages(json));
-      }
-      );
+      });
   };
 }
 

@@ -14,14 +14,13 @@ class EnumInput extends React.Component {
 
   render() {
     let { name, type, value } = this.props;
-    let options = type.values.map(val =>
-      (<option key={val}>{val}</option>)
-    );
+    let options = type.values.map(val => (<option key={val}>{val}</option>));
     return [
-      <label key="label" htmlFor={name}>{type.name}</label>,
-      <select key="select" value={value} onChange={this.onChange}>
-        {options}
-      </select>
+      <label key="label" htmlFor={name}>{type.name}
+        <select key="select" value={value} onChange={this.onChange}>
+          {options}
+        </select>
+      </label>,
     ];
   }
 }

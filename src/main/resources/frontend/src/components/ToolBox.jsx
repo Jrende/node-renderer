@@ -17,14 +17,13 @@ class ToolBox extends React.Component {
     let nodes = Object.keys(types)
       .map(key => types[key])
       .filter(type => type.id !== 0)
-      .map(type => {
-        return (
+      .map(type =>
+        (
           <div className="type" key={type.id} ref={(ref) => this.enableDraggable(ref, type)} >
             <div className="anfang">⁞</div>
             <p>{type.name}</p>
           </div>
-        );
-      });
+        ));
     return nodes;
   }
 }

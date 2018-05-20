@@ -1,7 +1,7 @@
 {
   "extends": "airbnb",
     "parserOptions": {
-      "ecmaVersion": 6,
+      "ecmaVersion": 9,
       "sourceType": "module",
       "ecmaFeatures": {
         "jsx": true
@@ -25,7 +25,9 @@
       "no-mixed-operators": "off",
       "react/require-default-props": "off",
       "react/sort-comp": "off",
-      "space-infix-ops": "off"
+      "prefer-destructuring": "off",
+      "space-infix-ops": "off",
+      "function-paren-newline": "off"
     },
     "globals": {
       "document": true,
