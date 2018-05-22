@@ -68,7 +68,7 @@ function getDefault(value) {
 }
 
 function getNewId(nodes) {
-  let ids = Object.keys(nodes).sort();
+  let ids = Object.keys(nodes).sort((a, b) => a - b);
   let newId = +ids[ids.length - 1] + 1;
   return newId;
 }
