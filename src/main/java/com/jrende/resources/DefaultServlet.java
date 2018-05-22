@@ -80,6 +80,7 @@ public class DefaultServlet extends HttpServlet {
         } else {
             List<Long> images = ImageDAO.getInstance().getImages().stream()
                     .map(Image::getId)
+                    .sorted()
                     .collect(Collectors.toList());
             ctx.setVariable("images", images);
             template = "overview/index";
