@@ -197,6 +197,11 @@ class SvgRenderer extends React.Component {
           to = from;
           from = temp;
         }
+        let existingConnection = this.props.connections.find(c =>
+          c.to.id === to.id && c.to.name === to.name);
+        if(existingConnection) {
+          this.props.removeConnection(existingConnection.from, existingConnection.to);
+        }
         this.props.connectNodes(from, to);
       }
     }
