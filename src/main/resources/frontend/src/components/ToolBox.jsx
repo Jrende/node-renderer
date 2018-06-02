@@ -1,14 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './ToolBox.less';
-import draggable from '../utils/DragDrop';
 
-
+let root = document.querySelector('#root');
 class ToolBox extends React.Component {
-  enableDraggable(element, type) {
-    if(element !== undefined) {
-      draggable(element, { type });
-    }
+  constructor() {
+    super();
   }
 
   render() {
@@ -19,7 +16,7 @@ class ToolBox extends React.Component {
       .filter(type => type.id !== 0)
       .map(type =>
         (
-          <div className="type" key={type.id} ref={(ref) => this.enableDraggable(ref, type)} >
+          <div className="type" key={type.id}>
             <div className="anfang">⁞</div>
             <p>{type.name}</p>
           </div>
@@ -29,7 +26,7 @@ class ToolBox extends React.Component {
 }
 
 ToolBox.propTypes = {
-  types: PropTypes.object.isRequired
+  types: PropTypes.object.isRequired,
 };
 
 export default ToolBox;

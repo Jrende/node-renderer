@@ -3,7 +3,7 @@ import ToolBox from '../components/ToolBox';
 
 const mapStateToProps = state => (
   {
-    types: state.types
+    types: state.types,
   }
 );
 

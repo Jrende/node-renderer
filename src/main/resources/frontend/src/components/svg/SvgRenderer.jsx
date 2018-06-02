@@ -27,7 +27,7 @@ class SvgRenderer extends React.Component {
       grabMode: null,
       grabNodeId: -1,
       lastPos: [0, 0],
-      pan: [0, 0],
+      grabMoved: false,
       zoom: 1
     };
 
@@ -54,10 +54,7 @@ class SvgRenderer extends React.Component {
     }
     let zoom = this.state.zoom + deltaY / 200;
     if(zoom > 0) {
-      console.log(`zoom: ${zoom}`);
-      this.setState({
-        zoom
-      });
+      this.setState({ zoom });
     }
   }
 
@@ -120,7 +117,6 @@ class SvgRenderer extends React.Component {
   }
 
   onElementMouseDown(event, id) {
-    this.props.selectNode(+id);
     this.setState({
       grabMode: 'element',
       grabNodeId: +id,
@@ -142,6 +138,7 @@ class SvgRenderer extends React.Component {
         (event.clientY - this.state.lastPos[1])
       ];
       this.setState({
+        grabMoved: true,
         lastPos: [event.clientX, event.clientY]
       });
 
@@ -161,8 +158,8 @@ class SvgRenderer extends React.Component {
         }
         case 'canvas': {
           delta = delta.map(v => v * this.state.zoom);
-          let pan = addInSvgSpace(this.state.pan, delta, this.svg, this.point);
-          this.setState({ pan });
+          let pan = addInSvgSpace(this.props.nodePan, delta, this.svg, this.point);
+          this.props.setNodePan(pan);
           break;
         }
         default:
@@ -209,7 +206,11 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseUp() {
+    if(!this.state.grabMoved && this.state.grabNodeId != null) {
+      this.props.selectNode(this.state.grabNodeId);
+    }
     this.setState({
+      grabMoved: false,
       grabMode: null,
       grabNodeId: null
     });
@@ -235,10 +236,8 @@ class SvgRenderer extends React.Component {
     if(svg != null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
-      this.setState({
-        pan: [0, 0]
-      });
       svg.addEventListener('drop', event => this.handleDrop(event));
+      this.setState(this.state);
     }
   }
 
@@ -295,8 +294,8 @@ class SvgRenderer extends React.Component {
     let newNode = {
       type: type.id,
       pos: [
-        newCoords.x - nodeLayout.width / 2.0 - this.state.pan[0] - svgSize[0] / 2.0,
-        newCoords.y - nodeLayout.height / 2.0 - this.state.pan[1] - svgSize[1] / 2.0
+        newCoords.x - nodeLayout.width / 2.0 - this.props.nodePan[0] - svgSize[0] / 2.0,
+        newCoords.y - nodeLayout.height / 2.0 - this.props.nodePan[1] - svgSize[1] / 2.0
       ].map(v => v * this.state.zoom)
     };
     this.props.createNewNode(newNode);
@@ -308,8 +307,7 @@ class SvgRenderer extends React.Component {
       grabTo,
       grabFrom,
       grabMode,
-      zoom,
-      pan
+      zoom
     } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
     let nodeElements = Object.entries(nodes)
@@ -375,7 +373,7 @@ class SvgRenderer extends React.Component {
       mat3.translate(m, m, [svgSize[0] / 2, svgSize[1] / 2]);
     }
     let zoomVal = 1 / zoom;
-    mat3.translate(m, m, pan);
+    mat3.translate(m, m, this.props.nodePan);
     mat3.scale(m, m, [zoomVal, zoomVal]);
     mat3.transpose(m, m);
     let svgMat = `${m[0]}, ${m[3]}, ${m[1]}, ${m[4]}, ${m[2]}, ${m[5]}`;
@@ -412,7 +410,9 @@ SvgRenderer.propTypes = {
   setNodeLocation: PropTypes.func.isRequired,
   connectNodes: PropTypes.func.isRequired,
   selectNode: PropTypes.func.isRequired,
-  selectedNode: PropTypes.number.isRequired
+  selectedNode: PropTypes.number.isRequired,
+  nodePan: PropTypes.array.isRequired,
+  setNodePan: PropTypes.func.isRequired
 };
 
 export default SvgRenderer;

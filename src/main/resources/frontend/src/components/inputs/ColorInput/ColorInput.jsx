@@ -427,7 +427,7 @@ class ColorInput extends React.Component {
     if(this.gl !== undefined) {
       this.renderCanvas();
     }
-    return [
+    return (
       <div>
         <canvas
           key="color-canvas"
@@ -453,7 +453,7 @@ class ColorInput extends React.Component {
           />
         </div>
       </div>
-    ];
+    );
   }
 }
 

@@ -8,7 +8,11 @@ public class ImageOptimizer {
     public static String optimizeGraph(String source) {
         JsonObject jsonArray = gson.fromJson(source, JsonObject.class);
 
-        makeFinalOutputOrigo(jsonArray.getAsJsonArray("nodes"));
+        try {
+            makeFinalOutputOrigo(jsonArray.getAsJsonArray("nodes"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         String output = jsonArray.toString();
         return output;
     }
@@ -19,20 +23,22 @@ public class ImageOptimizer {
     }
 
     private static void makeFinalOutputOrigo(JsonArray jsonArray) throws IllegalArgumentException {
-        Float xZero = 0.0f, yZero = 0.0f;
+        Float xZero, yZero;
         JsonObject finalOutput = jsonArray.get(0).getAsJsonObject();
         JsonArray outputPos = finalOutput.get("pos").getAsJsonArray();
         xZero = outputPos.get(0).getAsFloat();
         yZero = outputPos.get(1).getAsFloat();
         for (JsonElement jsonElement : jsonArray) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            JsonArray pos = jsonObject.get("pos").getAsJsonArray();
-            float oldX = pos.get(0).getAsFloat();
-            float oldY = pos.get(1).getAsFloat();
-            JsonPrimitive newX = new JsonPrimitive(roundToDecimalPlaces(oldX - xZero, 2));
-            pos.set(0, newX);
-            JsonPrimitive newY = new JsonPrimitive(roundToDecimalPlaces(oldY - yZero, 2));
-            pos.set(1, newY);
+            if (!jsonElement.equals(JsonNull.INSTANCE)) {
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                JsonArray pos = jsonObject.get("pos").getAsJsonArray();
+                float oldX = pos.get(0).getAsFloat();
+                float oldY = pos.get(1).getAsFloat();
+                JsonPrimitive newX = new JsonPrimitive(roundToDecimalPlaces(oldX - xZero, 2));
+                pos.set(0, newX);
+                JsonPrimitive newY = new JsonPrimitive(roundToDecimalPlaces(oldY - yZero, 2));
+                pos.set(1, newY);
+            }
         }
     }
 

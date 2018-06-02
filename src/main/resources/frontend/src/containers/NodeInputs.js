@@ -4,8 +4,8 @@ import * as actions from '../actions';
 
 const mapStateToProps = state => (
   {
-    selectedNode: state.graph.nodes[state.graph.selectedNode],
-    id: state.graph.selectedNode
+    selectedNode: state.graph.nodes[state.app.selectedNode],
+    id: state.app.selectedNode
   }
 );
 
@@ -13,10 +13,7 @@ const mapDispatchToProps = dispatch => (
   {
     changeValue: (nodeId, value) => {
       dispatch(actions.changeValue(nodeId, value));
-    },
-    selectNode: (nodeId) => {
-      dispatch(actions.selectNode(nodeId));
-    },
+    }
   }
 );
 

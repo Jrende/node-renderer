@@ -1,21 +1,24 @@
 import { connect } from 'react-redux';
 import Editor from '../components/Editor';
-import { loadEmptyGraph, setGraph } from '../actions';
+import * as actions from '../actions';
 
 const mapStateToProps = state => (
   {
-    selectedNode: state.graph.selectedNode
+    selectedNode: state.app.selectedNode,
   }
 );
 
 const mapDispatchToProps = dispatch => (
   {
     setGraph: (graph) => {
-      dispatch(setGraph(graph));
+      dispatch(actions.setGraph(graph));
     },
     loadEmptyGraph: () => {
-      dispatch(loadEmptyGraph());
+      dispatch(actions.loadEmptyGraph());
     },
+    selectNode: (nodeId) => {
+      dispatch(actions.selectNode(nodeId));
+    }
   }
 );
 

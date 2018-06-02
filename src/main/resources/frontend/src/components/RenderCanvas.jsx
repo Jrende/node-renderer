@@ -25,10 +25,32 @@ class RenderCanvas extends React.Component {
     this.props.changeValue(this.props.id, { [name]: value });
   }
 
+  // Should only check for rapid-fire changes, like panning the svg canvas
+  shouldComponentUpdate(nextProps) {
+    let a = this.props.app;
+    let b = nextProps.app;
+    let keys = Object.keys(this.props.app);
+    for(let i = 0; i < keys.length; i++) {
+      let ai = a[keys[i]];
+      let bi = b[keys[i]];
+      if(ai !== null && ai.constructor === Array) {
+        for(let j = 0; j < ai.length; j++) {
+          if(ai[j] !== bi[j]) {
+            return false;
+          }
+        }
+      } else if(ai !== bi) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   setCanvas(canvas) {
     this.canvas = canvas;
   }
   render() {
+    console.log('render');
     let { selectedNode } = this.props;
     if(this.renderer) {
       this.renderer.render(this.props.graph);
@@ -72,7 +94,8 @@ RenderCanvas.propTypes = {
   graph: PropTypes.object.isRequired,
   id: PropTypes.number.isRequired,
   selectedNode: PropTypes.object,
-  changeValue: PropTypes.func.isRequired
+  changeValue: PropTypes.func.isRequired,
+  app: PropTypes.object.isRequired
 };
 
 export default RenderCanvas;

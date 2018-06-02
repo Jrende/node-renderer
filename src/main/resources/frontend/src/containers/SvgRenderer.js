@@ -6,7 +6,8 @@ const mapStateToProps = state => (
   {
     connections: state.graph.connections,
     nodes: state.graph.nodes,
-    selectedNode: state.graph.selectedNode
+    selectedNode: state.app.selectedNode,
+    nodePan: state.app.nodePan
   }
 );
 
@@ -29,6 +30,9 @@ const mapDispatchToProps = dispatch => (
     },
     selectNode: (nodeId) => {
       dispatch(actions.selectNode(nodeId));
+    },
+    setNodePan: (nodePan) => {
+      dispatch(actions.setNodePan(nodePan));
     }
   }
 );

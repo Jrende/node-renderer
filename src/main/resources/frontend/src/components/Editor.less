@@ -6,14 +6,9 @@ body {
 }
 
 .editor {
-  display: grid;
-  grid-gap: 2px;
-  grid-template-columns: 1fr 3fr;
-  grid-template-rows: 1em 1fr 0.5fr;
-  grid-template-areas:
-    "mb mb ni"
-    "ca ca ni"
-    "tb sr ni";
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .editor > * {
@@ -21,27 +16,25 @@ body {
 }
 
 .node-inputs {
-  //background-color: rgba(255, 255, 255, 0.7);
-  grid-area: ni;
   background-color: white;
 }
 
 .tool-box {
-  grid-area: tb;
 }
 
 .canvas {
   position: relative;
-  grid-area: ca;
+  flex: 1 1 auto;
 }
 
-.svg-renderer {
-  grid-area: sr;
+.control {
+  flex: 1 1 auto;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .menu-bar {
-  grid-area: mb;
   nav {
     display: flex;
     flex-direction: row;

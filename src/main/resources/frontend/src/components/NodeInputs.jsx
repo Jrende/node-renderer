@@ -79,8 +79,10 @@ class NodeInputs extends React.Component {
       });
     }
     return [
-      <h1 key="NodeInputs">NodeInputs</h1>,
-      ...inputs
+      <h1 key="title">NodeInputs</h1>,
+      <div key="Node-inputs" className="node-inputs">
+        {inputs}
+      </div>
     ];
   }
 }
@@ -88,7 +90,7 @@ class NodeInputs extends React.Component {
 NodeInputs.propTypes = {
   selectedNode: PropTypes.object.isRequired,
   id: PropTypes.number.isRequired,
-  changeValue: PropTypes.func.isRequired,
+  changeValue: PropTypes.func.isRequired
 };
 
 export default NodeInputs;

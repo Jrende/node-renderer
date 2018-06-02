@@ -9,6 +9,24 @@ import RenderCanvas from '../containers/RenderCanvas';
 import './Editor.less';
 
 class Editor extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      showNewNodeDialog: false
+    };
+    this.back = this.back.bind(this);
+  }
+
+  back() {
+    if(this.props.selectedNode !== -1) {
+      this.props.selectNode(-1);
+    } else if (this.state.showNewNodeDialog) {
+      this.setState({
+        showNewNodeDialog: false
+      });
+    }
+  }
+
   /* global location */
   componentDidMount() {
     let id = +location.pathname.substr(1);
@@ -22,25 +40,31 @@ class Editor extends React.Component {
   render() {
     let input;
     if(this.props.selectedNode !== -1) {
-      input = (
-        <div key="Inputs" className="node-inputs">
-          <NodeInputs />
-        </div>);
+      input = [
+        <button className="back" onClick={this.back}>Back</button>,
+        <NodeInputs />
+      ];
+    } else if(this.state.showNewNodeDialog) {
+      input = [
+        <button className="back" onClick={this.back}>Back</button>,
+        <ToolBox />
+      ];
+    } else {
+      input = [
+        <button className="addNode" onClick={() => this.setState({ showNewNodeDialog: true })}>Add new node</button>,
+        <SvgRenderer />
+      ];
     }
     return [
       <nav key="Menu Bar" className="menu-bar">
         <MenuItems match={this.props.match} />
       </nav>,
-      <div key="Svg Renderer" className="svg-renderer">
-        <SvgRenderer />
-      </div>,
-      <div key="ToolBox" className="tool-box">
-        <ToolBox />
-      </div>,
       <div key="RenderCanvas" className="canvas">
         <RenderCanvas />
       </div>,
-      input
+      <div key="Control" className="control">
+        {input}
+      </div>
     ];
   }
 }
@@ -49,6 +73,7 @@ class Editor extends React.Component {
 Editor.propTypes = {
   setGraph: PropTypes.func.isRequired,
   loadEmptyGraph: PropTypes.func.isRequired,
-  selectedNode: PropTypes.number.isRequired
+  selectedNode: PropTypes.number.isRequired,
+  selectNode: PropTypes.func.isRequired,
 };
 export default Editor;

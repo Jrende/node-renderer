@@ -63,3 +63,10 @@ export function setGraph(graph) {
     graph
   };
 }
+
+export function setNodePan(nodePan) {
+  return {
+    type: 'SET_NODE_PAN',
+    nodePan
+  };
+}
