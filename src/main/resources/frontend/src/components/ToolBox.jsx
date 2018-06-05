@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './ToolBox.less';
+import Types from '../constants/Types';
 
 class ToolBox extends React.Component {
   createNewNode(event, type) {
@@ -12,10 +13,8 @@ class ToolBox extends React.Component {
   }
 
   render() {
-    let { types } = this.props;
-
-    let nodes = Object.keys(types)
-      .map(key => types[key])
+    let nodes = Object.keys(Types)
+      .map(key => Types[key])
       .filter(type => type.id !== 0)
       .map(type =>
         (
@@ -29,7 +28,6 @@ class ToolBox extends React.Component {
 }
 
 ToolBox.propTypes = {
-  types: PropTypes.object.isRequired,
   createNewNode: PropTypes.func.isRequired
 };
 

@@ -5,16 +5,16 @@ import BlendRenderer from './BlendRenderer';
 import GradientRenderer from './GradientRenderer';
 import HueSaturationRenderer from './HueSaturationRenderer';
 import BrightnessContrastRenderer from './BrightnessContrastRenderer';
-import { types } from '../../reducers/Types';
+import Types from '../../constants/Types';
 
 let constructors = {
-  [types.hueSaturation.id]: HueSaturationRenderer,
-  [types.brightnessContrast.id]: BrightnessContrastRenderer,
-  [types.clouds.id]: CloudRenderer,
-  [types.solidColor.id]: SolidColorRenderer,
-  [types.blend.id]: BlendRenderer,
-  [types.gradient.id]: GradientRenderer,
-  [types.colorMap.id]: ColorMapRenderer
+  [Types.hueSaturation.id]: HueSaturationRenderer,
+  [Types.brightnessContrast.id]: BrightnessContrastRenderer,
+  [Types.clouds.id]: CloudRenderer,
+  [Types.solidColor.id]: SolidColorRenderer,
+  [Types.blend.id]: BlendRenderer,
+  [Types.gradient.id]: GradientRenderer,
+  [Types.colorMap.id]: ColorMapRenderer
 };
 
 export default function getRenderer(type) {

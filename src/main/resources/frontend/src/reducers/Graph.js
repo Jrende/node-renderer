@@ -1,13 +1,13 @@
-import { types } from './Types';
+import Types from '../constants/Types';
 
-let typeValues = Object.values(types);
+let typeValues = Object.values(Types);
 
 let initialState = {
   connections: [],
   nodes: [{
     pos: [0, 0],
     values: {},
-    type: types.finalOutput
+    type: Types.finalOutput
   }]
 };
 

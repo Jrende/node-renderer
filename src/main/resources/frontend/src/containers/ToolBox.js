@@ -2,12 +2,6 @@ import { connect } from 'react-redux';
 import ToolBox from '../components/ToolBox';
 import * as actions from '../actions';
 
-const mapStateToProps = state => (
-  {
-    types: state.types,
-  }
-);
-
 const mapDispatchToProps = dispatch => (
   {
     createNewNode: node => {
@@ -16,6 +10,6 @@ const mapDispatchToProps = dispatch => (
   }
 );
 
-const Component = connect(mapStateToProps, mapDispatchToProps)(ToolBox);
+const Component = connect(mapDispatchToProps)(ToolBox);
 
 export default Component;

@@ -1,4 +1,4 @@
-export const types = {
+export default {
   finalOutput: {
     id: 0,
     name: 'Output',
@@ -225,7 +225,3 @@ export const types = {
     }
   }
 };
-
-const typeReducer = (state = types) => state;
-
-export default typeReducer;
