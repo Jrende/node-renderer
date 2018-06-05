@@ -5,26 +5,28 @@ let initialState = {
   grabNodeId: -1,
 };
 
-
 const appReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'SET_NODE_EDITOR_VIEW': {
-      return Object.assign({}, state, {
+      return {
+        ...state,
         pan: action.pan,
         zoom: action.zoom
-      });
+      };
     }
     case 'SET_GRAB': {
-      return Object.assign({}, state, {
+      return {
+        ...state,
         grabMode: action.grabMode,
         grabNodeId: action.grabNodeId
-      });
+      };
     }
     case 'STOP_GRAB': {
-      return Object.assign({}, state, {
+      return {
+        ...state,
         grabMode: null,
         grabNodeId: -1
-      });
+      };
     }
     default:
       return state;

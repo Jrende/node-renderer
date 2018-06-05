@@ -5,11 +5,11 @@ let initialState = {
 
 const appReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SELECT_NODE': {
-      return Object.assign({}, state, {
+    case 'SELECT_NODE':
+      return {
+        ...state,
         selectedNode: action.id
-      });
-    }
+      };
     default:
       return state;
   }
