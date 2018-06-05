@@ -74,11 +74,11 @@ const nodes = (state = initialState, action) => {
       let type = typeValues.find(t => t.id === action.node.type);
       let id = getNewId(state.nodes);
 
-      let newNode = Object.assign({}, {
+      let newNode = {
         type,
         pos: action.node.pos,
         values: {}
-      });
+      };
       if(newNode.type.values !== undefined) {
         Object.keys(newNode.type.values).forEach(key => {
           newNode.values[key] = getDefault(newNode.type.values[key]);
@@ -125,7 +125,7 @@ const nodes = (state = initialState, action) => {
       };
     }
     case 'REMOVE_NODE': {
-      let newNodes = Object.assign([], state.nodes);
+      let newNodes = [...state.nodes];
       delete newNodes[action.id];
       let newConnections = state.connections
         .filter(connection => connection.from.id !== action.id && connection.to.id !== action.id);
