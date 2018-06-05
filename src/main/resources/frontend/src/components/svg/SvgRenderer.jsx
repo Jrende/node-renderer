@@ -24,8 +24,8 @@ class SvgRenderer extends React.Component {
       grabFrom: [0, 0],
       grabConnectorType: null,
       grabTo: [0, 0],
-      grabMode: null,
-      grabNodeId: -1,
+      //grabMode: null,
+      //grabNodeId: -1,
       lastPos: [0, 0],
       grabMoved: false,
       zoom: 1
@@ -106,31 +106,28 @@ class SvgRenderer extends React.Component {
       }
     }
     this.setState({
-      grabNodeId,
+      //grabNodeId,
       connectorName,
-      grabMode: 'connector',
+      //grabMode: 'connector',
       grabConnectorType,
       grabTo,
       grabFrom,
       lastPos: [event.clientX, event.clientY]
     });
+    this.props.setGrab('connector', grabNodeId);
   }
 
   onElementMouseDown(event, id) {
     this.setState({
-      grabMode: 'element',
-      grabNodeId: +id,
       lastPos: [event.clientX, event.clientY]
     });
+    this.props.setGrab('element', +id);
   }
 
   onMouseMove(event) {
-    if(this.state.grabMode != null) {
+    if(this.props.grabMode != null) {
       if(event.buttons === 0) {
-        this.setState({
-          grabMode: null,
-          grabNodeId: null
-        });
+        this.props.stopGrab();
         return;
       }
       let delta = [
@@ -142,24 +139,24 @@ class SvgRenderer extends React.Component {
         lastPos: [event.clientX, event.clientY]
       });
 
-      switch(this.state.grabMode) {
+      switch(this.props.grabMode) {
         case 'element': {
-          let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.state.grabNodeId}']`);
-          let node = this.props.nodes[this.state.grabNodeId];
+          let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.props.grabNodeId}']`);
+          let node = this.props.nodes[this.props.grabNodeId];
           let newPos = addInSvgSpace(node.pos, delta, svgNode, this.point);
-          this.props.setNodeLocation(this.state.grabNodeId, newPos);
+          this.props.setNodeLocation(this.props.grabNodeId, newPos);
           break;
         }
         case 'connector': {
-          let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.state.grabNodeId}']`);
+          let svgNode = this.svg.querySelector(`.svg-node[data-node-id='${this.props.grabNodeId}']`);
           let grabTo = addInSvgSpace(this.state.grabTo, delta, svgNode, this.point);
           this.setState({ grabTo });
           break;
         }
         case 'canvas': {
           delta = delta.map(v => v * this.state.zoom);
-          let pan = addInSvgSpace(this.props.nodePan, delta, this.svg, this.point);
-          this.props.setNodePan(pan);
+          let pan = addInSvgSpace(this.props.pan, delta, this.svg, this.point);
+          this.props.setNodeEditorView(pan, this.props.zoom);
           break;
         }
         default:
@@ -180,9 +177,9 @@ class SvgRenderer extends React.Component {
         }
         parent = parent.parentElement;
       }
-      if(nodeId !== -1 && nodeId !== this.state.grabNodeId) {
+      if(nodeId !== -1 && nodeId !== this.props.grabNodeId) {
         let from = {
-          id: this.state.grabNodeId,
+          id: this.props.grabNodeId,
           name: this.state.connectorName
         };
         let to = {
@@ -206,13 +203,12 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseUp() {
-    if(!this.state.grabMoved && this.state.grabNodeId != null) {
-      this.props.selectNode(this.state.grabNodeId);
+    if(!this.state.grabMoved && this.props.grabNodeId != null) {
+      this.props.selectNode(this.props.grabNodeId);
     }
+    this.props.stopGrab();
     this.setState({
       grabMoved: false,
-      grabMode: null,
-      grabNodeId: null
     });
   }
 
@@ -223,8 +219,9 @@ class SvgRenderer extends React.Component {
       let svgNode = this.svg.querySelector('.svg-node');
       let transformedPos = transformPointToSvgSpace(clientPos, svgNode, this.point);
       this.props.selectNode(-1);
+      // TODO: Split grabbing nodes from grabbings canvas, connectors, etc.
+      this.props.setGrab('canvas', -1);
       this.setState({
-        grabMode: 'canvas',
         grabTo: transformedPos,
         grabFrom: transformedPos,
         lastPos: clientPos
@@ -294,20 +291,24 @@ class SvgRenderer extends React.Component {
     let newNode = {
       type: type.id,
       pos: [
-        newCoords.x - nodeLayout.width / 2.0 - this.props.nodePan[0] - svgSize[0] / 2.0,
-        newCoords.y - nodeLayout.height / 2.0 - this.props.nodePan[1] - svgSize[1] / 2.0
+        newCoords.x - nodeLayout.width / 2.0 - this.props.pan[0] - svgSize[0] / 2.0,
+        newCoords.y - nodeLayout.height / 2.0 - this.props.pan[1] - svgSize[1] / 2.0
       ].map(v => v * this.state.zoom)
     };
     this.props.createNewNode(newNode);
   }
 
   render() {
-    let { nodes, connections, selectedNode } = this.props;
+    let {
+      nodes,
+      connections,
+      selectedNode,
+      grabMode,
+      zoom
+    } = this.props;
     let {
       grabTo,
       grabFrom,
-      grabMode,
-      zoom
     } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
     let nodeElements = Object.entries(nodes)
@@ -373,7 +374,7 @@ class SvgRenderer extends React.Component {
       mat3.translate(m, m, [svgSize[0] / 2, svgSize[1] / 2]);
     }
     let zoomVal = 1 / zoom;
-    mat3.translate(m, m, this.props.nodePan);
+    mat3.translate(m, m, this.props.pan);
     mat3.scale(m, m, [zoomVal, zoomVal]);
     mat3.transpose(m, m);
     let svgMat = `${m[0]}, ${m[3]}, ${m[1]}, ${m[4]}, ${m[2]}, ${m[5]}`;
@@ -411,8 +412,13 @@ SvgRenderer.propTypes = {
   connectNodes: PropTypes.func.isRequired,
   selectNode: PropTypes.func.isRequired,
   selectedNode: PropTypes.number.isRequired,
-  nodePan: PropTypes.array.isRequired,
-  setNodePan: PropTypes.func.isRequired
+  pan: PropTypes.array.isRequired,
+  zoom: PropTypes.number.isRequired,
+  setNodeEditorView: PropTypes.func.isRequired,
+  setGrab: PropTypes.func.isRequired,
+  stopGrab: PropTypes.func.isRequired,
+  grabMode: PropTypes.string.isRequired,
+  grabNodeId: PropTypes.number.isRequired
 };
 
 export default SvgRenderer;

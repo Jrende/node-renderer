@@ -64,9 +64,24 @@ export function setGraph(graph) {
   };
 }
 
-export function setNodePan(nodePan) {
+export function setNodeEditorView(pan, zoom) {
   return {
-    type: 'SET_NODE_PAN',
-    nodePan
+    type: 'SET_NODE_EDITOR_VIEW',
+    pan,
+    zoom
+  };
+}
+
+export function setGrab(grabMode, grabNodeId) {
+  return {
+    type: 'SET_GRAB',
+    grabMode,
+    grabNodeId
+  };
+}
+
+export function stopGrab() {
+  return {
+    type: 'STOP_GRAB'
   };
 }

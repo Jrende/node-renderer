@@ -4,8 +4,8 @@ import * as actions from '../actions';
 
 const mapStateToProps = state => (
   {
-    selectedNode: state.graph.nodes[state.app.selectedNode],
-    id: state.app.selectedNode
+    selectedNode: state.graph.nodes[state.editor.selectedNode],
+    id: state.editor.selectedNode
   }
 );
 

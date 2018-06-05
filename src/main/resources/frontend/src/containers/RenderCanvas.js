@@ -20,10 +20,10 @@ function createGraph(nodes, connections, id) {
 
 const mapStateToProps = state => (
   {
-    id: state.app.selectedNode,
+    id: state.editor.selectedNode,
     graph: createGraph(state.graph.nodes, state.graph.connections, 0),
-    selectedNode: state.graph.nodes[state.app.selectedNode],
-    app: state.app
+    selectedNode: state.graph.nodes[state.editor.selectedNode],
+    pan: state.nodeEditor.pan
   }
 );
 

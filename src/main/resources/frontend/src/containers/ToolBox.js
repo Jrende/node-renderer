@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import ToolBox from '../components/ToolBox';
+import * as actions from '../actions';
 
 const mapStateToProps = state => (
   {
@@ -7,6 +8,14 @@ const mapStateToProps = state => (
   }
 );
 
-const Component = connect(mapStateToProps)(ToolBox);
+const mapDispatchToProps = dispatch => (
+  {
+    createNewNode: node => {
+      dispatch(actions.createNewNode(node));
+    }
+  }
+);
+
+const Component = connect(mapStateToProps, mapDispatchToProps)(ToolBox);
 
 export default Component;

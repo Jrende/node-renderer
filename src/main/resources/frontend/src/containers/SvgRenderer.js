@@ -6,8 +6,11 @@ const mapStateToProps = state => (
   {
     connections: state.graph.connections,
     nodes: state.graph.nodes,
-    selectedNode: state.app.selectedNode,
-    nodePan: state.app.nodePan
+    selectedNode: state.editor.selectedNode,
+    pan: state.nodeEditor.pan,
+    zoom: state.nodeEditor.zoom,
+    grabMode: state.nodeEditor.grabMode,
+    grabNodeId: state.nodeEditor.grabNodeId,
   }
 );
 
@@ -31,8 +34,14 @@ const mapDispatchToProps = dispatch => (
     selectNode: (nodeId) => {
       dispatch(actions.selectNode(nodeId));
     },
-    setNodePan: (nodePan) => {
-      dispatch(actions.setNodePan(nodePan));
+    setNodeEditorView: (pan, zoom) => {
+      dispatch(actions.setNodeEditorView(pan, zoom));
+    },
+    setGrab: (grabMode, grabNodeId) => {
+      dispatch(actions.setGrab(grabMode, grabNodeId));
+    },
+    stopGrab: () => {
+      dispatch(actions.stopGrab());
     }
   }
 );

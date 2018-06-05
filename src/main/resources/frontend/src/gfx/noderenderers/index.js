@@ -5,7 +5,7 @@ import BlendRenderer from './BlendRenderer';
 import GradientRenderer from './GradientRenderer';
 import HueSaturationRenderer from './HueSaturationRenderer';
 import BrightnessContrastRenderer from './BrightnessContrastRenderer';
-import { types } from '../../reducers/types';
+import { types } from '../../reducers/Types';
 
 let constructors = {
   [types.hueSaturation.id]: HueSaturationRenderer,
