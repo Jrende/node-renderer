@@ -4,11 +4,13 @@ let typeValues = Object.values(Types);
 
 let initialState = {
   connections: [],
-  nodes: [{
-    pos: [0, 0],
-    values: {},
-    type: Types.finalOutput
-  }]
+  nodes: {
+    0: {
+      pos: [0, 0],
+      values: {},
+      type: Types.finalOutput
+    }
+  }
 };
 
 function getDefault(value) {
@@ -62,13 +64,12 @@ function getDefault(value) {
   }
 }
 
-function getNewId(nodes) {
-  let ids = Object.keys(nodes).sort((a, b) => a - b);
-  let newId = +ids[ids.length - 1] + 1;
-  return newId;
+let lastId = 0;
+function getNewId() {
+  return ++lastId;
 }
 
-const nodes = (state = initialState, action) => {
+export default (state = initialState, action) => {
   switch (action.type) {
     case 'CREATE_NODE': {
       let type = typeValues.find(t => t.id === action.node.type);
@@ -87,7 +88,7 @@ const nodes = (state = initialState, action) => {
 
       return {
         ...state,
-        nodes: Object.assign([], state.nodes, {
+        nodes: Object.assign({}, state.nodes, {
           [id]: newNode
         })
       };
@@ -95,7 +96,7 @@ const nodes = (state = initialState, action) => {
     case 'MOVE_NODE': {
       return {
         ...state,
-        nodes: Object.assign([], state.nodes, {
+        nodes: Object.assign({}, state.nodes, {
           [action.id]: {
             ...state.nodes[action.id],
             pos: action.pos
@@ -125,7 +126,9 @@ const nodes = (state = initialState, action) => {
       };
     }
     case 'REMOVE_NODE': {
-      let newNodes = [...state.nodes];
+      let newNodes = {
+        ...state.nodes
+      };
       delete newNodes[action.id];
       let newConnections = state.connections
         .filter(connection => connection.from.id !== action.id && connection.to.id !== action.id);
@@ -139,7 +142,7 @@ const nodes = (state = initialState, action) => {
       let node = state.nodes[action.id];
       return {
         ...state,
-        nodes: Object.assign([], state.nodes, {
+        nodes: Object.assign({}, state.nodes, {
           [action.id]: {
             ...node,
             values: {
@@ -151,10 +154,20 @@ const nodes = (state = initialState, action) => {
       };
     }
     case 'SET_GRAPH': {
+      let newNodes = {};
+      lastId = action.graph.nodes.length;
+      for(let i = 0; i < action.graph.nodes.length; i++) {
+        let node = action.graph.nodes[i];
+        if(node.id !== undefined) {
+          newNodes[node.id] = node;
+        } else {
+          newNodes[i] = node;
+        }
+      }
       return {
         ...state,
         selectedNode: -1,
-        nodes: action.graph.nodes,
+        nodes: newNodes,
         connections: action.graph.connections
       };
     }
@@ -165,5 +178,3 @@ const nodes = (state = initialState, action) => {
   }
   return state;
 };
-
-export default nodes;
