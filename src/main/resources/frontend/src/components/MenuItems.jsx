@@ -48,7 +48,7 @@ class MenuItems extends React.Component {
 }
 
 MenuItems.propTypes = {
-  nodes: PropTypes.array.isRequired,
+  nodes: PropTypes.object.isRequired,
   connections: PropTypes.array.isRequired,
   saveImage: PropTypes.func.isRequired
 };

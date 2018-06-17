@@ -72,16 +72,17 @@ export function setNodeEditorView(pan, zoom) {
   };
 }
 
-export function setGrab(grabMode, grabNodeId) {
+export function grabNodePlaceholder(nodeType) {
   return {
-    type: 'SET_GRAB',
-    grabMode,
-    grabNodeId
+    type: 'GRAB_NODE_PLACEHOLDER',
+    nodeType
   };
 }
 
-export function stopGrab() {
+export function showToolBox(show) {
   return {
-    type: 'STOP_GRAB'
+    type: 'SET_TOOLBOX_VISIBILITY',
+    showToolBox: show
   };
 }
+

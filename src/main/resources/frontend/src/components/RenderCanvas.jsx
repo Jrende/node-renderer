@@ -34,8 +34,8 @@ class RenderCanvas extends React.Component {
   setCanvas(canvas) {
     this.canvas = canvas;
   }
+
   render() {
-    console.log('render');
     let { selectedNode } = this.props;
     if(this.renderer) {
       this.renderer.render(this.props.graph);

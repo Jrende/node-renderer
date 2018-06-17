@@ -1,8 +1,6 @@
 let initialState = {
   pan: [0, 0],
   zoom: 1.0,
-  grabMode: null,
-  grabNodeId: -1,
 };
 
 const appReducer = (state = initialState, action) => {
@@ -12,20 +10,6 @@ const appReducer = (state = initialState, action) => {
         ...state,
         pan: action.pan,
         zoom: action.zoom
-      };
-    }
-    case 'SET_GRAB': {
-      return {
-        ...state,
-        grabMode: action.grabMode,
-        grabNodeId: action.grabNodeId
-      };
-    }
-    case 'STOP_GRAB': {
-      return {
-        ...state,
-        grabMode: null,
-        grabNodeId: -1
       };
     }
     default:

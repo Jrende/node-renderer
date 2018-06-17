@@ -5,6 +5,8 @@ import * as actions from '../actions';
 const mapStateToProps = state => (
   {
     selectedNode: state.editor.selectedNode,
+    grabbedNodeType: state.editor.grabbedNodeType,
+    showToolBox: state.editor.showToolBox
   }
 );
 
@@ -18,6 +20,9 @@ const mapDispatchToProps = dispatch => (
     },
     selectNode: (nodeId) => {
       dispatch(actions.selectNode(nodeId));
+    },
+    setToolBoxVisibility: (show) => {
+      dispatch(actions.showToolBox(show));
     }
   }
 );
