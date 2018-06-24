@@ -26,9 +26,9 @@ public class DBAccessor {
         }
         try {
             System.out.println("Init database");
-            String user = System.getenv("db.user");
-            String pwd = System.getenv("db.password");
-            db = DriverManager.getConnection(System.getenv("db.url"), user, pwd);
+            String user = System.getenv("db_user");
+            String pwd = System.getenv("db_password");
+            db = DriverManager.getConnection(System.getenv("db_url"), user, pwd);
         } catch (SQLException e) {
             e.printStackTrace();
         }
