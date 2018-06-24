@@ -64,9 +64,10 @@ function getDefault(value) {
   }
 }
 
-let lastId = 0;
-function getNewId() {
-  return ++lastId;
+function getNewId(nodes) {
+  let ids = Object.keys(nodes).sort((a, b) => a - b);
+  let newId = +ids[ids.length - 1] + 1;
+  return newId;
 }
 
 export default (state = initialState, action) => {
@@ -154,20 +155,10 @@ export default (state = initialState, action) => {
       };
     }
     case 'SET_GRAPH': {
-      let newNodes = {};
-      lastId = action.graph.nodes.length;
-      for(let i = 0; i < action.graph.nodes.length; i++) {
-        let node = action.graph.nodes[i];
-        if(node.id !== undefined) {
-          newNodes[node.id] = node;
-        } else {
-          newNodes[i] = node;
-        }
-      }
       return {
         ...state,
         selectedNode: -1,
-        nodes: newNodes,
+        nodes: action.graph.nodes,
         connections: action.graph.connections
       };
     }
