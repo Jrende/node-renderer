@@ -9,10 +9,12 @@ import RenderCanvas from '../containers/RenderCanvas';
 import NodeGrabOverlay from '../components/NodeGrabOverlay';
 import './Editor.less';
 
+let root = document.querySelector('#root');
 class Editor extends React.Component {
   constructor() {
     super();
     this.back = this.back.bind(this);
+    this.keyDownEvent = this.keyDownEvent.bind(this);
   }
 
   back() {
@@ -24,12 +26,24 @@ class Editor extends React.Component {
   }
 
   componentDidMount() {
+    root.addEventListener('keydown', this.keyDownEvent);
     let id = +window.location.pathname.substr(1);
     if(!Number.isNaN(id) && id !== 0) {
       this.props.setGraph(window.initialGraph);
     } else {
       this.props.loadEmptyGraph();
     }
+  }
+
+  keyDownEvent(event) {
+    if(event.keyCode === 32) {
+      this.props.setToolBoxVisibility(true);
+    }
+  }
+
+  componentWillUnmount() {
+    console.log('remove listener');
+    root.removeEventListener('keyDown', this.keyDownEvent);
   }
 
   render() {
