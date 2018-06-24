@@ -294,6 +294,7 @@ class SvgRenderer extends React.Component {
     this.props.createNewNode(newNode);
     this.props.grabNodePlaceholder(null);
     this.props.showToolBox(false);
+    this.svg.focus();
   }
 
   render() {
@@ -390,6 +391,7 @@ class SvgRenderer extends React.Component {
         onMouseDown={this.onCanvasMouseDown}
         onKeyDown={this.onKeyDown}
         onWheel={this.onWheel}
+        tabIndex="0"
       >
         <g transform={`matrix(${svgMat})`}>
           {lines}
