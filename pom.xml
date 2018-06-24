@@ -37,8 +37,7 @@
                 <version>4.0.3</version>
                 <configuration>
                     <url>jdbc:postgresql:nrdb</url>
-                    <user>nru</user>
-                    <password>test</password>
+                    <serverId>nrdb</serverId>
                 </configuration>
                 <dependencies>
                     <dependency>
