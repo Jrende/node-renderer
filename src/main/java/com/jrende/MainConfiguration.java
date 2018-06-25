@@ -13,7 +13,7 @@ public class MainConfiguration extends Configuration {
     @JsonProperty
     private DataSourceFactory database = new DataSourceFactory();
 
-    public DataSourceFactory getDataSourceFactory() {
+    public DataSourceFactory getDatabase() {
         return database;
     }
 }

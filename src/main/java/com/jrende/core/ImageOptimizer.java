@@ -1,4 +1,4 @@
-package com.jrende.model;
+package com.jrende.core;
 
 import com.google.gson.*;
 
