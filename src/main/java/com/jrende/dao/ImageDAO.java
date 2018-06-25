@@ -1,6 +1,7 @@
 package com.jrende.dao;
 
 import com.jrende.model.Image;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +10,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ImageDAO {
+public interface ImageDAO {
+    @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING image_id")
+    int saveImage(String source, String userId);
+
+
+    /*
     private DBAccessor dbAccessor;
     private static ImageDAO instance;
     private final PreparedStatement getImages;
@@ -107,6 +113,6 @@ public class ImageDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
+    */
 }

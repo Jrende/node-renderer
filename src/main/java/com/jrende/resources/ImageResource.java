@@ -1,6 +1,8 @@
 package com.jrende.resources;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.jrende.dao.ImageDAO;
 import com.jrende.model.Image;
 import com.jrende.model.ImageOptimizer;
