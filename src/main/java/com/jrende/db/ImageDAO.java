@@ -4,6 +4,7 @@ import com.jrende.core.Image;
 import com.jrende.db.mappers.ImageMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
+import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
@@ -20,17 +21,17 @@ public interface ImageDAO {
 
     @SqlQuery("SELECT * FROM images WHERE id = :imageId")
     @RegisterRowMapper(ImageMapper.class)
-    Optional<Image> getImageById(long imageId);
+    Optional<Image> getImageById(@Bind("imageId") long imageId);
 
     @SqlQuery("SELECT * FROM images WHERE user_id = :userId")
     @RegisterRowMapper(ImageMapper.class)
-    List<Image> getImagesByUserId(String userId);
+    List<Image> getImagesByUserId(@Bind("userId") String userId);
 
     @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING id;")
     @RegisterRowMapper(ImageMapper.class)
-    int createNewImage(String source, String userId);
+    int createNewImage(@Bind("source") String source, @Bind("userId") String userId);
 
     @SqlUpdate("UPDATE images SET source = :source WHERE id = :imageId")
     @RegisterRowMapper(ImageMapper.class)
-    void updateImage(String source, long imageId);
+    void updateImage(@Bind("source") String source, @Bind("imageId") long imageId);
 }
