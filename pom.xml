@@ -32,9 +32,6 @@
                 <configuration>
                     <source>1.10</source>
                     <target>1.10</target>
-                    <compilerArguments>
-                        <compilerArgument>-parameters</compilerArgument>
-                    </compilerArguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -98,11 +95,15 @@
                         <configuration>
                             <executable>npm</executable>
                             <arguments>
-                                <argument>run build</argument>
+                                <argument>run</argument>
+                                <argument>build</argument>
                             </arguments>
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <workingDirectory>src/main/resources/frontend</workingDirectory>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -110,9 +111,9 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>/resources/frontend/node_modules/</directory>
+                            <directory>src/main/resources/frontend/</directory>
                             <includes>
-                                <include>**/*</include>
+                                <include>node_modules</include>
                             </includes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
@@ -122,7 +123,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>/resources/frontend/node_modules/</directory>
+                <directory>src/main/resources/frontend/node_modules/</directory>
                 <excludes>
                     <exclude>**/*</exclude>
                 </excludes>
