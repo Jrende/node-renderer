@@ -4,9 +4,9 @@ let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 // var CopyWebpackPlugin = require('copy-webpack-plugin');
 
-let dist = path.join(__dirname, '../../webapp/static/editor');
-let index = path.join(__dirname, 'src/index.html');
+let dist = path.join(__dirname, '../static/editor');
 let entry = path.join(__dirname, 'src/main.jsx');
+
 
 
 const extractLess = new ExtractTextPlugin({
@@ -29,7 +29,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: index,
+      template: path.join(__dirname, 'src/index.ftl'),
+      filename: '../../com/jrende/views/editor.ftl',
       inject: true
     }),
     /*
@@ -70,7 +71,7 @@ module.exports = {
         })
       },
       {
-        test: /\.(frag|vert)$/,
+        test: /\.(frag|vert|ftl)$/,
         loader: 'raw-loader',
         exclude: /node_modules/,
         include: __dirname

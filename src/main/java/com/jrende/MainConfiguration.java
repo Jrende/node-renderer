@@ -10,10 +10,10 @@ import javax.validation.constraints.NotNull;
 public class MainConfiguration extends Configuration {
     @Valid
     @NotNull
-    @JsonProperty
-    private DataSourceFactory database = new DataSourceFactory();
+    @JsonProperty("database")
+    private DataSourceFactory dataSourceFactory = new DataSourceFactory();
 
-    public DataSourceFactory getDatabase() {
-        return database;
+    public DataSourceFactory getDataSourceFactory() {
+        return dataSourceFactory;
     }
 }

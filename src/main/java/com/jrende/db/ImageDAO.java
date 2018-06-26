@@ -8,28 +8,29 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ImageDAO {
-    @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING image_id")
+    @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING id")
     int saveImage(String source, String userId);
 
     @SqlQuery("SELECT * FROM images")
     @RegisterRowMapper(ImageMapper.class)
     List<Image> getAllImages();
 
-    @SqlQuery("SELECT * FROM images WHERE image_id = :imageId")
+    @SqlQuery("SELECT * FROM images WHERE id = :imageId")
     @RegisterRowMapper(ImageMapper.class)
-    Image getImageById(long imageId);
+    Optional<Image> getImageById(long imageId);
 
     @SqlQuery("SELECT * FROM images WHERE user_id = :userId")
     @RegisterRowMapper(ImageMapper.class)
     List<Image> getImagesByUserId(String userId);
 
-    @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING image_id;")
+    @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING id;")
     @RegisterRowMapper(ImageMapper.class)
     int createNewImage(String source, String userId);
 
-    @SqlUpdate("UPDATE images SET source = :source WHERE image_id = :imageId")
+    @SqlUpdate("UPDATE images SET source = :source WHERE id = :imageId")
     @RegisterRowMapper(ImageMapper.class)
     void updateImage(String source, long imageId);
 }

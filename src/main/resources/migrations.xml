@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="jrende">
+        <createTable tableName="images">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="text"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="jrende">
+        <insert tableName="images">
+            <column name="source" value="{'nodes':[{'pos':[0.0,0.0],'values':{},'type':{'id':0,'name':'Output','input':{'finalResult':{'type':'FrameBuffer','name':'Final result'}},'output':{},'values':{}}},{'type':{'id':2,'name':'Blend','values':{'mode':{'name':'Mode','type':'enum','values':['Normal','Screen','Multiply'],'default':'Normal'},'factor':{'name':'Factor','type':'number','default':0.5,'max':1,'min':0}},'input':{'left':{'type':'FrameBuffer','name':'Left'},'right':{'type':'FrameBuffer','name':'Right'}},'output':{'out':{'type':'FrameBuffer','name':'Output'}}},'pos':[-306.89,1.48],'values':{'mode':'Multiply','factor':0.5}},{'type':{'id':1,'name':'Clouds','values':{'seed':{'name':'Seed','type':'number','default':1},'left':{'name':'Left','type':'number','default':0,'min':-10,'max':10},'size':{'name':'Size','type':'number','default':1},'density':{'name':'Density','type':'number','min':0,'max':1,'default':0.5}},'output':{'out':{'type':'FrameBuffer','name':'Output'}}},'pos':[-471.12,-7.08],'values':{'seed':1,'left':0,'size':1,'density':0.5}},{'type':{'id':3,'name':'Solid Color','values':{'color':{'name':'Color','type':'color'}},'output':{'out':{'type':'FrameBuffer','name':'Output'}}},'pos':[-504.53,59.55],'values':{'color':{'r':0,'g':243,'b':255,'a':1}}}],'connections':[{'to':{'id':0,'name':'finalResult'},'from':{'id':1,'name':'out'}},{'to':{'id':1,'name':'left'},'from':{'id':2,'name':'out'}},{'to':{'id':1,'name':'right'},'from':{'id':3,'name':'out'}}]}"/>
+            <column name="user_id" value="0"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

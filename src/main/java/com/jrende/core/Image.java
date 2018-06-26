@@ -2,19 +2,19 @@ package com.jrende.core;
 
 
 public class Image {
-    long imageId;
+    long id;
     String source;
     String userId;
 
     public Image() {
     }
 
-    public long getImageId() {
-        return imageId;
+    public long getId() {
+        return id;
     }
 
-    public void setImageId(long imageId) {
-        this.imageId = imageId;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getSource() {

@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.Response.Status;
@@ -39,19 +40,20 @@ public class ImageResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Long> getImages() {
-        return imageDAO.getAllImages().stream().map(Image::getImageId).collect(Collectors.toList());
+        return imageDAO.getAllImages().stream().map(Image::getId).collect(Collectors.toList());
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public String getImage(@PathParam("id") long id) {
-        Image image = imageDAO.getImageById(id);
+        Image image = imageDAO.getImageById(id)
+                .orElseThrow(() -> new NotFoundException("Image with id " + id + " not found"));
         JsonObject imageData = new JsonObject();
-        imageData.addProperty("id", image.getImageId());
-        imageData.addProperty("source", "/api/" + image.getImageId() + "/source");
-        imageData.addProperty("thumbnail", "/static/thumbnails/thumb-" + image.getImageId() + ".png");
-        imageData.addProperty("forks", "/api/" + image.getImageId() + "/forks");
+        imageData.addProperty("id", image.getId());
+        imageData.addProperty("source", "/api/" + image.getId() + "/source");
+        imageData.addProperty("thumbnail", "/static/thumbnails/thumb-" + image.getId() + ".png");
+        imageData.addProperty("forks", "/api/" + image.getId() + "/forks");
         return imageData.toString();
     }
 
@@ -62,13 +64,14 @@ public class ImageResource {
             @FormDataParam("source") String source,
             @FormDataParam("thumbnail") String thumbnail,
             @Context HttpServletRequest req,
-            @Context HttpServletResponse res) throws IOException {
+            @Context HttpServletResponse res
+            ) throws IOException {
         //TODO: Sanity check, has at least one finalOutput node, etc.
         Image image = new Image();
         image.setSource(ImageOptimizer.optimizeGraph(source));
         image.setUserId(req.getSession().getId());
         long imageId = imageDAO.saveImage(image.getSource(), image.getUserId());
-        saveThumbnailToFile(image.getImageId(), thumbnail);
+        saveThumbnailToFile(image.getId(), thumbnail);
         res.setStatus(Status.CREATED.getStatusCode());
         return imageId;
     }
@@ -82,7 +85,7 @@ public class ImageResource {
     @GET
     @Path("/{id}/thumbnail")
     @Produces("image/png")
-    public void getThumbnail(@PathParam("id") long id, @Context HttpServletRequest req, @Context HttpServletResponse res) {
+    public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) {
         try {
             byte[] thumbnails = Files.readAllBytes(Paths.get("src", "main", "webapp", "static", "thumbnails", "thumb-" + id + ".png"));
             res.setStatus(200);
@@ -104,14 +107,11 @@ public class ImageResource {
             @FormDataParam("thumbnail") String thumbnail,
             @Context HttpServletRequest req,
             @Context HttpServletResponse res) throws IOException {
-        Image image = imageDAO.getImageById(id);
-        if (image == null) {
-            res.sendError(404, "Image with id " + id + " not found");
-            return;
-        }
+        Image image = imageDAO.getImageById(id)
+                .orElseThrow(() -> new NotFoundException("Image with id " + id + " not found"));
         if (req.getSession().getId().equals(image.getUserId())) {
             image.setSource(source);
-            imageDAO.updateImage(image.getSource(), image.getImageId());
+            imageDAO.updateImage(image.getSource(), image.getId());
             saveThumbnailToFile(id, thumbnail);
         } else {
             res.sendError(Status.FORBIDDEN.getStatusCode());
@@ -122,14 +122,9 @@ public class ImageResource {
     @Path("/{id}/source")
     @Produces(MediaType.APPLICATION_JSON)
     public String getImageSource(
-            @PathParam("id") long id,
-            @Context HttpServletRequest req,
-            @Context HttpServletResponse res) throws IOException {
-        Image image = imageDAO.getImageById(id);
-        if (image == null) {
-            res.sendError(404, "Image with id " + id + " not found");
-            return null;
-        }
+            @PathParam("id") long id) {
+        Image image = imageDAO.getImageById(id)
+                .orElseThrow(() -> new NotFoundException("Image with id " + id + " not found"));
         return image.getSource();
     }
 }
