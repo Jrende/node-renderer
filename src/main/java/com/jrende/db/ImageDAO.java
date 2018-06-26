@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ImageDAO {
-    @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING id")
-    int saveImage(String source, String userId);
+    @SqlQuery("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING id")
+    int saveImage(@Bind("source") String source, @Bind("userId") String userId);
 
     @SqlQuery("SELECT * FROM images")
     @RegisterRowMapper(ImageMapper.class)
@@ -26,10 +26,6 @@ public interface ImageDAO {
     @SqlQuery("SELECT * FROM images WHERE user_id = :userId")
     @RegisterRowMapper(ImageMapper.class)
     List<Image> getImagesByUserId(@Bind("userId") String userId);
-
-    @SqlUpdate("INSERT INTO images (source, user_id) VALUES (:source, :userId) RETURNING id;")
-    @RegisterRowMapper(ImageMapper.class)
-    int createNewImage(@Bind("source") String source, @Bind("userId") String userId);
 
     @SqlUpdate("UPDATE images SET source = :source WHERE id = :imageId")
     @RegisterRowMapper(ImageMapper.class)

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.jrende.core.Image;
 import com.jrende.db.ImageDAO;
 import com.jrende.core.ImageOptimizer;
+import io.dropwizard.jersey.sessions.Session;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jdbi.v3.core.Jdbi;
 
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.Response.Status;
 
-@Path("images")
+@Path("api/images")
 public class ImageResource {
 
     private final Gson gson;
@@ -69,7 +70,8 @@ public class ImageResource {
         //TODO: Sanity check, has at least one finalOutput node, etc.
         Image image = new Image();
         image.setSource(ImageOptimizer.optimizeGraph(source));
-        image.setUserId(req.getSession().getId());
+        //TODO: Implement session management
+        image.setUserId("0");
         long imageId = imageDAO.saveImage(image.getSource(), image.getUserId());
         saveThumbnailToFile(image.getId(), thumbnail);
         res.setStatus(Status.CREATED.getStatusCode());
@@ -109,13 +111,13 @@ public class ImageResource {
             @Context HttpServletResponse res) throws IOException {
         Image image = imageDAO.getImageById(id)
                 .orElseThrow(() -> new NotFoundException("Image with id " + id + " not found"));
-        if (req.getSession().getId().equals(image.getUserId())) {
+//        if (req.getSession().getId().equals(image.getUserId())) {
             image.setSource(source);
             imageDAO.updateImage(image.getSource(), image.getId());
             saveThumbnailToFile(id, thumbnail);
-        } else {
-            res.sendError(Status.FORBIDDEN.getStatusCode());
-        }
+//        } else {
+//            res.sendError(Status.FORBIDDEN.getStatusCode());
+//        }
     }
 
     @GET
