@@ -47,7 +47,7 @@ public class MainApplication extends Application<MainConfiguration> {
         JdbiFactory factory = new JdbiFactory();
         Jdbi jdbi = factory.build(environment, config.getDataSourceFactory(), "postgresql");
 
-        ImageResource imageResource = new ImageResource(jdbi);
+        ImageResource imageResource = new ImageResource(jdbi, config.getThumbnailsFolder());
         environment.jersey().register(imageResource);
 
         OverviewResource overviewResource = new OverviewResource(jdbi, config);

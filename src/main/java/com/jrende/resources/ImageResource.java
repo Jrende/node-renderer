@@ -31,8 +31,10 @@ public class ImageResource {
 
     private final Gson gson;
     private ImageDAO imageDAO;
+    private String thumbnailsFolder;
 
-    public ImageResource(Jdbi jdbi) {
+    public ImageResource(Jdbi jdbi, String thumbnailsFolder) {
+        this.thumbnailsFolder = thumbnailsFolder;
         gson = new GsonBuilder().disableHtmlEscaping().create();
         imageDAO = jdbi.onDemand(ImageDAO.class);
     }
@@ -81,7 +83,7 @@ public class ImageResource {
     private void saveThumbnailToFile(long id, String thumbnail) throws IOException {
         String str = thumbnail.substring(thumbnail.indexOf(',') + 1);
         byte[] decode = Base64.getDecoder().decode(str);
-        Files.write(Paths.get("src", "main", "webapp", "static", "thumbnails", "thumb-" + id + ".png"), decode, StandardOpenOption.CREATE);
+        Files.write(Paths.get(thumbnailsFolder, "thumb-" + id + ".png"), decode, StandardOpenOption.CREATE);
     }
 
     @GET
@@ -89,7 +91,7 @@ public class ImageResource {
     @Produces("image/png")
     public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) {
         try {
-            byte[] thumbnails = Files.readAllBytes(Paths.get("src", "main", "webapp", "static", "thumbnails", "thumb-" + id + ".png"));
+            byte[] thumbnails = Files.readAllBytes(Paths.get(thumbnailsFolder, "thumb-" + id + ".png"));
             res.setStatus(200);
             res.setContentType("image/png");
             res.setContentLength(thumbnails.length);
