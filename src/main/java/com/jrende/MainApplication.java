@@ -50,7 +50,7 @@ public class MainApplication extends Application<MainConfiguration> {
         ImageResource imageResource = new ImageResource(jdbi);
         environment.jersey().register(imageResource);
 
-        OverviewResource overviewResource = new OverviewResource(jdbi);
+        OverviewResource overviewResource = new OverviewResource(jdbi, config);
         environment.jersey().register(overviewResource);
     }
 }

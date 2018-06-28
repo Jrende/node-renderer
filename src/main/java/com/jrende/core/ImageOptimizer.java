@@ -2,6 +2,8 @@ package com.jrende.core;
 
 import com.google.gson.*;
 
+import java.util.Map;
+
 public class ImageOptimizer {
     private static Gson gson = new Gson();
 

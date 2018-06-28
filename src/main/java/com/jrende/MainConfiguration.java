@@ -13,7 +13,21 @@ public class MainConfiguration extends Configuration {
     @JsonProperty("database")
     private DataSourceFactory dataSourceFactory = new DataSourceFactory();
 
+    @Valid
+    private String thumbnailsFolder = "./thumbnails";
+
+    @Valid
+    private String basePath = "/";
+
     public DataSourceFactory getDataSourceFactory() {
         return dataSourceFactory;
+    }
+
+    public String getThumbnailsFolder() {
+        return thumbnailsFolder;
+    }
+
+    public String getBasePath() {
+        return basePath;
     }
 }

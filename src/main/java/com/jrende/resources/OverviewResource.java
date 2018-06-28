@@ -1,5 +1,6 @@
 package com.jrende.resources;
 
+import com.jrende.MainConfiguration;
 import com.jrende.core.Image;
 import com.jrende.db.ImageDAO;
 import com.jrende.views.EditorView;
@@ -19,9 +20,11 @@ import java.util.stream.Collectors;
 @Produces(MediaType.TEXT_HTML)
 public class OverviewResource {
     private ImageDAO imageDAO;
+    private MainConfiguration conf;
 
-    public OverviewResource(Jdbi jdbi) {
+    public OverviewResource(Jdbi jdbi, MainConfiguration conf) {
         imageDAO = jdbi.onDemand(ImageDAO.class);
+        this.conf = conf;
     }
 
     @GET
@@ -35,7 +38,7 @@ public class OverviewResource {
     private EditorView getEditorView(long imageId) {
         Optional<Image> image = imageDAO.getImageById(imageId);
         String source = image.map(Image::getSource).orElse("{}");
-        return new EditorView(source);
+        return new EditorView(source, conf.getBasePath());
     }
 
     @GET
