@@ -11,7 +11,7 @@ public class ImageOptimizer {
         JsonObject jsonArray = gson.fromJson(source, JsonObject.class);
 
         try {
-            makeFinalOutputOrigo(jsonArray.getAsJsonArray("nodes"));
+            makeFinalOutputOrigo(jsonArray.getAsJsonObject("nodes"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -24,13 +24,14 @@ public class ImageOptimizer {
         return Math.round(value * shift) / shift;
     }
 
-    private static void makeFinalOutputOrigo(JsonArray jsonArray) throws IllegalArgumentException {
+    private static void makeFinalOutputOrigo(JsonObject jsonArray) throws IllegalArgumentException {
         Float xZero, yZero;
-        JsonObject finalOutput = jsonArray.get(0).getAsJsonObject();
+        JsonObject finalOutput = jsonArray.get("0").getAsJsonObject();
         JsonArray outputPos = finalOutput.get("pos").getAsJsonArray();
         xZero = outputPos.get(0).getAsFloat();
         yZero = outputPos.get(1).getAsFloat();
-        for (JsonElement jsonElement : jsonArray) {
+        for (Map.Entry<String, JsonElement> entry : jsonArray.entrySet()) {
+            JsonElement jsonElement = entry.getValue();
             if (!jsonElement.equals(JsonNull.INSTANCE)) {
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 JsonArray pos = jsonObject.get("pos").getAsJsonArray();
