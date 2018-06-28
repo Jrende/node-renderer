@@ -32,7 +32,7 @@ public class OverviewResource {
         List<Long> imageIds = imageDAO.getAllImages().stream()
                 .map(Image::getId)
                 .collect(Collectors.toList());
-        return new OverviewView(imageIds);
+        return new OverviewView(imageIds, conf.getBasePath());
     }
 
     private EditorView getEditorView(long imageId) {
