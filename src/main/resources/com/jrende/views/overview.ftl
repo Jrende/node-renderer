@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <title>Node Renderer overview</title>
     <base href="${basePath}">
-    <link href="/static/overview/style.css" rel="stylesheet">
+    <link href="static/overview/style.css" rel="stylesheet">
 </head>
 <body>
 <h1>Overview</h1>
