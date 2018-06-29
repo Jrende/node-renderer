@@ -29,7 +29,7 @@ class MenuItems extends React.Component {
 
   /* global history, location */
   onSave() {
-    let id = +location.pathname.substr(1);
+    let id = +location.pathname.substr(location.pathname.lastIndexOf('/') + 1);
     // Lets do something very ugly
     let img = getImg(256, 256);
     let src = { nodes: this.props.nodes, connections: this.props.connections };
