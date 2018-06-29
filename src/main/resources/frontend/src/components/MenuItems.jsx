@@ -31,7 +31,7 @@ class MenuItems extends React.Component {
   onSave() {
     let id = +location.pathname.substr(1);
     // Lets do something very ugly
-    let img = getImg(200, 100);
+    let img = getImg(256, 256);
     let src = { nodes: this.props.nodes, connections: this.props.connections };
     this.props.saveImage(id, src, img, (newId) => {
       // Possibly the wrong place to mess around with history
@@ -41,14 +41,14 @@ class MenuItems extends React.Component {
 
   render() {
     return [
-      <a href="/" key="Back button">Back</a>,
+      <a href="../" key="Back button">Back</a>,
       <button onClick={this.onSave} key="Save Image">Save image</button>
     ];
   }
 }
 
 MenuItems.propTypes = {
-  nodes: PropTypes.object.isRequired,
+  nodes: PropTypes.any.isRequired,
   connections: PropTypes.array.isRequired,
   saveImage: PropTypes.func.isRequired
 };

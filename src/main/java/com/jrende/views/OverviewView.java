@@ -11,11 +11,13 @@ public class OverviewView extends View {
 
     private List<Long> images;
     private String basePath;
+    private String thumbnailsFolder;
 
-    public OverviewView(List<Long> images, String basePath) {
+    public OverviewView(List<Long> images, String basePath, String thumbnailsFolder) {
         super("overview.ftl", Charset.forName("utf-8"));
         this.images = images;
         this.basePath = basePath;
+        this.thumbnailsFolder = thumbnailsFolder;
     }
 
     public List<Long> getImages() {
@@ -24,5 +26,10 @@ public class OverviewView extends View {
 
     public String getBasePath() {
         return basePath;
+    }
+
+
+    public String getThumbnailsFolder() {
+        return thumbnailsFolder;
     }
 }

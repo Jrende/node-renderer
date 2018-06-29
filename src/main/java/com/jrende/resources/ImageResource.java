@@ -87,9 +87,10 @@ public class ImageResource {
     }
 
     @GET
-    @Path("/{id}/thumbnail")
+    @Path("/{id}/thumbnail.png")
     @Produces("image/png")
     public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) {
+        System.out.println("This function should only be called in dev mode");
         try {
             byte[] thumbnails = Files.readAllBytes(Paths.get(thumbnailsFolder, "thumb-" + id + ".png"));
             res.setStatus(200);

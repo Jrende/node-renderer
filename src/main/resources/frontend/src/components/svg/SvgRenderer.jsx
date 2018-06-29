@@ -405,7 +405,7 @@ class SvgRenderer extends React.Component {
 
 SvgRenderer.propTypes = {
   createNewNode: PropTypes.func.isRequired,
-  nodes: PropTypes.object.isRequired,
+  nodes: PropTypes.any.isRequired,
   connections: PropTypes.array.isRequired,
   removeConnection: PropTypes.func.isRequired,
   removeNode: PropTypes.func.isRequired,

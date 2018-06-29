@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="no-js" lang="">
+<html lang="">
 <head>
     <meta charset="utf-8">
     <meta name="description" content="">
@@ -15,7 +15,7 @@
 <#list images as image>
     <div>
         <a href="${image}">
-            <img src="${'/static/thumbnails/thumb-' + image + '.png'}">
+            <img src="${'/api/images/' + image + '/thumbnail.png'}">
         </a>
     </div>
 </#list>

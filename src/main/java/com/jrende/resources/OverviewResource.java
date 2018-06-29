@@ -28,11 +28,11 @@ public class OverviewResource {
     }
 
     @GET
-    public OverviewView getImages() {
+    public OverviewView getOverviewView() {
         List<Long> imageIds = imageDAO.getAllImages().stream()
                 .map(Image::getId)
                 .collect(Collectors.toList());
-        return new OverviewView(imageIds, conf.getBasePath());
+        return new OverviewView(imageIds, conf.getBasePath(), conf.getThumbnailsFolder());
     }
 
     private EditorView getEditorView(long imageId) {

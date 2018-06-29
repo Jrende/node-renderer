@@ -11,12 +11,14 @@ public class EditorView extends View {
 
     private String imageSource;
     private String basePath;
+    private String thumbnailsFolder;
 
 
     public EditorView(String imageSource, String basePath) {
         super("editor.ftl", Charset.forName("utf-8"));
         this.imageSource = imageSource;
         this.basePath = basePath;
+        this.thumbnailsFolder = thumbnailsFolder;
     }
 
     public String getImageSource() {
