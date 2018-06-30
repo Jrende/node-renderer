@@ -28,7 +28,7 @@ function saveResponse() {
 export function fetchImages() {
   return (dispatch) => {
     dispatch(requestImages());
-    fetch('/api/images')
+    fetch('api/images')
       .then(
         response => response.json(),
         error => console.log('An error occurred.', error)
@@ -42,7 +42,7 @@ export function fetchImages() {
 export function fetchSource(id) {
   return (dispatch) => {
     dispatch(requestImages());
-    fetch(`/api/images/${id}/source`)
+    fetch(`api/images/${id}/source`)
       .then(
         response => response.json(),
         error => console.log('An error occurred.', error)
@@ -58,7 +58,7 @@ export function saveImage(id, source, thumbnail, idChangedCallback) {
     dispatch(saveRequest());
     // image with id 0 is 'special'.
     // We never save to that, instead we create a new image
-    let url = '/api/images';
+    let url = 'api/images';
     if(id !== 0) {
       url += `/${id}/source`;
     }
