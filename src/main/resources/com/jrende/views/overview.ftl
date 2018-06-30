@@ -10,12 +10,12 @@
 </head>
 <body>
 <h1>Overview</h1>
-<a href="/0">Create new image</a>
+<a href="0">Create new image</a>
 <div class="images">
 <#list images as image>
     <div>
         <a href="${image}">
-            <img src="${'/api/images/' + image + '/thumbnail.png'}">
+            <img src="${'api/images/' + image + '/thumbnail.png'}">
         </a>
     </div>
 </#list>
