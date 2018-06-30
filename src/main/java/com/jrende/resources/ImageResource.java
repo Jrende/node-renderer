@@ -91,8 +91,12 @@ public class ImageResource {
     @Produces("image/png")
     public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) {
         System.out.println("This function should only be called in dev mode");
+        java.nio.file.Path path = Paths.get(thumbnailsFolder, "thumb-" + id + ".png");
+        if(!Files.exists(path)) {
+            throw new NotFoundException("Thumbnail of image with id " + id + " not found");
+        }
         try {
-            byte[] thumbnails = Files.readAllBytes(Paths.get(thumbnailsFolder, "thumb-" + id + ".png"));
+            byte[] thumbnails = Files.readAllBytes(path);
             res.setStatus(200);
             res.setContentType("image/png");
             res.setContentLength(thumbnails.length);
