@@ -27,7 +27,7 @@ class Editor extends React.Component {
 
   componentDidMount() {
     root.addEventListener('keydown', this.keyDownEvent);
-    let id = +window.location.pathname.substr(1);
+    let id = +location.pathname.substr(location.pathname.lastIndexOf('/') + 1);
     if(!Number.isNaN(id) && id !== 0) {
       this.props.setGraph(window.initialGraph);
     } else {
