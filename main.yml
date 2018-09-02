@@ -16,4 +16,6 @@ logging:
       timeZone: UTC
       maxFileSize: 10MB
 thumbnailsFolder: ./thumbnails
+thumbnailsPath: https://jrende.xyz/thumbnails/
+readThumbnailFromDisk: false
 basePath: /

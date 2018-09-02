@@ -18,6 +18,10 @@ public class MainConfiguration extends Configuration {
 
     @Valid
     private String basePath = "/";
+    @Valid
+    private Boolean readThumbnailFromDisk = false;
+    @Valid
+    private String thumbnailsPath = "/";
 
     public DataSourceFactory getDataSourceFactory() {
         return dataSourceFactory;
@@ -29,5 +33,13 @@ public class MainConfiguration extends Configuration {
 
     public String getBasePath() {
         return basePath;
+    }
+
+    public Boolean getReadThumbnailFromDisk() {
+        return readThumbnailFromDisk;
+    }
+
+    public String getThumbnailsPath() {
+        return thumbnailsPath;
     }
 }

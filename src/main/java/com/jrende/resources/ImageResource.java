@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.jrende.core.Image;
 import com.jrende.db.ImageDAO;
 import com.jrende.core.ImageOptimizer;
-import io.dropwizard.jersey.sessions.Session;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jdbi.v3.core.Jdbi;
 
@@ -21,7 +20,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.Response.Status;
@@ -32,9 +30,13 @@ public class ImageResource {
     private final Gson gson;
     private ImageDAO imageDAO;
     private String thumbnailsFolder;
+    private String thumbnailsPath;
+    private boolean readThumbnailFromDisk;
 
-    public ImageResource(Jdbi jdbi, String thumbnailsFolder) {
+    public ImageResource(Jdbi jdbi, String thumbnailsFolder, String thumbnailsPath, boolean readThumbnailFromDisk) {
         this.thumbnailsFolder = thumbnailsFolder;
+        this.thumbnailsPath = thumbnailsPath;
+        this.readThumbnailFromDisk = readThumbnailFromDisk;
         gson = new GsonBuilder().disableHtmlEscaping().create();
         imageDAO = jdbi.onDemand(ImageDAO.class);
     }
@@ -68,7 +70,7 @@ public class ImageResource {
             @FormDataParam("thumbnail") String thumbnail,
             @Context HttpServletRequest req,
             @Context HttpServletResponse res
-            ) throws IOException {
+    ) throws IOException {
         //TODO: Sanity check, has at least one finalOutput node, etc.
         Image image = new Image();
         image.setSource(ImageOptimizer.optimizeGraph(source));
@@ -89,16 +91,15 @@ public class ImageResource {
     @GET
     @Path("/{id}/thumbnail.png")
     @Produces("image/png")
-    public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) {
-        System.out.println("This function should only be called in dev mode");
-        try {
+    public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) throws IOException {
+        if (readThumbnailFromDisk) {
             byte[] thumbnails = Files.readAllBytes(Paths.get(thumbnailsFolder, "thumb-" + id + ".png"));
             res.setStatus(200);
             res.setContentType("image/png");
             res.setContentLength(thumbnails.length);
             res.getOutputStream().write(thumbnails);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            res.sendRedirect(thumbnailsPath + "/thumb-" + id + ".png");
         }
     }
 
@@ -115,9 +116,9 @@ public class ImageResource {
         Image image = imageDAO.getImageById(id)
                 .orElseThrow(() -> new NotFoundException("Image with id " + id + " not found"));
 //        if (req.getSession().getId().equals(image.getUserId())) {
-            image.setSource(source);
-            imageDAO.updateImage(image.getSource(), image.getId());
-            saveThumbnailToFile(id, thumbnail);
+        image.setSource(source);
+        imageDAO.updateImage(image.getSource(), image.getId());
+        saveThumbnailToFile(id, thumbnail);
 //        } else {
 //            res.sendError(Status.FORBIDDEN.getStatusCode());
 //        }
