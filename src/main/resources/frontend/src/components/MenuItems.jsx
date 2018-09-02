@@ -41,7 +41,7 @@ class MenuItems extends React.Component {
 
   render() {
     return [
-      <a href="../" key="Back button">Back</a>,
+      <a href="/pattern/" key="Back button">Back</a>,
       <button onClick={this.onSave} key="Save Image">Save image</button>
     ];
   }

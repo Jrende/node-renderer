@@ -93,7 +93,11 @@ public class ImageResource {
     @Produces("image/png")
     public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) throws IOException {
         if (readThumbnailFromDisk) {
-            byte[] thumbnails = Files.readAllBytes(Paths.get(thumbnailsFolder, "thumb-" + id + ".png"));
+            java.nio.file.Path path = Paths.get(thumbnailsFolder, "thumb-" + id + ".png");
+            if(!Files.exists(path)) {
+                throw new NotFoundException("Thumbnail of image with id " + id + " not found");
+            }
+            byte[] thumbnails = Files.readAllBytes(path);
             res.setStatus(200);
             res.setContentType("image/png");
             res.setContentLength(thumbnails.length);
