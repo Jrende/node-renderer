@@ -1,4 +1,4 @@
-import { mat4, vec2, vec3, quat } from 'gl-matrix';
+import { mat4, vec2 } from 'gl-matrix';
 import Renderer from './Renderer';
 import VertexArray from '../VertexArray';
 import Framebuffer from '../Framebuffer';
@@ -20,7 +20,6 @@ export default class GradientRenderer extends Renderer {
     super(gl);
     this.shader = shaders.getShader('gradient');
     this.gradientTextureShader = shaders.getShader('gradientTexture');
-    this.buffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height);
     this.quad = new VertexArray(
       this.gl,
       [
@@ -36,7 +35,20 @@ export default class GradientRenderer extends Renderer {
       [2]
     );
     this.wrapMode = 'Repeat';
+    this.wrap = this.gl.REPEAT;
   }
+
+  setSize(size) {
+    super.setSize(size);
+    if(this.buffer === undefined || (
+      this.buffer.width !== size.width &&
+      this.buffer.height !== size.height &&
+      this.wrap !== this.buffer.options.wrap
+    )) {
+      this.buffer = new Framebuffer(this.gl, size.width, size.height, { wrap: this.wrap });
+    }
+  }
+
 
   renderGradient(gradient) {
     let sum = -1.0;
@@ -67,9 +79,8 @@ export default class GradientRenderer extends Renderer {
         case 'Clamp to edge': wrap = this.gl.CLAMP_TO_EDGE; break;
         default: wrap = this.gl.REPEAT;
       }
-      // TODO: Maybe clean up the previous buffer?
-      // Also, maybe lazy-create it. Only 3 possible values.
-      this.buffer = new Framebuffer(this.gl, this.canvas.width, this.canvas.height, { wrap });
+      this.wrap = wrap;
+      this.setSize(this.size);
     }
     this.buffer.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
@@ -79,7 +90,7 @@ export default class GradientRenderer extends Renderer {
       this.quad.unbind(this.gl);
       this.shader.unbind(this.gl);
     });
-    
+
     this.output.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
       this.gradientTextureShader.bind(this.gl);
@@ -99,8 +110,7 @@ export default class GradientRenderer extends Renderer {
       let angle = getAngle(dir, [1, 0]);
 
       let uvMvp = mat4.create();
-      //mat4.translate(uvMvp, uvMvp, [-1.0, -1.0, 0.0]);
-      //mat4.scale(uvMvp, uvMvp, [1.0/dir[0], 1.0/dir[1], 1.0]);
+
       mat4.translate(uvMvp, uvMvp, [-midpoint[0] + 0.5, -midpoint[1], 0.0]);
       mat4.scale(uvMvp, uvMvp, [len, len, 1.0]);
       mat4.rotate(uvMvp, uvMvp, -angle, [0, 0, 1.0]);

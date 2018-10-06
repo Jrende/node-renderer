@@ -1,29 +1,51 @@
-.svg-node {
-  user-select: none;
-  cursor: default;
-}
+.html-node {
+  width: 20em;
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
 
-.svg-node:focus, .svg-node.selected {
-  outline: none;
-  .node-body {
-    stroke: black;
-    stroke-width: 2;
+  .drag-bar {
+    height: 1em;
+    width: 100%;
+    background: black;
   }
-}
 
-.node-body, .underline {
-  stroke-width: 1;
-  stroke: #888;
-}
+  &:focus, &.selected {
+    outline: none;
+    .node-body {
+      stroke: black;
+      stroke-width: 2;
+    }
+  }
 
-.svg-node text.title {
-  font-family: "Verdana";
-}
+  .node-body, .underline {
+    stroke-width: 1;
+    stroke: #888;
+  }
 
-.svg-node text.io {
-  font-size: 12pt;
-}
+  text.title {
+    font-family: "Verdana";
+  }
 
-.svg-node .outputs {
-  direction: rtl;
+  text.io {
+    font-size: 12pt;
+  }
+
+  .connections {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .inputs {
+  }
+  .outputs {
+  }
+
+  .io-grab {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: black;
+  }
 }

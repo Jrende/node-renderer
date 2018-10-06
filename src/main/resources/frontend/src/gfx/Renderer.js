@@ -17,6 +17,7 @@ function hashCode(string) {
 / *eslint-enable */
 
 let lastRootNode;
+let rootElement = document.querySelector('#root');
 
 /* global performance */
 export default class Renderer {
@@ -26,10 +27,6 @@ export default class Renderer {
       preserveDrawingBuffer: true
     });
     this.gl.clearColor(0, 0, 0, 1.0);
-    let w = this.gl.canvas.width;
-    let h = this.gl.canvas.height;
-    this.gl.viewport(0, 0, w, h);
-    this.output = new Framebuffer(this.gl, 1024, 1024);
     this.quad = new VertexArray(this.gl,
       [1, 1, 1,
         -1, 1, 1,
@@ -51,6 +48,19 @@ export default class Renderer {
     this.shaders = new ShaderBuilder(this.gl);
     this.shader = this.shaders.getShader('texture');
     window.renderLastFrame = this.renderLastFrame.bind(this);
+    this.resizeCanvas();
+  }
+
+  resizeCanvas() {
+    this.size = {
+      width: this.gl.canvas.width,
+      height: this.gl.canvas.height
+    };
+    this.gl.viewport(0, 0, this.size.width, this.size.height);
+    this.output = new Framebuffer(this.gl, this.size.width, this.size.height);
+    Object.keys(this.renderFunctions).forEach(key => {
+      this.renderFunctions[key].setSize(this.size);
+    });
   }
 
   renderLastFrame() {
@@ -100,7 +110,9 @@ export default class Renderer {
         if(this.renderFunctions[graphNode.id] === undefined) {
           let Ctor = getRenderer(node.type);
           let renderer = new Ctor(this.gl, this.shaders);
+          renderer.setSize(this.size);
           this.renderFunctions[graphNode.id] = renderer.render.bind(renderer);
+          this.renderFunctions[graphNode.id].setSize = renderer.setSize.bind(renderer);
         }
         cache.render = this.renderFunctions[graphNode.id];
       }

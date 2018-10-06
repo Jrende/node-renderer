@@ -5,7 +5,6 @@ export default class Renderer {
   constructor(gl) {
     this.gl = gl;
     this.canvas = this.gl.canvas;
-    this.output = new Framebuffer(this.gl, this.canvas.width, this.canvas.height);
     this.quad = new VertexArray(
       this.gl,
       [1, 1,
@@ -40,6 +39,15 @@ export default class Renderer {
     }
   }
 
+  setSize(size) {
+    this.size = size;
+    if(this.output === undefined || (
+      this.output.width !== size.width &&
+      this.output.height !== size.height)) {
+      this.output = new Framebuffer(this.gl, size.width, size.height);
+    }
+  }
+
   render(values, framebuffers) {
     this.output.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
@@ -48,8 +56,8 @@ export default class Renderer {
       this.quad.bind(this.gl);
 
       this.shader.setUniforms(this.gl, {
-        res: [this.canvas.width, this.canvas.height],
-        aspectRatio: this.canvas.clientWidth / this.canvas.clientHeight
+        res: [this.size.width, this.size.height],
+        aspectRatio: this.size.width / this.size.height
       });
       this.shader.setUniforms(this.gl, values);
       this.setFramebuffers(framebuffers);

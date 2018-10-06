@@ -8,7 +8,6 @@ let dist = path.join(__dirname, '../static/editor');
 let entry = path.join(__dirname, 'src/main.jsx');
 
 
-
 const extractLess = new ExtractTextPlugin({
   filename: '[name].css',
   disable: process.env.NODE_ENV === 'development'
