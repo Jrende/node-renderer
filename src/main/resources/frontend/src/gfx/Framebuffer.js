@@ -54,6 +54,7 @@ export default class Framebuffer {
     this.framebuffer = framebuffer;
     this.width = width;
     this.height = height;
+    this.options = options;
   }
 
   bind(gl) {

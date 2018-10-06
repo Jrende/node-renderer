@@ -16,6 +16,7 @@ class RenderCanvas extends React.Component {
       this.renderer = new Renderer(this.canvas);
       this.renderer.render(this.props.graph);
       window.onresize = () => {
+        this.renderer.resizeCanvas();
         this.renderer.render(this.props.graph, true);
       };
     }
@@ -63,7 +64,7 @@ class RenderCanvas extends React.Component {
     }
 
     return (
-      <div style={{ width: 1024, height: 1024 }}>
+      <div>
         <canvas
           width="1024"
           height="1024"
