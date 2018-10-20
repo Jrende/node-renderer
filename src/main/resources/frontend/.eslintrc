@@ -25,6 +25,7 @@
       "no-mixed-operators": "off",
       "react/require-default-props": "off",
       "react/sort-comp": "off",
+      "react/no-did-update-set-state": "off",
       "prefer-destructuring": "off",
       "space-infix-ops": "off",
       "function-paren-newline": "off"

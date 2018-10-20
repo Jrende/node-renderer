@@ -8,7 +8,6 @@ export default function SvgNode(props) {
     node,
     onElementMouseDown,
     onConnectorMouseDown,
-    onConnectorMouseUp,
     onMouseUp,
     onFocus,
     selected,
@@ -24,7 +23,6 @@ export default function SvgNode(props) {
             className="io-grab"
             onMouseDown={onConnectorMouseDown}
             data-input-name={key}
-            onMouseUp={onConnectorMouseUp}
           />
           <span className="io">{name}</span>
         </div>
@@ -37,13 +35,12 @@ export default function SvgNode(props) {
     outputs = Object.keys(node.type.output).map(key => {
       let name = node.type.output[key].name;
       return (
-        <div>
+        <div key={key}>
           <span className="io">{name}</span>
           <span
             className="io-grab"
             onMouseDown={onConnectorMouseDown}
             data-output-name={key}
-            onMouseUp={onConnectorMouseUp}
           />
         </div>
       );
@@ -59,7 +56,6 @@ export default function SvgNode(props) {
 
   return (
     <div
-      tabindex="0"
       onFocus={onFocus}
       style={{ left: `${left}px`, top: `${top}px` }}
       data-node-id={id}
@@ -85,12 +81,11 @@ export default function SvgNode(props) {
 
 SvgNode.propTypes = {
   id: PropTypes.number.isRequired,
-  htmlNodeCanvas: PropTypes.object.isRequired,
+  htmlNodeCanvas: PropTypes.object,
   node: PropTypes.object.isRequired,
   selected: PropTypes.bool.isRequired,
   onElementMouseDown: PropTypes.func.isRequired,
   onConnectorMouseDown: PropTypes.func.isRequired,
-  onConnectorMouseUp: PropTypes.func.isRequired,
   onMouseUp: PropTypes.func,
   onFocus: PropTypes.func
 };
