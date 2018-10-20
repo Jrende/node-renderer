@@ -114,7 +114,9 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseMove(event) {
+    console.log('mousemove');
     if(this.state.grabbedNode !== -1 || this.state.grabMode != null) {
+      console.log('drag');
       if(event.buttons === 0) {
         this.setState({
           grabbedNode: -1,
@@ -132,6 +134,7 @@ class SvgRenderer extends React.Component {
       });
 
       if(this.state.grabMode === 'element') {
+        console.log('drag element');
         let nodeId = this.state.grabbedNode;
         let node = this.props.nodes[nodeId];
         let newPos = [
@@ -147,7 +150,7 @@ class SvgRenderer extends React.Component {
         ];
         */
         let grabTo = [
-          5, 5
+          1000, 1000
         ];
         this.setState({ grabTo });
       } else if (this.state.grabMode === 'canvas') {
@@ -329,6 +332,7 @@ class SvgRenderer extends React.Component {
     }
 
     let m = mat3.create();
+    /*
     if(this.svg !== undefined) {
       let svgSize = getSvgSize(this.svg);
       mat3.translate(m, m, [svgSize[0] / 2, svgSize[1] / 2]);
@@ -337,17 +341,18 @@ class SvgRenderer extends React.Component {
     mat3.translate(m, m, this.props.pan);
     mat3.scale(m, m, [zoomVal, zoomVal]);
     mat3.transpose(m, m);
+    */
     let svgMat = `${m[0]}, ${m[3]}, ${m[1]}, ${m[4]}, ${m[2]}, ${m[5]}`;
     let style = {
       position: 'relative',
       width: '100%',
-      height: '100%'
+      height: '100%',
     };
     let mouseMoveDiv;
     if(this.state.grabbedNode !== -1 || this.state.grabMode != null) {
       mouseMoveDiv = (
         <div
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 2 }}
           className="covering-div"
           onMouseMove={this.onMouseMove}
           onMouseUp={this.onMouseUp}

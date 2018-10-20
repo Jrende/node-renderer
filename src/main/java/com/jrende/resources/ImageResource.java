@@ -117,7 +117,7 @@ public class ImageResource {
             @FormDataParam("thumbnail") String thumbnail,
             @Context HttpServletRequest req,
             @Context HttpServletResponse res) throws IOException {
-        Image image = imageDAO.getImageById(id)
+        var image = imageDAO.getImageById(id)
                 .orElseThrow(() -> new NotFoundException("Image with id " + id + " not found"));
 //        if (req.getSession().getId().equals(image.getUserId())) {
         image.setSource(source);
@@ -133,7 +133,7 @@ public class ImageResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String getImageSource(
             @PathParam("id") long id) {
-        Image image = imageDAO.getImageById(id)
+        var image = imageDAO.getImageById(id)
                 .orElseThrow(() -> new NotFoundException("Image with id " + id + " not found"));
         return image.getSource();
     }

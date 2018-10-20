@@ -8,19 +8,13 @@
     <base href="${basePath}">
     <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet">
-    <link href="static/editor/app.css" rel="stylesheet"></head>
-    <style>
-        body {
-            overflow: hidden
-        }
-    </style>
+<link href="static/editor/app.css" rel="stylesheet"></head>
 <body>
-    <div id="root" class="editor"></div>
-    <script type="text/javascript">
-    <#outputformat "JSON">
-        window.initialGraph = ${imageSource};
-    </#outputformat>
-    </script>
-    <script type="text/javascript" src="static/editor/app.js"></script>
-</body>
+<div id="root" class="editor"></div>
+<script type="text/javascript">
+<#outputformat "JSON">
+    window.initialGraph = ${imageSource};
+</#outputformat>
+</script>
+<script type="text/javascript" src="static/editor/app.js"></script></body>
 </html>
