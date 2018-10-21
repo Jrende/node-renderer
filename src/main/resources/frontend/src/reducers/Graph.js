@@ -6,6 +6,7 @@ let initialState = {
   connections: [],
   nodes: {
     0: {
+      id: 0,
       pos: [0, 0],
       values: {},
       type: Types.finalOutput
@@ -77,6 +78,7 @@ export default (state = initialState, action) => {
       let id = getNewId(state.nodes);
 
       let newNode = {
+        id,
         type,
         pos: action.node.pos,
         values: {}

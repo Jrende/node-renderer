@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 
 import SvgRenderer from '../containers/SvgRenderer';
 import ToolBox from '../components/ToolBox';
-import NodeInputs from '../containers/NodeInputs';
 import MenuItems from '../containers/MenuItems';
 import RenderCanvas from '../containers/RenderCanvas';
-import NodeGrabOverlay from '../components/NodeGrabOverlay';
 import './Editor.less';
 
 let root = document.querySelector('#root');
@@ -42,39 +40,31 @@ class Editor extends React.Component {
   }
 
   componentWillUnmount() {
-    console.log('remove listener');
     root.removeEventListener('keyDown', this.keyDownEvent);
   }
 
   render() {
     let input;
-    if(this.props.selectedNode !== -1) {
-      input = [
-        <button key="btn" className="back" onClick={this.back}>Back</button>,
-        <NodeInputs key="input" />
-      ];
-    } else if(this.props.showToolBox && this.props.grabbedNodeType == null) {
+    if(this.props.showToolBox && this.props.grabbedNodeType == null) {
       input = [
         <button key="btn" className="back" onClick={this.back}>Back</button>,
         <ToolBox key="input" />
       ];
     } else {
       input = [
-        <button key="btn" className="addNode" onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>,
+        <button key="btn" style={{ zIndex: 2 }} onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>,
         <SvgRenderer key="input" />
       ];
     }
-    let nodeGrabOverlay;
-    if(this.props.grabbedNodeType !== null) {
-      nodeGrabOverlay = (<NodeGrabOverlay />);
-    }
+
+
     return [
       <nav key="Menu Bar" className="menu-bar">
         <MenuItems match={this.props.match} />
       </nav>,
       <div key="RenderCanvas" className="canvas">
-        {nodeGrabOverlay}
         <RenderCanvas />
+        {(this.props.grabbedNodeType !== null) && <div className="node-grab-overlay" />}
       </div>,
       <div key="Control" className="control">
         {input}

@@ -201,14 +201,24 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseUp(event) {
-    let elmBelow = document.elementsFromPoint(event.clientX, event.clientY)[1];
-    if(elmBelow.classList.contains('io-grab')) {
-      this.onConnectorMouseUp(elmBelow);
+    let elms = document.elementsFromPoint(event.clientX, event.clientY);
+
+    for(let i = 0; i < elms.length; i++) {
+      let e = elms[i];
+      if(e.classList.contains('io-grab')) {
+        this.onConnectorMouseUp(e);
+        break;
+      }
     }
 
+    if(this.props.grabbedNodeType !== null) {
+      this.handleDrop(event);
+    }
+    /*
     if(!this.state.grabMoved && this.state.grabbedNode !== -1) {
       this.props.selectNode(this.state.grabbedNode);
     }
+    */
     this.setState({
       grabbedNode: -1
     });
@@ -346,34 +356,22 @@ class SvgRenderer extends React.Component {
           htmlNodeCanvas={this.htmlNodeCanvas}
         />);
       });
-
-    let connectorLine;
-    if(grabMode === 'connector') {
-      connectorLine = (
-        <ConnectorLine
-          from={grabFrom}
-          to={grabTo}
-        />
-      );
-    }
-    let mouseMoveDiv;
-    if(this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) {
-      mouseMoveDiv = (
+    return [
+      /*
+      ((this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) &&
         <div
           className="covering-div"
           key="svg-covering-div"
           onMouseMove={this.onMouseMove}
           onMouseUp={this.onMouseUp}
         />
-      );
-    }
-
-    return [
-      mouseMoveDiv,
+      ),
+      */
       <div
         onMouseDown={this.onCanvasMouseDown}
+        onMouseMove={this.onMouseMove}
+        onMouseUp={this.onMouseUp}
         onKeyDown={this.onKeyDown}
-        onMouseUp={this.handleDrop}
         ref={this.setHtmlNodeCanvas}
         key="html-node-canvas"
         className="html-node-canvas"
@@ -384,8 +382,6 @@ class SvgRenderer extends React.Component {
         className="node-svg"
         ref={this.setSvg}
         key="svg-canvas"
-        width="100%"
-        height="100%"
       >
         <g>
           {
@@ -397,7 +393,12 @@ class SvgRenderer extends React.Component {
               />
             ))
           }
-          {connectorLine}
+          {(grabMode === 'connector') &&
+            <ConnectorLine
+              from={grabFrom}
+              to={grabTo}
+            />
+          }
         </g>
       </svg>
     ];
