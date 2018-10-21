@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgNode.less';
+import NodeInputs from '../../containers/NodeInputs';
 
 export default function SvgNode(props) {
   let {
@@ -75,6 +76,8 @@ export default function SvgNode(props) {
           {outputs}
         </div>
       </div>
+      <hr />
+      <NodeInputs node={node} id={id} />
     </div>
   );
 }

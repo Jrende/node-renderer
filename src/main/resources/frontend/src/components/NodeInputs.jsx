@@ -15,12 +15,12 @@ class NodeInputs extends React.Component {
   }
 
   render() {
-    let { selectedNode } = this.props;
+    let { node } = this.props;
 
     let inputs = [];
-    if(selectedNode !== undefined && selectedNode.type.values !== undefined) {
-      inputs = Object.keys(selectedNode.type.values).map(key => {
-        let nodeValue = selectedNode.type.values[key];
+    if(node !== undefined && node.type.values !== undefined) {
+      inputs = Object.keys(node.type.values).map(key => {
+        let nodeValue = node.type.values[key];
         switch(nodeValue.type) {
           case 'number':
             return (
@@ -28,7 +28,7 @@ class NodeInputs extends React.Component {
                 key={key}
                 name={key}
                 type={nodeValue}
-                value={parseFloat(selectedNode.values[key])}
+                value={parseFloat(node.values[key])}
                 onChange={(value) => this.onValueChange(key, value)}
               />
             );
@@ -38,7 +38,7 @@ class NodeInputs extends React.Component {
                 key={key}
                 name={key}
                 type={nodeValue}
-                value={selectedNode.values[key]}
+                value={node.values[key]}
                 onChange={(value) => this.onValueChange(key, value)}
               />
             );
@@ -48,7 +48,7 @@ class NodeInputs extends React.Component {
                 key={key}
                 name={key}
                 type={nodeValue}
-                value={selectedNode.values[key]}
+                value={node.values[key]}
                 onChange={(value) => this.onValueChange(key, value)}
               />
             );
@@ -58,7 +58,7 @@ class NodeInputs extends React.Component {
                 key={key}
                 name={key}
                 type={nodeValue}
-                value={selectedNode.values[key]}
+                value={node.values[key]}
                 onChange={(value) => this.onValueChange(key, value)}
               />
             );
@@ -68,7 +68,7 @@ class NodeInputs extends React.Component {
                 key={key}
                 name={key}
                 type={nodeValue}
-                value={selectedNode.values[key]}
+                value={node.values[key]}
                 onChange={(value) => this.onValueChange(key, value)}
               />
             );
@@ -78,17 +78,16 @@ class NodeInputs extends React.Component {
         return null;
       });
     }
-    return [
-      <h1 key="title">NodeInputs</h1>,
+    return (
       <div key="Node-inputs" className="node-inputs">
         {inputs}
       </div>
-    ];
+    );
   }
 }
 
 NodeInputs.propTypes = {
-  selectedNode: PropTypes.object.isRequired,
+  node: PropTypes.object.isRequired,
   id: PropTypes.number.isRequired,
   changeValue: PropTypes.func.isRequired
 };
