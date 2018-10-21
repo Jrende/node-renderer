@@ -27,7 +27,6 @@ import static javax.ws.rs.core.Response.Status;
 @Path("api/images")
 public class ImageResource {
 
-    private final Gson gson;
     private ImageDAO imageDAO;
     private String thumbnailsFolder;
     private String thumbnailsPath;
@@ -37,7 +36,6 @@ public class ImageResource {
         this.thumbnailsFolder = thumbnailsFolder;
         this.thumbnailsPath = thumbnailsPath;
         this.readThumbnailFromDisk = readThumbnailFromDisk;
-        gson = new GsonBuilder().disableHtmlEscaping().create();
         imageDAO = jdbi.onDemand(ImageDAO.class);
     }
 
@@ -93,7 +91,7 @@ public class ImageResource {
     @Produces("image/png")
     public void getThumbnail(@PathParam("id") long id, @Context HttpServletResponse res) throws IOException {
         if (readThumbnailFromDisk) {
-            java.nio.file.Path path = Paths.get(thumbnailsFolder, "thumb-" + id + ".png");
+            var path = Paths.get(thumbnailsFolder, "thumb-" + id + ".png");
             if(!Files.exists(path)) {
                 throw new NotFoundException("Thumbnail of image with id " + id + " not found");
             }

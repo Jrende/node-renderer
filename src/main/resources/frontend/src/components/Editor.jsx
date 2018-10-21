@@ -50,18 +50,18 @@ class Editor extends React.Component {
     let input;
     if(this.props.selectedNode !== -1) {
       input = [
-        <button className="back" onClick={this.back}>Back</button>,
-        <NodeInputs />
+        <button key="btn" className="back" onClick={this.back}>Back</button>,
+        <NodeInputs key="input" />
       ];
     } else if(this.props.showToolBox && this.props.grabbedNodeType == null) {
       input = [
-        <button className="back" onClick={this.back}>Back</button>,
-        <ToolBox />
+        <button key="btn" className="back" onClick={this.back}>Back</button>,
+        <ToolBox key="input" />
       ];
     } else {
       input = [
-        <button className="addNode" onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>,
-        <SvgRenderer />
+        <button key="btn" className="addNode" onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>,
+        <SvgRenderer key="input" />
       ];
     }
     let nodeGrabOverlay;

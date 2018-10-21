@@ -1,10 +1,16 @@
-import { mat3 } from 'gl-matrix';
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgRenderer.less';
 import SvgNode from './SvgNode';
-import { getAllOffsetSizes } from '../../utils/DomUtils';
-import { transformPointToSvgSpace, getSvgSize } from '../../utils/SvgUtils';
+import ConnectorLine from './ConnectorLine';
+import { transformPointToSvgSpace, addInSvgSpace, getSvgSize } from '../../utils/SvgUtils';
+
+function getCenter(r) {
+  return [
+    r.x + (r.width / 2),
+    r.y + (r.height / 2)
+  ];
+}
 
 /* globals SVGSVGElement, document */
 class SvgRenderer extends React.Component {
@@ -18,7 +24,8 @@ class SvgRenderer extends React.Component {
       grabMoved: false,
       grabMode: null,
       grabbedNode: -1,
-      zoom: 1
+      zoom: 1,
+      domConnections: []
     };
 
     [
@@ -57,7 +64,7 @@ class SvgRenderer extends React.Component {
     }
     let zoom = this.state.zoom + deltaY / 200;
     if(zoom > 0) {
-      //this.setState({ zoom });
+      // this.setState({ zoom });
     }
   }
 
@@ -78,8 +85,9 @@ class SvgRenderer extends React.Component {
     let connectorName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
     let svgNode = this.getNodeFromTarget(event.target);
     let grabbedNode = Number(svgNode.getAttribute('data-node-id'));
-    let grabFrom = [0, 0];
-    let grabTo = [0, 0];
+    let connectorCenter = getCenter(t.getBoundingClientRect());
+    let grabFrom = transformPointToSvgSpace(connectorCenter, this.svg, this.point);
+    let grabTo = grabFrom;
 
     let grabConnectorType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
     if(grabConnectorType === 'input') {
@@ -91,7 +99,11 @@ class SvgRenderer extends React.Component {
         grabbedNode = existingConnection.from.id;
         connectorName = existingConnection.from.name;
         grabConnectorType = 'output';
-        grabFrom = [0, 0];
+        let toElm = this.htmlNodeCanvas
+          .querySelector(`div[data-node-id="${grabbedNode}"] span[data-output-name="${connectorName}"]`);
+        grabFrom = transformPointToSvgSpace(
+          getCenter(toElm.getBoundingClientRect()),
+          this.svg, this.point);
       }
     }
     this.setState({
@@ -114,9 +126,7 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseMove(event) {
-    console.log('mousemove');
     if(this.state.grabbedNode !== -1 || this.state.grabMode != null) {
-      console.log('drag');
       if(event.buttons === 0) {
         this.setState({
           grabbedNode: -1,
@@ -134,7 +144,6 @@ class SvgRenderer extends React.Component {
       });
 
       if(this.state.grabMode === 'element') {
-        console.log('drag element');
         let nodeId = this.state.grabbedNode;
         let node = this.props.nodes[nodeId];
         let newPos = [
@@ -143,15 +152,7 @@ class SvgRenderer extends React.Component {
         ];
         this.props.setNodeLocation(nodeId, newPos);
       } else if (this.state.grabMode === 'connector') {
-        /*
-        let grabTo = [
-          this.state.grabTo[0] + delta[0],
-          this.state.grabTo[1] + delta[1]
-        ];
-        */
-        let grabTo = [
-          1000, 1000
-        ];
+        let grabTo = addInSvgSpace(this.state.grabTo, delta, this.svg, this.point);
         this.setState({ grabTo });
       } else if (this.state.grabMode === 'canvas') {
         delta = delta.map(v => v * this.props.zoom);
@@ -164,8 +165,7 @@ class SvgRenderer extends React.Component {
     }
   }
 
-  onConnectorMouseUp(event) {
-    let target = event.target;
+  onConnectorMouseUp(target) {
     if(target.hasAttribute('data-input-name') || (target.hasAttribute('data-output-name') && this.state.grabConnectorType !== 'output')) {
       let nodeId = -1;
       let parent = target.parentElement;
@@ -199,12 +199,15 @@ class SvgRenderer extends React.Component {
         this.props.connectNodes(from, to);
       }
     }
-    this.onMouseUp();
   }
 
   onMouseUp(event) {
     if(this.props.grabbedNodeType != null) {
       this.handleDrop(event);
+    }
+    let elmBelow = document.elementsFromPoint(event.clientX, event.clientY)[1];
+    if(elmBelow.classList.contains('io-grab')) {
+      this.onConnectorMouseUp(elmBelow);
     }
 
     if(!this.state.grabMoved && this.state.grabbedNode !== -1) {
@@ -270,17 +273,42 @@ class SvgRenderer extends React.Component {
     this.htmlNodeCanvas = element;
   }
 
+  componentDidUpdate(prevProps) {
+    // This could me smarter about when to change
+    if(prevProps.connections !== this.props.connections || prevProps.nodes !== this.props.nodes) {
+      let lines = this.props.connections.map((connection) => {
+        let fromElm = this.htmlNodeCanvas
+          .querySelector(`div[data-node-id="${connection.from.id}"] span[data-output-name="${connection.from.name}"]`);
+        let from = transformPointToSvgSpace(
+          getCenter(fromElm.getBoundingClientRect()),
+          this.svg, this.point);
+
+        let toElm = this.htmlNodeCanvas
+          .querySelector(`div[data-node-id="${connection.to.id}"] span[data-input-name="${connection.to.name}"]`);
+        let to = transformPointToSvgSpace(
+          getCenter(toElm.getBoundingClientRect()),
+          this.svg, this.point);
+        return {
+          from,
+          to,
+          key: `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`
+        };
+      });
+      this.setState({ domConnections: lines });
+    }
+  }
+
   render() {
     let {
       nodes,
-      connections,
       selectedNode
     } = this.props;
     let {
       grabTo,
       grabFrom,
       grabMode,
-      zoom
+      zoom,
+      domConnections
     } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
     let nodeElements = Object.entries(nodes)
@@ -301,59 +329,21 @@ class SvgRenderer extends React.Component {
         />);
       });
 
-    let lines = connections.map((connection) => {
-      let fromPos = [0, 0];
-      let toPos = [0, 0];
-      let key = `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`;
-      return (
-        <line
-          key={key}
-          className="connector-line"
-          x1={fromPos[0]}
-          y1={fromPos[1]}
-          x2={toPos[0]}
-          y2={toPos[1]}
-          strokeWidth="2"
-          stroke="black"
-        />
-      );
-    });
     let connectorLine = null;
     if(grabMode === 'connector') {
-      connectorLine = (<line
-        className="connector-line"
-        x1={grabFrom[0]}
-        y1={grabFrom[1]}
-        x2={grabTo[0]}
-        y2={grabTo[1]}
-        stroke="black"
-        strokeWidth="2"
-      />);
+      connectorLine = (
+        <ConnectorLine
+          from={grabFrom}
+          to={grabTo}
+        />
+      );
     }
-
-    let m = mat3.create();
-    /*
-    if(this.svg !== undefined) {
-      let svgSize = getSvgSize(this.svg);
-      mat3.translate(m, m, [svgSize[0] / 2, svgSize[1] / 2]);
-    }
-    let zoomVal = 1 / zoom;
-    mat3.translate(m, m, this.props.pan);
-    mat3.scale(m, m, [zoomVal, zoomVal]);
-    mat3.transpose(m, m);
-    */
-    let svgMat = `${m[0]}, ${m[3]}, ${m[1]}, ${m[4]}, ${m[2]}, ${m[5]}`;
-    let style = {
-      position: 'relative',
-      width: '100%',
-      height: '100%',
-    };
     let mouseMoveDiv;
     if(this.state.grabbedNode !== -1 || this.state.grabMode != null) {
       mouseMoveDiv = (
         <div
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 2 }}
           className="covering-div"
+          key="svg-covering-div"
           onMouseMove={this.onMouseMove}
           onMouseUp={this.onMouseUp}
         />
@@ -363,38 +353,39 @@ class SvgRenderer extends React.Component {
     return [
       mouseMoveDiv,
       <div
-        style={style}
         onMouseDown={this.onCanvasMouseDown}
         onKeyDown={this.onKeyDown}
         onWheel={this.onWheel}
         ref={this.setHtmlNodeCanvas}
+        key="html-node-canvas"
+        className="html-node-canvas"
       >
         {nodeElements}
       </div>,
       <svg
-        style={{ position: 'absolute', width: '100%', height: '100%', pointerEvents: 'none' }}
         className="node-svg"
         ref={this.setSvg}
+        key="svg-canvas"
         width="100%"
         height="100%"
       >
-        <g transform={`matrix(${svgMat})`}>
-          {lines}
+        <g>
+          {
+            domConnections.map((connection) => (
+              <ConnectorLine
+                key={connection.key}
+                from={connection.from}
+                to={connection.to}
+              />
+            ))
+          }
           {connectorLine}
-          <line
-            className="connector-line"
-            x1="0"
-            y1="0"
-            x2="1"
-            y2="1"
-            stroke="black"
-            strokeWidth="2"
-          />
         </g>
       </svg>
     ];
   }
 }
+
 
 SvgRenderer.propTypes = {
   createNewNode: PropTypes.func.isRequired,
