@@ -27,7 +27,7 @@ class Editor extends React.Component {
 
   componentDidMount() {
     root.addEventListener('keydown', this.keyDownEvent);
-    let id = +location.pathname.substr(location.pathname.lastIndexOf('/') + 1);
+    let id = +window.location.pathname.substr(window.location.pathname.lastIndexOf('/') + 1);
     if(!Number.isNaN(id) && id !== 0) {
       this.props.setGraph(window.initialGraph);
     } else {
@@ -73,12 +73,12 @@ class Editor extends React.Component {
         <MenuItems match={this.props.match} />
       </nav>,
       <div key="RenderCanvas" className="canvas">
+        {nodeGrabOverlay}
         <RenderCanvas />
       </div>,
       <div key="Control" className="control">
         {input}
-      </div>,
-      nodeGrabOverlay
+      </div>
     ];
   }
 }

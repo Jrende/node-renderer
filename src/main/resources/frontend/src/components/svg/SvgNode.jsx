@@ -6,12 +6,14 @@ export default function SvgNode(props) {
   let {
     id,
     node,
+    pos,
     onElementMouseDown,
     onConnectorMouseDown,
     onMouseUp,
     onFocus,
     selected,
-    htmlNodeCanvas
+    zoom,
+    pan
   } = props;
   let inputs = [];
   if(node.type.input != null) {
@@ -46,18 +48,16 @@ export default function SvgNode(props) {
       );
     });
   }
-  let left = node.pos[0];
-  let top = node.pos[1];
-  if(htmlNodeCanvas !== undefined) {
-    let rect = htmlNodeCanvas.getBoundingClientRect();
-    left = node.pos[0] + rect.width / 2;
-    top = node.pos[1] + rect.height / 2;
-  }
 
   return (
     <div
       onFocus={onFocus}
-      style={{ left: `${left}px`, top: `${top}px` }}
+      style={{
+        left: `${pos[0]}px`,
+        top: `${pos[1]}px`,
+        transform: `scale(${zoom})`,
+        transformOrigin: `${pan[0]}px ${pan[1]}px`
+      }}
       data-node-id={id}
       className={`svg-node html-node ${selected ? 'selected' : ''}`}
     >
@@ -81,7 +81,7 @@ export default function SvgNode(props) {
 
 SvgNode.propTypes = {
   id: PropTypes.number.isRequired,
-  htmlNodeCanvas: PropTypes.object,
+  pos: PropTypes.array.isRequired,
   node: PropTypes.object.isRequired,
   selected: PropTypes.bool.isRequired,
   onElementMouseDown: PropTypes.func.isRequired,

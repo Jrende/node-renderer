@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import './SvgRenderer.less';
 import SvgNode from './SvgNode';
 import ConnectorLine from './ConnectorLine';
-import { transformPointToSvgSpace, addInSvgSpace, getSvgSize } from '../../utils/SvgUtils';
+import { transformPointToSvgSpace, addInSvgSpace } from '../../utils/SvgUtils';
 
 function getCenter(r) {
   return [
@@ -18,14 +18,14 @@ class SvgRenderer extends React.Component {
     super(props);
     this.state = {
       grabFrom: [0, 0],
-      grabConnectorType: null,
+      grabConnectorType: undefined,
       grabTo: [0, 0],
       lastPos: [0, 0],
       grabMoved: false,
-      grabMode: null,
+      grabMode: undefined,
       grabbedNode: -1,
-      zoom: 1,
-      domConnections: []
+      domConnections: [],
+      shouldGenerateConnectionsAfterMount: false
     };
 
     [
@@ -55,22 +55,22 @@ class SvgRenderer extends React.Component {
   }
 
 
-  // TODO: Zoom towards mouse pointer or center of screen
+  // TODO: Fix zoom
   onWheel(event) {
     let deltaY = event.deltaY;
     // Firefox gives scroll in number of lines. We convert that into pixel values matching Chrome
     if(event.deltaMode === 1) {
       deltaY *= 18;
     }
-    let zoom = this.state.zoom + deltaY / 200;
+    let zoom = this.props.zoom + deltaY / 200;
     if(zoom > 0) {
-      // this.setState({ zoom });
+      this.props.setNodeEditorView(this.props.pan, zoom);
     }
   }
 
   onKeyDown(event) {
     if(event.key === 'Delete') {
-      if(document.activeElement != null) {
+      if(document.activeElement !== undefined) {
         let activeNodeId = document.activeElement.getAttribute('data-node-id') | 0;
         this.props.removeNode(activeNodeId);
       }
@@ -126,11 +126,11 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseMove(event) {
-    if(this.state.grabbedNode !== -1 || this.state.grabMode != null) {
+    if(this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) {
       if(event.buttons === 0) {
         this.setState({
           grabbedNode: -1,
-          grabMode: null
+          grabMode: undefined
         });
         return;
       }
@@ -155,7 +155,6 @@ class SvgRenderer extends React.Component {
         let grabTo = addInSvgSpace(this.state.grabTo, delta, this.svg, this.point);
         this.setState({ grabTo });
       } else if (this.state.grabMode === 'canvas') {
-        delta = delta.map(v => v * this.props.zoom);
         let pan = [
           this.props.pan[0] + delta[0],
           this.props.pan[1] + delta[1]
@@ -202,9 +201,6 @@ class SvgRenderer extends React.Component {
   }
 
   onMouseUp(event) {
-    if(this.props.grabbedNodeType != null) {
-      this.handleDrop(event);
-    }
     let elmBelow = document.elementsFromPoint(event.clientX, event.clientY)[1];
     if(elmBelow.classList.contains('io-grab')) {
       this.onConnectorMouseUp(elmBelow);
@@ -218,28 +214,23 @@ class SvgRenderer extends React.Component {
     });
     this.setState({
       grabMoved: false,
-      grabMode: null
+      grabMode: undefined
     });
   }
 
   onCanvasMouseDown(event) {
-    if(event.target === this.svg) {
+    if(event.target === this.htmlNodeCanvas) {
       event.stopPropagation();
-      let clientPos = [event.clientX, event.clientY];
-      let svgNode = this.svg.querySelector('.svg-node');
-      let transformedPos = transformPointToSvgSpace(clientPos, svgNode, this.point);
       this.props.selectNode(-1);
       this.setState({
-        grabTo: transformedPos,
-        grabFrom: transformedPos,
-        lastPos: clientPos,
+        lastPos: [event.clientX, event.clientY],
         grabMode: 'canvas'
       });
     }
   }
 
   setSvg(svg) {
-    if(svg != null) {
+    if(svg !== undefined && svg !== null) {
       this.svg = svg;
       this.point = svg.createSVGPoint();
       this.setState(this.state);
@@ -249,19 +240,12 @@ class SvgRenderer extends React.Component {
   handleDrop(event) {
     event.preventDefault();
     let type = this.props.grabbedNodeType;
-    this.point.x = event.clientX;
-    this.point.y = event.clientY;
-    // TODO: Fix this
-    let width = 0;
-    let height = 0;
-    let newCoords = this.point.matrixTransform(this.svg.getScreenCTM().inverse());
-    let svgSize = getSvgSize(this.svg);
+    let rect = event.target.getBoundingClientRect();
+    let x = event.clientX - rect.left - (rect.width / 2) - 10 - this.props.pan[0];
+    let y = event.clientY - rect.top - (rect.height / 2) - 10 - this.props.pan[1];
     let newNode = {
       type: type.id,
-      pos: [
-        newCoords.x - width / 2.0 - this.props.pan[0] - svgSize[0] / 2.0,
-        newCoords.y - height / 2.0 - this.props.pan[1] - svgSize[1] / 2.0
-      ].map(v => v * this.state.zoom)
+      pos: [x, y]
     };
     this.props.createNewNode(newNode);
     this.props.grabNodePlaceholder(null);
@@ -269,58 +253,92 @@ class SvgRenderer extends React.Component {
     this.svg.focus();
   }
 
-  setHtmlNodeCanvas(element) {
-    this.htmlNodeCanvas = element;
+  setHtmlNodeCanvas(htmlNodeCanvas) {
+    if(htmlNodeCanvas !== undefined && htmlNodeCanvas !== null) {
+      this.htmlNodeCanvas = htmlNodeCanvas;
+    }
+  }
+
+  componentDidMount() {
+    this.setState({ shouldGenerateConnectionsAfterMount: true });
   }
 
   componentDidUpdate(prevProps) {
-    // This could me smarter about when to change
-    if(prevProps.connections !== this.props.connections || prevProps.nodes !== this.props.nodes) {
-      let lines = this.props.connections.map((connection) => {
-        let fromElm = this.htmlNodeCanvas
-          .querySelector(`div[data-node-id="${connection.from.id}"] span[data-output-name="${connection.from.name}"]`);
-        let from = transformPointToSvgSpace(
-          getCenter(fromElm.getBoundingClientRect()),
-          this.svg, this.point);
-
-        let toElm = this.htmlNodeCanvas
-          .querySelector(`div[data-node-id="${connection.to.id}"] span[data-input-name="${connection.to.name}"]`);
-        let to = transformPointToSvgSpace(
-          getCenter(toElm.getBoundingClientRect()),
-          this.svg, this.point);
-        return {
-          from,
-          to,
-          key: `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`
-        };
+    if(prevProps.connections !== this.props.connections
+      || prevProps.nodes !== this.props.nodes
+      || prevProps.pan !== this.props.pan
+      || prevProps.zoom !== this.props.zoom
+      || prevProps.selectedNode !== this.props.selectedNode
+      || this.state.shouldGenerateConnectionsAfterMount
+    ) {
+      this.setState({
+        domConnections: this.generateConnectionLines(),
+        shouldGenerateConnectionsAfterMount: false
       });
-      this.setState({ domConnections: lines });
     }
+  }
+
+  generateConnectionLines() {
+    if(this.svg === undefined || this.htmlNodeCanvas === undefined) {
+      return [];
+    }
+    let lines = this.props.connections.map((connection) => {
+      let fromElm = this.htmlNodeCanvas
+        .querySelector(`div[data-node-id="${connection.from.id}"] span[data-output-name="${connection.from.name}"]`);
+      let from = transformPointToSvgSpace(
+        getCenter(fromElm.getBoundingClientRect()),
+        this.svg, this.point);
+
+      let toElm = this.htmlNodeCanvas
+        .querySelector(`div[data-node-id="${connection.to.id}"] span[data-input-name="${connection.to.name}"]`);
+      let to = transformPointToSvgSpace(
+        getCenter(toElm.getBoundingClientRect()),
+        this.svg, this.point);
+      return {
+        from,
+        to,
+        key: `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`
+      };
+    });
+    return lines;
   }
 
   render() {
     let {
       nodes,
-      selectedNode
+      selectedNode,
+      pan,
+      zoom
     } = this.props;
     let {
       grabTo,
       grabFrom,
       grabMode,
-      zoom,
       domConnections
     } = this.state;
     // Sort on x location, to enhance tabbing between nodes focus
     let nodeElements = Object.entries(nodes)
-      .filter(node => node[1] != null)
+      .filter(node => node[1] !== undefined)
       .sort((a, b) => a[1].pos[0] - b[1].pos[0])
       .map(entry => {
         let id = +entry[0];
         let node = entry[1];
+        let x = node.pos[0];
+        let y = node.pos[1];
+        if(this.htmlNodeCanvas !== undefined) {
+          let rect = this.htmlNodeCanvas.getBoundingClientRect();
+          x = node.pos[0] + rect.width / 2;
+          y = node.pos[1] + rect.height / 2;
+        }
+        x += pan[0];
+        y += pan[1];
         return (<SvgNode
           key={id}
           id={id}
           node={node}
+          pos={[x, y]}
+          zoom={zoom}
+          pan={pan}
           selected={selectedNode === id}
           onConnectorMouseUp={this.onConnectorMouseUp}
           onConnectorMouseDown={this.onConnectorMouseDown}
@@ -329,7 +347,7 @@ class SvgRenderer extends React.Component {
         />);
       });
 
-    let connectorLine = null;
+    let connectorLine;
     if(grabMode === 'connector') {
       connectorLine = (
         <ConnectorLine
@@ -339,7 +357,7 @@ class SvgRenderer extends React.Component {
       );
     }
     let mouseMoveDiv;
-    if(this.state.grabbedNode !== -1 || this.state.grabMode != null) {
+    if(this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) {
       mouseMoveDiv = (
         <div
           className="covering-div"
@@ -355,7 +373,7 @@ class SvgRenderer extends React.Component {
       <div
         onMouseDown={this.onCanvasMouseDown}
         onKeyDown={this.onKeyDown}
-        onWheel={this.onWheel}
+        onMouseUp={this.handleDrop}
         ref={this.setHtmlNodeCanvas}
         key="html-node-canvas"
         className="html-node-canvas"

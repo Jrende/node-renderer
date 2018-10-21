@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'; import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import './NodeGrabOverlay.less';
 // import Types from '../constants/Types';
@@ -16,8 +15,7 @@ class NodeGrabOverlay extends React.Component {
 
   render() {
     return (
-      <div className="node-grab-overlay">
-      </div>
+      <div className="node-grab-overlay" />
     );
   }
 }
