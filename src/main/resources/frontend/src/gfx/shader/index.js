@@ -1,5 +1,7 @@
 import solidFrag from './glsl/solid.frag';
 import solidVert from './glsl/solid.vert';
+import nodeTextureFrag from './glsl/nodeTextureShader.frag';
+import nodeTextureVert from './glsl/nodeTextureShader.vert';
 import textureFrag from './glsl/textureShader.frag';
 import textureVert from './glsl/textureShader.vert';
 import blendFrag from './glsl/blend.frag';
@@ -25,6 +27,7 @@ function buildShader(name) {
     case 'cloud': return new Shader({ frag: cloudFrag, vert: cloudVert });
     case 'gradient': return new Shader({ frag: gradientFrag, vert: gradientVert });
     case 'texture': return new Shader({ frag: textureFrag, vert: textureVert });
+    case 'nodeTexture': return new Shader({ frag: nodeTextureFrag, vert: nodeTextureVert });
     case 'gradientTexture': return new Shader({ frag: gradientTextureFrag, vert: gradientTextureVert });
     case 'colorMap': return new Shader({ frag: colorMapFrag, vert: colorMapVert });
     case 'solid': return new Shader({ frag: solidFrag, vert: solidVert });

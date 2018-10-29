@@ -1,6 +1,41 @@
 import Framebuffer from '../Framebuffer';
 import VertexArray from '../VertexArray';
 
+class TextureValue {
+  constructor(name, framebuffer) {
+    this.uniforms = {
+      [`${name}Connection`]: true,
+      [`${name}Value`]: [0, 0, 0, 0]
+    };
+    this.framebuffer = framebuffer;
+    this.name = name;
+  }
+
+  bind(gl, index) {
+    gl.activeTexture(gl.TEXTURE0 + index);
+    gl.bindTexture(gl.TEXTURE_2D, this.framebuffer);
+    this.uniforms[`${this.name}Texture`] = index;
+  }
+}
+
+
+class PrimitiveValue {
+  constructor(name, placeholder, value) {
+    this.uniforms = {
+      [`${name}Connection`]: false,
+      [`${name}Value`]: value
+    };
+    this.placeholder = placeholder;
+    this.name = name;
+  }
+
+  bind(gl, index) {
+    gl.activeTexture(gl.TEXTURE0 + index);
+    gl.bindTexture(gl.TEXTURE_2D, this.placeholder);
+    this.uniforms[`${this.name}Texture`] = index;
+  }
+}
+
 export default class Renderer {
   constructor(gl) {
     this.gl = gl;
@@ -46,6 +81,20 @@ export default class Renderer {
       this.output.height !== size.height)) {
       this.output = new Framebuffer(this.gl, size.width, size.height);
     }
+  }
+
+  getValue(name, values, framebuffers) {
+    if(framebuffers[name] !== undefined) {
+      return new TextureValue(name, framebuffers[name]);
+    }
+    return new PrimitiveValue(name, this.placeholder.texture, this.fromColor(values[name]));
+  }
+
+  preRender() {
+    this.boundTexture = -1;
+  }
+
+  postRender() {
   }
 
   render(values, framebuffers) {

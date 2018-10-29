@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgNode.less';
-import NodeInputs from '../../containers/NodeInputs';
+import NodeInputs from '../NodeInputs';
 
 export default function SvgNode(props) {
   let {
@@ -16,22 +16,6 @@ export default function SvgNode(props) {
     zoom,
     pan
   } = props;
-  let inputs = [];
-  if(node.type.input != null) {
-    inputs = Object.keys(node.type.input).map(key => {
-      let name = node.type.input[key].name;
-      return (
-        <div key={key}>
-          <span
-            className="io-grab"
-            onMouseDown={onConnectorMouseDown}
-            data-input-name={key}
-          />
-          <span className="io">{name}</span>
-        </div>
-      );
-    });
-  }
 
   let outputs = [];
   if(node.type.output != null) {
@@ -68,16 +52,11 @@ export default function SvgNode(props) {
         onMouseUp={onMouseUp}
       />
       <h3>{node.type.name}</h3>
-      <div className="connections">
-        <div className="inputs">
-          {inputs}
-        </div>
-        <div className="outputs">
-          {outputs}
-        </div>
+      <div className="outputs">
+        {outputs}
       </div>
       <hr />
-      <NodeInputs node={node} id={id} />
+      <NodeInputs onConnectorMouseDown={onConnectorMouseDown} node={node} id={id} />
     </div>
   );
 }

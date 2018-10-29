@@ -2,14 +2,13 @@ export default {
   finalOutput: {
     id: 0,
     name: 'Output',
-    input: {
+    values: {
       finalResult: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Final result'
       },
     },
-    output: {},
-    values: {}
+    output: {}
   },
   clouds: {
     id: 1,
@@ -42,7 +41,7 @@ export default {
     },
     output: {
       out: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Output'
       },
     }
@@ -60,6 +59,14 @@ export default {
           'Multiply'
         ]
       },
+      left: {
+        type: 'color',
+        name: 'Left'
+      },
+      right: {
+        type: 'color',
+        name: 'Right'
+      },
       factor: {
         name: 'Factor',
         type: 'number',
@@ -68,19 +75,9 @@ export default {
         min: 0
       }
     },
-    input: {
-      left: {
-        type: 'FrameBuffer',
-        name: 'Left'
-      },
-      right: {
-        type: 'FrameBuffer',
-        name: 'Right'
-      }
-    },
     output: {
       out: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Output'
       },
     }
@@ -90,13 +87,13 @@ export default {
     name: 'Solid Color',
     values: {
       color: {
-        name: 'Color',
-        type: 'color'
+        type: 'color',
+        name: 'Color'
       }
     },
     output: {
       out: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Output'
       },
     }
@@ -125,17 +122,15 @@ export default {
         default: 0,
         max: 1,
         min: -1
-      }
-    },
-    input: {
+      },
       inputTexture: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Input'
       }
     },
     output: {
       out: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Output'
       },
     }
@@ -157,17 +152,15 @@ export default {
         default: 0,
         max: 1,
         min: -1
-      }
-    },
-    input: {
+      },
       inputTexture: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Input'
       }
     },
     output: {
       out: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Output'
       },
     }
@@ -197,7 +190,7 @@ export default {
     },
     output: {
       out: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Output'
       },
     }
@@ -211,15 +204,13 @@ export default {
         type: 'gradient'
       }
     },
-    input: {
-      inputTexture: {
-        type: 'FrameBuffer',
-        name: 'Input'
-      }
+    inputTexture: {
+      type: 'color',
+      name: 'Input'
     },
     output: {
       out: {
-        type: 'FrameBuffer',
+        type: 'color',
         name: 'Output'
       },
     }

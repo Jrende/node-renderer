@@ -5,17 +5,13 @@ export default class BlendRenderer extends Renderer {
     super(gl);
     this.gl = gl;
     this.shader = shaders.getShader('blend');
-    this.textureShader = shaders.getShader('texture');
+    this.textureShader = shaders.getShader('nodeTexture');
   }
 
   render(values, framebuffers) {
-    let { left, right } = framebuffers;
-    if(left === undefined) {
-      left = this.placeholder.texture;
-    }
-    if(right === undefined) {
-      right = this.placeholder.texture;
-    }
+    this.preRender();
+    let left = this.getValue('left', values, framebuffers);
+    let right = this.getValue('right', values, framebuffers);
     switch(values.mode) {
       case 'Normal':
         this.renderNormal(left, right, values.factor);
@@ -35,8 +31,10 @@ export default class BlendRenderer extends Renderer {
         );
         break;
       default:
+        console.error('SHOULD NOT COME HERE');
         break;
     }
+    this.postRender();
     return {
       out: this.output.texture
     };
@@ -47,13 +45,11 @@ export default class BlendRenderer extends Renderer {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
       this.shader.bind(this.gl);
       this.quad.bind(this.gl);
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, left);
-      this.gl.activeTexture(this.gl.TEXTURE1);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, right);
+      left.bind(this.gl, 0);
+      right.bind(this.gl, 1);
       this.shader.setUniforms(this.gl, {
-        left: 0,
-        right: 1,
+        ...left.uniforms,
+        ...right.uniforms,
         factor
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
@@ -66,18 +62,20 @@ export default class BlendRenderer extends Renderer {
     this.output.renderTo(this.gl, () => {
       this.textureShader.bind(this.gl);
       this.quad.bind(this.gl);
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, left);
+      left.bind(this.gl, 0);
       this.textureShader.setUniforms(this.gl, {
-        sampler: 0,
+        sampler: left.uniforms.leftTexture,
+        connection: left.uniforms.leftConnection,
+        value: left.uniforms.leftValue,
         opacity: 1.0
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
       this.gl.blendFunc(srcFactor, dstFactor);
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, right);
+      right.bind(this.gl, 0);
       this.textureShader.setUniforms(this.gl, {
-        sampler: 0,
+        sampler: right.uniforms.rightTexture,
+        connection: right.uniforms.rightConnection,
+        value: right.uniforms.rightValue,
         opacity
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);

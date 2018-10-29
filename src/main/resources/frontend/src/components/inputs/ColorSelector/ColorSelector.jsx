@@ -49,7 +49,7 @@ function getAngle(v1, v2) {
 }
 
 let root = document.querySelector('#root');
-class ColorInput extends React.Component {
+class ColorSelector extends React.Component {
   constructor(props) {
     super(props);
     let color = tinycolor.fromRatio(props.value);
@@ -457,9 +457,9 @@ class ColorInput extends React.Component {
   }
 }
 
-ColorInput.propTypes = {
+ColorSelector.propTypes = {
   value: PropTypes.object,
   onChange: PropTypes.func
 };
 
-export default ColorInput;
+export default ColorSelector;

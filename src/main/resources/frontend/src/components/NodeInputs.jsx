@@ -1,10 +1,12 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import NumberInput from './inputs/NumberInput';
 import ColorInput from './inputs/ColorInput';
 import EnumInput from './inputs/EnumInput';
 import GradientInput from './inputs/GradientInput';
 import VectorInput from './inputs/VectorInput';
+import * as actions from '../actions';
 
 import './NodeInputs.less';
 
@@ -15,7 +17,7 @@ class NodeInputs extends React.Component {
   }
 
   render() {
-    let { node } = this.props;
+    let { node, onConnectorMouseDown } = this.props;
 
     let inputs = [];
     if(node !== undefined && node.type.values !== undefined) {
@@ -24,53 +26,66 @@ class NodeInputs extends React.Component {
         switch(nodeValue.type) {
           case 'number':
             return (
-              <NumberInput
-                key={key}
-                name={key}
-                type={nodeValue}
-                value={parseFloat(node.values[key])}
-                onChange={(value) => this.onValueChange(key, value)}
-              />
+              <div className="node-input" key={key}>
+                <NumberInput
+                  name={key}
+                  type={nodeValue}
+                  value={parseFloat(node.values[key])}
+                  onChange={(value) => this.onValueChange(key, value)}
+                />
+              </div>
             );
           case 'color':
             return (
-              <ColorInput
-                key={key}
-                name={key}
-                type={nodeValue}
-                value={node.values[key]}
-                onChange={(value) => this.onValueChange(key, value)}
-              />
+              <div className="node-input" key={key}>
+                <div>
+                  <span
+                    className="io-grab"
+                    onMouseDown={onConnectorMouseDown}
+                    data-input-name={key}
+                  />
+                  <span className="io">{name}</span>
+                </div>
+                <ColorInput
+                  name={key}
+                  type={nodeValue}
+                  value={node.values[key]}
+                  onChange={(value) => this.onValueChange(key, value)}
+                />
+              </div>
             );
           case 'enum':
             return (
-              <EnumInput
-                key={key}
-                name={key}
-                type={nodeValue}
-                value={node.values[key]}
-                onChange={(value) => this.onValueChange(key, value)}
-              />
+              <div className="node-input" key={key}>
+                <EnumInput
+                  name={key}
+                  type={nodeValue}
+                  value={node.values[key]}
+                  onChange={(value) => this.onValueChange(key, value)}
+                />
+              </div>
             );
           case 'gradient':
             return (
-              <GradientInput
-                key={key}
-                name={key}
-                type={nodeValue}
-                value={node.values[key]}
-                onChange={(value) => this.onValueChange(key, value)}
-              />
+              <div className="node-input" key={key}>
+                <GradientInput
+                  name={key}
+                  type={nodeValue}
+                  value={node.values[key]}
+                  onChange={(value) => this.onValueChange(key, value)}
+                />
+              </div>
             );
           case 'vector':
             return (
-              <VectorInput
-                key={key}
-                name={key}
-                type={nodeValue}
-                value={node.values[key]}
-                onChange={(value) => this.onValueChange(key, value)}
-              />
+              <div className="node-input" key={key}>
+                <VectorInput
+                  name={key}
+                  type={nodeValue}
+                  value={node.values[key]}
+                  onChange={(value) => this.onValueChange(key, value)}
+                />
+              </div>
             );
           default:
             break;
@@ -89,7 +104,16 @@ class NodeInputs extends React.Component {
 NodeInputs.propTypes = {
   node: PropTypes.object.isRequired,
   id: PropTypes.number.isRequired,
-  changeValue: PropTypes.func.isRequired
+  changeValue: PropTypes.func.isRequired,
+  onConnectorMouseDown: PropTypes.func.isRequired
 };
 
-export default NodeInputs;
+
+export default connect(
+  undefined,
+  (dispatch) => ({
+    changeValue: (nodeId, value) => {
+      dispatch(actions.changeValue(nodeId, value));
+    }
+  })
+)(NodeInputs);

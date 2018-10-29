@@ -29,6 +29,7 @@ function createShaderProgram(gl, vertexShader, fragmentShader) {
 
 function setUniform(gl, uniformHandle, type, value) {
   switch (type) {
+    case 'bool': return gl.uniform1i(uniformHandle, value?1:0);
     case 'float': return gl.uniform1f(uniformHandle, value);
     case 'vec2': return gl.uniform2fv(uniformHandle, value);
     case 'vec3': return gl.uniform3fv(uniformHandle, value);

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import tinycolor from 'tinycolor2';
 import './GradientInput.less';
-import ColorInput from './ColorInput/ColorInput';
+import ColorInput from './ColorInput';
 
 function getAllOffsetLeft(elm) {
   let offsetLeft = 0;
