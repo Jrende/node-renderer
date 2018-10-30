@@ -372,11 +372,19 @@ class SvgRenderer extends React.Component {
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
         onKeyDown={this.onKeyDown}
+        onWheel={this.onWheel}
         ref={this.setHtmlNodeCanvas}
         key="html-node-canvas"
         className="html-node-canvas"
       >
-        {nodeElements}
+        <div
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: `${pan[0]}px ${pan[1]}px`
+          }}
+        >
+          {nodeElements}
+        </div>
       </div>,
       <svg
         className="node-svg"

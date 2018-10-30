@@ -40,8 +40,6 @@ export default function SvgNode(props) {
       style={{
         left: `${pos[0]}px`,
         top: `${pos[1]}px`,
-        transform: `scale(${zoom})`,
-        transformOrigin: `${pan[0]}px ${pan[1]}px`
       }}
       data-node-id={id}
       className={`svg-node html-node ${selected ? 'selected' : ''}`}
