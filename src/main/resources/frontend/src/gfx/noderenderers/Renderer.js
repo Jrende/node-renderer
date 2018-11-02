@@ -91,7 +91,7 @@ export default class Renderer {
       color.r * 255,
       color.g * 255,
       color.b * 255,
-      color.a
+      color.a * 255
     ];
   }
 }
