@@ -149,9 +149,10 @@ class ColorSelector extends React.Component {
     event.preventDefault();
     root.addEventListener('mousemove', this.onCanvasMouseMove);
     this.mouseDown = true;
+    let rect = this.canvas.getBoundingClientRect();
     let coords = [
-      (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
-      -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
+      (event.pageX - rect.x) / rect.width - 0.5,
+      -(event.pageY - rect.y) / rect.height + 0.5
     ].map(c => c * 2.0);
     let { hue, saturation, value } = this.handleInput(coords);
     this.updateColor(hue, saturation, value);
@@ -168,9 +169,10 @@ class ColorSelector extends React.Component {
       return;
     }
     if(this.mouseDown) {
+      let rect = this.canvas.getBoundingClientRect();
       let coords = [
-        (event.pageX - getAllOffsetLeft(this.canvas)) / this.canvas.offsetWidth - 0.5,
-        -(event.pageY - getAllOffsetTop(this.canvas)) / this.canvas.offsetHeight + 0.5
+        (event.pageX - rect.x) / rect.width - 0.5,
+        -(event.pageY - rect.y) / rect.height + 0.5
       ].map(c => c * 2.0);
       let { hue, saturation, value } = this.handleInput(coords);
       this.updateColor(hue, saturation, value);
