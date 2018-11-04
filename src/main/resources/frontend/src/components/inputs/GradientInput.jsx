@@ -4,15 +4,6 @@ import tinycolor from 'tinycolor2';
 import './GradientInput.less';
 import ColorInput from './ColorInput';
 
-function getAllOffsetLeft(elm) {
-  let offsetLeft = 0;
-  while(elm !== null) {
-    offsetLeft += elm.offsetLeft;
-    elm = elm.offsetParent;
-  }
-  return offsetLeft;
-}
-
 let root = document.querySelector('#root');
 class GradientInput extends React.Component {
   constructor(props) {
@@ -99,8 +90,9 @@ class GradientInput extends React.Component {
   }
 
   onClickDisplay(event) {
-    let pos = (event.pageX - getAllOffsetLeft(this.gradientDisplay));
-    pos /= this.gradientDisplay.offsetWidth;
+    let rect = this.gradientDisplay.getBoundingClientRect();
+    let pos = (event.pageX - rect.x);
+    pos /= rect.width;
     let grad = this.props.value;
     for(let i = 1; i < grad.length; i++) {
       if(grad[i - 1].position < pos && grad[i].position > pos) {
