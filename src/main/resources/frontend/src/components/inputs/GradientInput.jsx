@@ -51,9 +51,10 @@ class GradientInput extends React.Component {
     let selected = this.state.selected;
     if(selected !== 0 && selected !== this.props.value.length - 1) {
       let deltaX = this.state.lastPos - event.clientX;
+      let rect = this.gradientDisplay.getBoundingClientRect();
       let newGradient = this.props.value.map(stop => {
         if(stop === this.props.value[this.state.dragId]) {
-          let newPosition = stop.position - deltaX / this.gradientDisplay.clientWidth;
+          let newPosition = stop.position - deltaX / rect.width;
           return Object.assign({}, stop, {
             position: newPosition
           });

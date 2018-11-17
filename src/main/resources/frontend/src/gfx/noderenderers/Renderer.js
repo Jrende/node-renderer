@@ -52,7 +52,8 @@ export default class Renderer {
     if(framebuffers[name] !== undefined) {
       return framebuffers[name];
     }
-    texture.setColor(this.gl, this.fromColor(values[name]));
+    let v = this.fromColor(values[name]);
+    texture.setColor(this.gl, v);
     return texture.texture;
   }
 
@@ -87,11 +88,16 @@ export default class Renderer {
   }
 
   fromColor(color) {
+    let n = Number.parseFloat(color);
+    if(!Number.isNaN(n)) {
+      return [n, n, n, n];
+    }
+
     return [
-      color.r * 255,
-      color.g * 255,
-      color.b * 255,
-      color.a * 255
+      color.r,
+      color.g,
+      color.b,
+      color.a
     ];
   }
 }

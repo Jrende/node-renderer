@@ -27,6 +27,14 @@ class NodeInputs extends React.Component {
           case 'number':
             return (
               <div className="node-input" key={key}>
+                <div>
+                  <span
+                    className="io-grab"
+                    onMouseDown={onConnectorMouseDown}
+                    data-input-name={key}
+                  />
+                  <span className="io">{name}</span>
+                </div>
                 <NumberInput
                   name={key}
                   type={nodeValue}

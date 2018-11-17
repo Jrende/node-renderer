@@ -9,15 +9,17 @@ export default class BlendRenderer extends Renderer {
     this.textureShader = shaders.getShader('texture');
     this.leftTexture = new Texture(gl, [0, 0, 0, 1]);
     this.rightTexture = new Texture(gl, [0, 0, 0, 1]);
+    this.factorTexture = new Texture(gl, [0, 0, 0, 1]);
   }
 
   render(values, framebuffers) {
     this.preRender();
     let left = this.getValue('left', values, framebuffers, this.leftTexture);
     let right = this.getValue('right', values, framebuffers, this.rightTexture);
+    let factor = this.getValue('factor', values, framebuffers, this.factorTexture);
     switch(values.mode) {
       case 'Normal':
-        this.renderNormal(left, right, values.factor);
+        this.renderNormal(left, right, factor);
         break;
       case 'Multiply':
         this.renderBlend(
@@ -52,10 +54,12 @@ export default class BlendRenderer extends Renderer {
       this.gl.bindTexture(this.gl.TEXTURE_2D, left);
       this.gl.activeTexture(this.gl.TEXTURE1);
       this.gl.bindTexture(this.gl.TEXTURE_2D, right);
+      this.gl.activeTexture(this.gl.TEXTURE2);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, factor);
       this.shader.setUniforms(this.gl, {
         left: 0,
         right: 1,
-        factor
+        factor: 2
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
       this.quad.unbind(this.gl);

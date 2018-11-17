@@ -1,6 +1,11 @@
 export default class Texture {
   constructor(gl, color) {
-    this.color = new Uint8Array(color);
+    this.color = new Uint8Array([
+      color[0] * 255,
+      color[1] * 255,
+      color[2] * 255,
+      color[3] * 255
+    ]);
     this.compile(gl);
   }
 
@@ -22,7 +27,12 @@ export default class Texture {
   }
 
   setColor(gl, color) {
-    this.color = new Uint8Array(color);
+    this.color = new Uint8Array([
+      color[0] * 255,
+      color[1] * 255,
+      color[2] * 255,
+      color[3] * 255
+    ]);
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.color);
     gl.bindTexture(gl.TEXTURE_2D, null);

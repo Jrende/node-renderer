@@ -62,7 +62,7 @@ class SvgRenderer extends React.Component {
     if(event.deltaMode === 1) {
       deltaY *= 18;
     }
-    let zoom = this.props.zoom + deltaY / 200;
+    let zoom = this.props.zoom - deltaY / 200;
     if(zoom > 0) {
       this.props.setNodeEditorView(this.props.pan, zoom);
     }
