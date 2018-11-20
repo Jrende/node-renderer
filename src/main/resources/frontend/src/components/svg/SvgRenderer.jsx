@@ -147,8 +147,8 @@ class SvgRenderer extends React.Component {
         let nodeId = this.state.grabbedNode;
         let node = this.props.nodes[nodeId];
         let newPos = [
-          node.pos[0] + delta[0],
-          node.pos[1] + delta[1]
+          node.pos[0] + delta[0] / this.props.zoom,
+          node.pos[1] + delta[1] / this.props.zoom
         ];
         this.props.setNodeLocation(nodeId, newPos);
       } else if (this.state.grabMode === 'connector') {
