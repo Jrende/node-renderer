@@ -353,6 +353,7 @@ class SvgRenderer extends React.Component {
           onConnectorMouseUp={this.onConnectorMouseUp}
           onConnectorMouseDown={this.onConnectorMouseDown}
           onElementMouseDown={event => this.onElementMouseDown(event, id)}
+          removeNode={this.props.removeNode}
           htmlNodeCanvas={this.htmlNodeCanvas}
         />);
       });

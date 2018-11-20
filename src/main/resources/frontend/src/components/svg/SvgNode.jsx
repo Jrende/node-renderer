@@ -13,6 +13,7 @@ export default function SvgNode(props) {
     onMouseUp,
     onFocus,
     selected,
+    removeNode,
     zoom,
     pan
   } = props;
@@ -33,6 +34,7 @@ export default function SvgNode(props) {
       );
     });
   }
+  let classes = `svg-node html-node ${selected ? 'selected' : ''}`;
 
   return (
     <div
@@ -42,19 +44,27 @@ export default function SvgNode(props) {
         top: `${pos[1]}px`,
       }}
       data-node-id={id}
-      className={`svg-node html-node ${selected ? 'selected' : ''}`}
+      className={classes}
     >
       <div
         className="drag-bar"
         onMouseDown={onElementMouseDown}
         onMouseUp={onMouseUp}
-      />
-      <h3>{node.type.name}</h3>
-      <div className="outputs">
-        {outputs}
+      >
+    {node.type.id !== 0 &&
+      <button
+        className="delete"
+        onClick={() => removeNode(id)}
+      >×</button>}
+        </div>
+      <div className="inner">
+        <h3>{node.type.name}</h3>
+        <div className="outputs">
+          {outputs}
+        </div>
+        <hr />
+        <NodeInputs onConnectorMouseDown={onConnectorMouseDown} node={node} id={id} />
       </div>
-      <hr />
-      <NodeInputs onConnectorMouseDown={onConnectorMouseDown} node={node} id={id} />
     </div>
   );
 }
@@ -63,6 +73,7 @@ SvgNode.propTypes = {
   id: PropTypes.number.isRequired,
   pos: PropTypes.array.isRequired,
   node: PropTypes.object.isRequired,
+  removeNode: PropTypes.func.isRequired,
   selected: PropTypes.bool.isRequired,
   onElementMouseDown: PropTypes.func.isRequired,
   onConnectorMouseDown: PropTypes.func.isRequired,
