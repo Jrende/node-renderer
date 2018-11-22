@@ -134,6 +134,7 @@ class SvgRenderer extends React.Component {
         });
         return;
       }
+      event.preventDefault();
       let delta = [
         (event.clientX - this.state.lastPos[0]),
         (event.clientY - this.state.lastPos[1])
@@ -156,8 +157,8 @@ class SvgRenderer extends React.Component {
         this.setState({ grabTo });
       } else if (this.state.grabMode === 'canvas') {
         let pan = [
-          this.props.pan[0] + delta[0],
-          this.props.pan[1] + delta[1]
+          this.props.pan[0] + delta[0] / this.props.zoom,
+          this.props.pan[1] + delta[1] / this.props.zoom
         ];
         this.props.setNodeEditorView(pan, this.props.zoom);
       }
@@ -326,6 +327,13 @@ class SvgRenderer extends React.Component {
       grabMode,
       domConnections
     } = this.state;
+    let width = 0;
+    let height = 0;
+    if(this.htmlNodeCanvas !== undefined) {
+      let rect = this.htmlNodeCanvas.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+    }
     // Sort on x location, to enhance tabbing between nodes focus
     let nodeElements = Object.entries(nodes)
       .filter(node => node[1] !== undefined)
@@ -358,16 +366,6 @@ class SvgRenderer extends React.Component {
         />);
       });
     return [
-      /*
-      ((this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) &&
-        <div
-          className="covering-div"
-          key="svg-covering-div"
-          onMouseMove={this.onMouseMove}
-          onMouseUp={this.onMouseUp}
-        />
-      ),
-      */
       <div
         onMouseDown={this.onCanvasMouseDown}
         onMouseMove={this.onMouseMove}
@@ -381,7 +379,7 @@ class SvgRenderer extends React.Component {
         <div
           style={{
             transform: `scale(${zoom})`,
-            transformOrigin: `${pan[0]}px ${pan[1]}px`
+            transformOrigin: `center ${height / 3}px`
           }}
         >
           {nodeElements}

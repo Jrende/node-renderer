@@ -18,7 +18,8 @@ function getAngle(v1, v2) {
 export default class GradientRenderer extends Renderer {
   constructor(gl, shaders) {
     super(gl);
-    this.shader = shaders.getShader('gradient');
+    this.gradientShader = shaders.getShader('gradient');
+    this.solidShader = shaders.getShader('solid');
     this.gradientTextureShader = shaders.getShader('gradientTexture');
     this.quad = new VertexArray(
       this.gl,
@@ -49,25 +50,44 @@ export default class GradientRenderer extends Renderer {
     }
   }
 
-
   renderGradient(gradient) {
-    let sum = -1.0;
+    let first = gradient[0];
+    let last = gradient[gradient.length - 1];
+
+    let sum = -1.0 + first.position;
     for(let i = 0; i < gradient.length - 1; i++) {
       let from = gradient[i];
       let to = gradient[i + 1];
       let width = (to.position - from.position) * 2;
-      let mvp = mat4.create();
-      mat4.translate(mvp, mvp, [sum, -1.0, 0]);
-      mat4.scale(mvp, mvp, [width, 2.0, 1.0]);
-      this.shader.setUniforms(this.gl, {
-        mvp,
-        to: this.fromColor(to.color),
-        from: this.fromColor(from.color)
-      });
-      this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
+      this.renderStep(this.fromColor(to.color), this.fromColor(from.color), width, sum - first.position);
       sum += width;
     }
   }
+
+  renderSolid(toColor, fromColor, width, sum) {
+    let mvp = mat4.create();
+    mat4.translate(mvp, mvp, [sum, -1.0, 0]);
+    mat4.scale(mvp, mvp, [width, 2.0, 1.0]);
+    this.gradientShader.setUniforms(this.gl, {
+      mvp,
+      to: toColor,
+      from: fromColor
+    });
+    this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
+  }
+
+  renderStep(toColor, fromColor, width, sum) {
+    let mvp = mat4.create();
+    mat4.translate(mvp, mvp, [sum, -1.0, 0]);
+    mat4.scale(mvp, mvp, [width, 2.0, 1.0]);
+    this.gradientShader.setUniforms(this.gl, {
+      mvp,
+      to: toColor,
+      from: fromColor
+    });
+    this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
+  }
+
 
   render(values) {
     if(values.repeat !== this.wrap) {
@@ -84,11 +104,11 @@ export default class GradientRenderer extends Renderer {
     }
     this.buffer.renderTo(this.gl, () => {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-      this.shader.bind(this.gl);
+      this.gradientShader.bind(this.gl);
       this.quad.bind(this.gl);
       this.renderGradient(values.gradient);
       this.quad.unbind(this.gl);
-      this.shader.unbind(this.gl);
+      this.gradientShader.unbind(this.gl);
     });
 
     this.output.renderTo(this.gl, () => {
