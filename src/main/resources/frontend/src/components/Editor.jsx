@@ -46,15 +46,19 @@ class Editor extends React.Component {
   render() {
     let input;
     if(this.props.showToolBox && this.props.grabbedNodeType == null) {
-      input = [
-        <button key="btn" className="back" onClick={this.back}>Back</button>,
-        <ToolBox key="input" />
-      ];
+      input = (
+        <div className="toolbox-control">
+          <button key="btn" className="back" onClick={this.back}>Back</button>
+          <ToolBox key="input" />
+        </div>
+      );
     } else {
-      input = [
-        <button key="btn" style={{ zIndex: 2 }} onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>,
-        <SvgRenderer key="input" />
-      ];
+      input = (
+        <div className="svg-control">
+          <button key="btn" style={{ zIndex: 2 }} onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>
+          <SvgRenderer key="input" />
+        </div>
+      );
     }
 
 
@@ -66,9 +70,7 @@ class Editor extends React.Component {
         <RenderCanvas />
         {(this.props.grabbedNodeType !== null) && <div className="node-grab-overlay" />}
       </div>,
-      <div key="Control" className="control">
-        {input}
-      </div>
+      input
     ];
   }
 }

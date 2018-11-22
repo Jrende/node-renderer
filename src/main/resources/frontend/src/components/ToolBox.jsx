@@ -37,7 +37,11 @@ class ToolBox extends React.Component {
             <p>{type.name}</p>
           </div>
         ));
-    return nodes;
+    return (
+      <div>
+        {nodes}
+      </div>
+    )
   }
 }
 

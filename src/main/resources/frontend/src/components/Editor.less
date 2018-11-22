@@ -8,10 +8,6 @@
   background-color: white;
 }
 
-.node-inputs {
-  background-color: white;
-}
-
 .tool-box {
 }
 
@@ -21,12 +17,15 @@
   overflow-x: auto;
 }
 
-.control {
+.svg-control, .toolbox-control {
   flex: 1 1 auto;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 10em;
+}
+
+.svg-control {
+  overflow: hidden;
 }
 
 .menu-bar {
