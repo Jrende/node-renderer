@@ -29,11 +29,10 @@ class NodeInputs extends React.Component {
               <div className="node-input" key={key}>
                 <div>
                   <span
-                    className="io-grab"
+                    className="io-grab-input"
                     onMouseDown={onConnectorMouseDown}
                     data-input-name={key}
                   />
-                  <span className="io">{name}</span>
                 </div>
                 <NumberInput
                   name={key}
@@ -52,7 +51,6 @@ class NodeInputs extends React.Component {
                     onMouseDown={onConnectorMouseDown}
                     data-input-name={key}
                   />
-                  <span className="io">{name}</span>
                 </div>
                 <ColorInput
                   name={key}

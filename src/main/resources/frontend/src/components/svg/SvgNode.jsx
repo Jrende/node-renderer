@@ -14,8 +14,6 @@ export default function SvgNode(props) {
     onFocus,
     selected,
     removeNode,
-    zoom,
-    pan
   } = props;
 
   let outputs = [];
@@ -26,7 +24,7 @@ export default function SvgNode(props) {
         <div key={key}>
           <span className="io">{name}</span>
           <span
-            className="io-grab"
+            className="io-grab-output"
             onMouseDown={onConnectorMouseDown}
             data-output-name={key}
           />
@@ -51,12 +49,14 @@ export default function SvgNode(props) {
         onMouseDown={onElementMouseDown}
         onMouseUp={onMouseUp}
       >
-    {node.type.id !== 0 &&
-      <button
-        className="delete"
-        onClick={() => removeNode(id)}
-      >×</button>}
-        </div>
+        {node.type.id !== 0 &&
+        <button
+          className="delete"
+          onClick={() => removeNode(id)}
+        >
+          ×
+        </button>}
+      </div>
       <div className="inner">
         <h3>{node.type.name}</h3>
         <div className="outputs">
