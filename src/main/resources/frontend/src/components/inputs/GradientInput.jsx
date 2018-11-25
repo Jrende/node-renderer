@@ -14,7 +14,7 @@ class GradientInput extends React.Component {
       selected: -1
     };
 
-    this.setGradientDisplay = this.setGradientDisplay.bind(this);
+    this.setGradientEditor = this.setGradientEditor.bind(this);
     this.onMarkerMouseDown = this.onMarkerMouseDown.bind(this);
     this.onMarkerMouseMove = this.onMarkerMouseMove.bind(this);
     this.onClickDisplay = this.onClickDisplay.bind(this);
@@ -48,12 +48,12 @@ class GradientInput extends React.Component {
       return;
     }
 
-    let selected = this.state.selected;
     let deltaX = this.state.lastPos - event.clientX;
     let rect = this.gradientDisplay.getBoundingClientRect();
     let newGradient = this.props.value.map(stop => {
       if(stop === this.props.value[this.state.dragId]) {
-        let newPosition = stop.position - deltaX / rect.width;
+        let p = stop.position - deltaX / rect.width;
+        let newPosition = Math.min(Math.max(p, 0.0), 1.0);
         return Object.assign({}, stop, {
           position: newPosition
         });
@@ -73,7 +73,7 @@ class GradientInput extends React.Component {
     this.setState({ dragId: -1 });
   }
 
-  setGradientDisplay(elm) {
+  setGradientEditor(elm) {
     this.gradientDisplay = elm;
   }
 
@@ -91,6 +91,7 @@ class GradientInput extends React.Component {
   onClickDisplay(event) {
     let rect = this.gradientDisplay.getBoundingClientRect();
     let pos = (event.pageX - rect.x);
+    let index = -1;
     pos /= rect.width;
     let grad = this.props.value;
     for(let i = 1; i < grad.length; i++) {
@@ -100,11 +101,13 @@ class GradientInput extends React.Component {
           color: this.getColorAtPos(pos)
         };
         grad.splice(i, 0, newStop);
+        index = i;
         break;
       }
     }
 
     this.onChange(grad);
+    this.setState({ selected: index });
   }
 
   getColorAtPos(position) {
@@ -151,17 +154,22 @@ class GradientInput extends React.Component {
     let { selected } = this.state;
     let gradientString = '';
     let markers = [];
+    // let rect = this.gradientDisplay.getBoundingClientRect();
     for(let i = 0; i < value.length; i++) {
       let stop = value[i];
       let color = tinycolor.fromRatio(stop.color);
       let position = stop.position * 100;
 
       gradientString += `, ${color.toHexString()} ${position}%`;
-      let markerStyle = {};
-      markerStyle.left = `calc(${position}% - 1em)`;
+      let markerStyle = {
+        left: `calc(${position}%)`,
+      };
       let className = 'marker';
       if(this.state.selected === i) {
         className += ' selected';
+      }
+      if(this.state.dragId === i) {
+        className += ' grabbing';
       }
       markers.push((
         <div
@@ -176,9 +184,15 @@ class GradientInput extends React.Component {
           onMouseDown={(event) => this.onMarkerMouseDown(event, i)}
           style={markerStyle}
         >
-          <div className="triangle-outline" />
-          <div className="color-display">
-            <div className="inner" style={{ backgroundColor: color.toHexString() }} />
+          <div className="marker-inner">
+            <div className="triangle" />
+            <div className="color-display">
+              <div
+                style={{
+                  backgroundColor: color.toHexString()
+                }}
+              />
+            </div>
           </div>
         </div>
       ));
@@ -187,8 +201,8 @@ class GradientInput extends React.Component {
       backgroundImage: `linear-gradient(to right${gradientString})`
     };
     return (
-      <div className="gradient-editor">
-        <div className="display" style={gradientStyle} ref={this.setGradientDisplay} onClick={this.onClickDisplay} />
+      <div className="gradient-editor" ref={this.setGradientEditor}>
+        <div className="display" style={gradientStyle} onClick={this.onClickDisplay} />
         <div className="markers">
           {markers}
         </div>
