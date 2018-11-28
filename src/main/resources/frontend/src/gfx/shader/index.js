@@ -1,17 +1,10 @@
 import solidFrag from './glsl/solid.frag';
-import solidVert from './glsl/solid.vert';
-import nodeTextureFrag from './glsl/nodeTextureShader.frag';
-import nodeTextureVert from './glsl/nodeTextureShader.vert';
+import blendTextureFrag from './glsl/blendTextureShader.frag';
 import textureFrag from './glsl/textureShader.frag';
-import textureVert from './glsl/textureShader.vert';
 import blendFrag from './glsl/blend.frag';
-import blendVert from './glsl/blend.vert';
 import hueSaturationFrag from './glsl/hueSaturation.frag';
-import hueSaturationVert from './glsl/hueSaturation.vert';
 import brightnessContrastFrag from './glsl/brightnessContrast.frag';
-import brightnessContrastVert from './glsl/brightnessContrast.vert';
 import blurFrag from './glsl/blur.frag';
-import blurVert from './glsl/blur.vert';
 import gradientFrag from './glsl/gradient.frag';
 import gradientVert from './glsl/gradient.vert';
 import gradientTextureFrag from './glsl/gradientTextureShader.frag';
@@ -19,22 +12,22 @@ import gradientTextureVert from './glsl/gradientTextureShader.vert';
 import colorMapFrag from './glsl/colorMap.frag';
 import colorMapVert from './glsl/colorMap.vert';
 import cloudFrag from './glsl/cloud.frag';
-import cloudVert from './glsl/cloud.vert';
+import genUV2D from './glsl/genUV2D.vert';
 import Shader from './Shader';
 
 function buildShader(name) {
   switch(name) {
-    case 'cloud': return new Shader({ frag: cloudFrag, vert: cloudVert });
+    case 'cloud': return new Shader({ frag: cloudFrag, vert: genUV2D });
     case 'gradient': return new Shader({ frag: gradientFrag, vert: gradientVert });
-    case 'texture': return new Shader({ frag: textureFrag, vert: textureVert });
-    case 'nodeTexture': return new Shader({ frag: nodeTextureFrag, vert: nodeTextureVert });
+    case 'texture': return new Shader({ frag: textureFrag, vert: genUV2D });
+    case 'blendTexture': return new Shader({ frag: blendTextureFrag, vert: genUV2D });
     case 'gradientTexture': return new Shader({ frag: gradientTextureFrag, vert: gradientTextureVert });
     case 'colorMap': return new Shader({ frag: colorMapFrag, vert: colorMapVert });
-    case 'solid': return new Shader({ frag: solidFrag, vert: solidVert });
-    case 'blur': return new Shader({ frag: blurFrag, vert: blurVert });
-    case 'blend': return new Shader({ frag: blendFrag, vert: blendVert });
-    case 'hueSaturation': return new Shader({ frag: hueSaturationFrag, vert: hueSaturationVert });
-    case 'brightnessContrast': return new Shader({ frag: brightnessContrastFrag, vert: brightnessContrastVert });
+    case 'solid': return new Shader({ frag: solidFrag, vert: genUV2D });
+    case 'blur': return new Shader({ frag: blurFrag, vert: genUV2D });
+    case 'blend': return new Shader({ frag: blendFrag, vert: genUV2D });
+    case 'hueSaturation': return new Shader({ frag: hueSaturationFrag, vert: genUV2D });
+    case 'brightnessContrast': return new Shader({ frag: brightnessContrastFrag, vert: genUV2D });
     default: return undefined;
   }
 }

@@ -1,7 +1,7 @@
 precision highp float;
-uniform float hue;
-uniform float saturation;
-uniform float lightness;
+uniform sampler2D hue;
+uniform sampler2D saturation;
+uniform sampler2D lightness;
 uniform sampler2D inputTexture;
 varying vec2 uv;
 
@@ -21,12 +21,20 @@ vec3 hsv2rgb(vec3 c) {
   return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+float getAverage(vec3 color) {
+  float avg = color.r + color.g + color.b;
+  return avg / 3.0;
+}
+
 void main(void) {
   vec3 color = texture2D(inputTexture, uv).rgb;
   vec3 hsv = rgb2hsv(color);
-  hsv.x = hsv.x + hue;
-  hsv.y = hsv.y + saturation;
-  hsv.z = hsv.z + lightness;
+  float hueVal = getAverage(texture2D(hue, uv).rgb);
+  float saturationVal = getAverage(texture2D(saturation, uv).rgb);
+  float lightnessVal = getAverage(texture2D(lightness, uv).rgb);
+  hsv.x = hsv.x + hueVal;
+  hsv.y = hsv.y + saturationVal;
+  hsv.z = hsv.z + lightnessVal;
   vec3 rgb = hsv2rgb(hsv);
   gl_FragColor = vec4(rgb, 1.0);
 }

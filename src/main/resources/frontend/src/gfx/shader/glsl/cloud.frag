@@ -1,8 +1,10 @@
 precision mediump float;
+varying vec2 uv;
+
 uniform vec2 res;
 uniform float seed;
 uniform float size;
-uniform float density;
+uniform sampler2D density;
 uniform float left;
 uniform float aspectRatio;
 
@@ -24,7 +26,7 @@ vec2 fade(vec2 t) {
 
 vec4 permute2(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 
-float snoise(vec3 v){ 
+float snoise(vec3 v, float densityVal){ 
   const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
   const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
 
@@ -90,7 +92,7 @@ float snoise(vec3 v){
   vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
   m = m * m;
   return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
-                                dot(p2,x2), dot(p3,x3) ) ) - 0.5 + density * 2.0;
+                                dot(p2,x2), dot(p3,x3) ) ) - 0.5 + densityVal * 2.0;
 }
 
 // Classic Perlin noise
@@ -146,10 +148,17 @@ float fbm(vec2 P, int octaves, float lacunarity, float gain) {
 
 }
 
+float rgbToGrayscale(vec3 color) {
+  return color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722;
+}
+
+
 void main() {
   vec2 q = gl_FragCoord.xy / res.xy;
   vec2 a = vec2(q*size);
   a.x *= aspectRatio;
-  float noiseColor = snoise(vec3(a, left));
+
+  float densityVal = rgbToGrayscale(texture2D(density, uv).rgb);
+  float noiseColor = snoise(vec3(a, left), densityVal);
   gl_FragColor = vec4(vec3(noiseColor), 1.0);
 }

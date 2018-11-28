@@ -8,11 +8,6 @@ float rgbToGrayscale(vec3 color) {
   return color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722;
 }
 
-float getAverage(vec3 color) {
-  float avg = color.r + color.g + color.b;
-  return avg / 3.0;
-}
-
 void main(void) {
   vec3 inputColor = texture2D(inputTexture, uv).rgb;
   float avg = rgbToGrayscale(inputColor);
