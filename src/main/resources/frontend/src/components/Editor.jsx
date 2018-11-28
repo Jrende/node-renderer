@@ -47,14 +47,14 @@ class Editor extends React.Component {
     let input;
     if(this.props.showToolBox && this.props.grabbedNodeType == null) {
       input = (
-        <div className="toolbox-control">
+        <div key="toolbox-control" className="toolbox-control">
           <button key="btn" className="back" onClick={this.back}>Back</button>
           <ToolBox key="input" />
         </div>
       );
     } else {
       input = (
-        <div className="svg-control">
+        <div key="svg-control" className="svg-control">
           <button key="btn" style={{ zIndex: 2 }} onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>
           <SvgRenderer key="input" />
         </div>
