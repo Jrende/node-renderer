@@ -202,11 +202,11 @@ export default {
       gradient: {
         name: 'Gradient',
         type: 'gradient'
+      },
+      inputTexture: {
+        type: 'color',
+        name: 'Input'
       }
-    },
-    inputTexture: {
-      type: 'color',
-      name: 'Input'
     },
     output: {
       out: {
