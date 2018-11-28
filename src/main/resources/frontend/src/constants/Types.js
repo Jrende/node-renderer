@@ -102,30 +102,30 @@ export default {
     id: 4,
     name: 'Hue/Saturation',
     values: {
+      inputTexture: {
+        type: 'color',
+        name: 'Input'
+      },
       hue: {
         name: 'Hue',
         type: 'number',
         default: 0,
         max: 1,
-        min: -1
+        min: 0
       },
       saturation: {
         name: 'Saturation',
         type: 'number',
         default: 0,
         max: 1,
-        min: -1
+        min: 0
       },
       lightness: {
         name: 'Lightness',
         type: 'number',
         default: 0,
         max: 1,
-        min: -1
-      },
-      inputTexture: {
-        type: 'color',
-        name: 'Input'
+        min: 0
       }
     },
     output: {
@@ -199,13 +199,13 @@ export default {
     id: 7,
     name: 'Color Map',
     values: {
-      gradient: {
-        name: 'Gradient',
-        type: 'gradient'
-      },
       inputTexture: {
         type: 'color',
         name: 'Input'
+      },
+      gradient: {
+        name: 'Gradient',
+        type: 'gradient'
       }
     },
     output: {
