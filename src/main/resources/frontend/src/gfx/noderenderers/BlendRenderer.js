@@ -6,14 +6,11 @@ export default class BlendRenderer extends Renderer {
     super(gl);
     this.gl = gl;
     this.shader = shaders.getShader('blend');
-    this.textureShader = shaders.getShader('texture');
-    this.leftTexture = new Texture(gl, [0, 0, 0, 1]);
-    this.rightTexture = new Texture(gl, [0, 0, 0, 1]);
-    this.factorTexture = new Texture(gl, [0, 0, 0, 1]);
+    this.whiteColor = new Texture(gl, [1, 1, 1, 1]);
+    this.blendTextureShader = shaders.getShader('blendTexture');
   }
 
   render(values, framebuffers) {
-    this.preRender();
     let left = this.getValue('left', values, framebuffers, this.leftTexture);
     let right = this.getValue('right', values, framebuffers, this.rightTexture);
     let factor = this.getValue('factor', values, framebuffers, this.factorTexture);
@@ -25,21 +22,20 @@ export default class BlendRenderer extends Renderer {
         this.renderBlend(
           this.gl.DST_COLOR,
           this.gl.ONE_MINUS_SRC_ALPHA,
-          left, right, values.factor
+          left, right, factor
         );
         break;
       case 'Screen':
         this.renderBlend(
           this.gl.SRC_ALPHA,
           this.gl.ONE_MINUS_SRC_COLOR,
-          left, right, values.factor
+          left, right, factor
         );
         break;
       default:
         console.error('SHOULD NOT COME HERE');
         break;
     }
-    this.postRender();
     return {
       out: this.output.texture
     };
@@ -50,12 +46,9 @@ export default class BlendRenderer extends Renderer {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
       this.shader.bind(this.gl);
       this.quad.bind(this.gl);
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, left);
-      this.gl.activeTexture(this.gl.TEXTURE1);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, right);
-      this.gl.activeTexture(this.gl.TEXTURE2);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, factor);
+      this.bindTexture(left, 0);
+      this.bindTexture(right, 1);
+      this.bindTexture(factor, 2);
       this.shader.setUniforms(this.gl, {
         left: 0,
         right: 1,
@@ -69,25 +62,25 @@ export default class BlendRenderer extends Renderer {
 
   renderBlend(srcFactor, dstFactor, left, right, opacity) {
     this.output.renderTo(this.gl, () => {
-      this.textureShader.bind(this.gl);
+      this.blendTextureShader.bind(this.gl);
       this.quad.bind(this.gl);
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, left);
-      this.textureShader.setUniforms(this.gl, {
+      this.bindTexture(left, 0);
+      this.whiteColor.bind(this.gl, 1);
+      this.blendTextureShader.setUniforms(this.gl, {
         sampler: 0,
-        opacity: 1.0
+        opacity: 1
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
       this.gl.blendFunc(srcFactor, dstFactor);
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, right);
-      this.textureShader.setUniforms(this.gl, {
+      this.bindTexture(right, 0);
+      this.bindTexture(opacity, 1);
+      this.blendTextureShader.setUniforms(this.gl, {
         sampler: 0,
-        opacity
+        opacity: 1
       });
       this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
       this.quad.unbind(this.gl);
-      this.textureShader.unbind(this.gl);
+      this.blendTextureShader.unbind(this.gl);
     });
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
   }

@@ -1,5 +1,6 @@
 import Framebuffer from '../Framebuffer';
 import VertexArray from '../VertexArray';
+import Texture from '../Texture';
 
 export default class Renderer {
   constructor(gl) {
@@ -19,24 +20,7 @@ export default class Renderer {
     this.placeholder.renderTo(gl, () => {
       gl.clear(gl.COLOR_BUFFER_BIT);
     });
-  }
-
-  setFramebuffers(framebuffers) {
-    let input = framebuffers || {};
-    let samplers = Object.keys(this.shader.uniforms)
-      .filter(key => this.shader.uniforms[key].type === 'sampler2D');
-    for(let i = 0; i < samplers.length; i++) {
-      let samplerName = samplers[i];
-      let texture = input[samplerName];
-      if(texture === undefined) {
-        texture = this.placeholder.texture;
-      }
-      this.gl.activeTexture(this.gl.TEXTURE0 + i);
-      this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-      this.shader.setUniforms(this.gl, {
-        [samplerName]: i,
-      });
-    }
+    this.valueTextures = {};
   }
 
   setSize(size) {
@@ -48,43 +32,25 @@ export default class Renderer {
     }
   }
 
-  getValue(name, values, framebuffers, texture) {
+  bindTexture(texture, unit) {
+    this.gl.activeTexture(this.gl.TEXTURE0 + unit);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+  }
+
+  getValue(name, values, framebuffers) {
     if(framebuffers[name] !== undefined) {
       return framebuffers[name];
     }
     let v = this.fromColor(values[name]);
+
+    let texture = this.valueTextures[name];
+    if(texture === undefined) {
+      texture = new Texture(this.gl, [0, 0, 0, 1]);
+      this.valueTextures[name] = texture;
+    }
+
     texture.setColor(this.gl, v);
     return texture.texture;
-  }
-
-  preRender() {
-    this.boundTexture = -1;
-  }
-
-  postRender() {
-  }
-
-  render(values, framebuffers) {
-    this.output.renderTo(this.gl, () => {
-      this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-
-      this.shader.bind(this.gl);
-      this.quad.bind(this.gl);
-
-      this.shader.setUniforms(this.gl, {
-        res: [this.size.width, this.size.height],
-        aspectRatio: this.size.width / this.size.height
-      });
-      this.shader.setUniforms(this.gl, values);
-      this.setFramebuffers(framebuffers);
-      this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
-
-      this.quad.unbind(this.gl);
-      this.shader.unbind(this.gl);
-    });
-    return {
-      out: this.output.texture
-    };
   }
 
   fromColor(color) {
