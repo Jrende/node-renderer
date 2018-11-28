@@ -206,7 +206,7 @@ class SvgRenderer extends React.Component {
 
     for(let i = 0; i < elms.length; i++) {
       let e = elms[i];
-      if(e.classList.contains('io-grab')) {
+      if(e.classList.contains('io-grab-input') || e.classList.contains('io-grab-output')) {
         this.onConnectorMouseUp(e);
         break;
       }
@@ -320,7 +320,8 @@ class SvgRenderer extends React.Component {
       nodes,
       selectedNode,
       pan,
-      zoom
+      zoom,
+      connections
     } = this.props;
     let {
       grabTo,
@@ -345,9 +346,8 @@ class SvgRenderer extends React.Component {
         let x = node.pos[0];
         let y = node.pos[1];
         if(this.htmlNodeCanvas !== undefined) {
-          let rect = this.htmlNodeCanvas.getBoundingClientRect();
-          x = node.pos[0] + rect.width / 2;
-          y = node.pos[1] + rect.height / 2;
+          x = node.pos[0] + width / 2;
+          y = node.pos[1] + height / 2;
         }
         x += pan[0];
         y += pan[1];
@@ -356,14 +356,12 @@ class SvgRenderer extends React.Component {
           id={id}
           node={node}
           pos={[x, y]}
-          zoom={zoom}
-          pan={pan}
+          connections={connections}
           selected={selectedNode === id}
           onConnectorMouseUp={this.onConnectorMouseUp}
           onConnectorMouseDown={this.onConnectorMouseDown}
           onElementMouseDown={event => this.onElementMouseDown(event, id)}
           removeNode={this.props.removeNode}
-          htmlNodeCanvas={this.htmlNodeCanvas}
         />);
       });
     return [

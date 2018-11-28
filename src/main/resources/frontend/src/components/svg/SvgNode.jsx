@@ -14,6 +14,7 @@ export default function SvgNode(props) {
     onFocus,
     selected,
     removeNode,
+    connections
   } = props;
 
   let outputs = [];
@@ -63,7 +64,12 @@ export default function SvgNode(props) {
           {outputs}
         </div>
         <hr />
-        <NodeInputs onConnectorMouseDown={onConnectorMouseDown} node={node} id={id} />
+        <NodeInputs
+          connections={connections}
+          onConnectorMouseDown={onConnectorMouseDown}
+          node={node}
+          id={id}
+        />
       </div>
     </div>
   );
@@ -78,5 +84,6 @@ SvgNode.propTypes = {
   onElementMouseDown: PropTypes.func.isRequired,
   onConnectorMouseDown: PropTypes.func.isRequired,
   onMouseUp: PropTypes.func,
-  onFocus: PropTypes.func
+  onFocus: PropTypes.func,
+  connections: PropTypes.array.isRequired,
 };

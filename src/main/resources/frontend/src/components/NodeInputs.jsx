@@ -17,11 +17,19 @@ class NodeInputs extends React.Component {
   }
 
   render() {
-    let { node, onConnectorMouseDown } = this.props;
+    let { node, onConnectorMouseDown, connections } = this.props;
 
     let inputs = [];
     if(node !== undefined && node.type.values !== undefined) {
       inputs = Object.keys(node.type.values).map(key => {
+        let hasConnection = false;
+        for(let i = 0; i < connections.length; i++) {
+          let c = connections[i];
+          if(node.id === c.to.id && key === c.to.name) {
+            hasConnection = true;
+            break;
+          }
+        }
         let nodeValue = node.type.values[key];
         switch(nodeValue.type) {
           case 'number':
@@ -35,6 +43,7 @@ class NodeInputs extends React.Component {
                   />
                 </div>
                 <NumberInput
+                  hasConnection={hasConnection}
                   name={key}
                   type={nodeValue}
                   value={parseFloat(node.values[key])}
@@ -47,12 +56,13 @@ class NodeInputs extends React.Component {
               <div className="node-input" key={key}>
                 <div>
                   <span
-                    className="io-grab"
+                    className="io-grab-input"
                     onMouseDown={onConnectorMouseDown}
                     data-input-name={key}
                   />
                 </div>
                 <ColorInput
+                  hasConnection={hasConnection}
                   name={key}
                   type={nodeValue}
                   value={node.values[key]}
@@ -111,7 +121,8 @@ NodeInputs.propTypes = {
   node: PropTypes.object.isRequired,
   id: PropTypes.number.isRequired,
   changeValue: PropTypes.func.isRequired,
-  onConnectorMouseDown: PropTypes.func.isRequired
+  onConnectorMouseDown: PropTypes.func.isRequired,
+  connections: PropTypes.array.isRequired
 };
 
 

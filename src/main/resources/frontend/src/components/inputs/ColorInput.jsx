@@ -21,25 +21,35 @@ class ColorInput extends React.Component {
   }
 
   render() {
-    let { value, onChange, name } = this.props;
-    let element;
+    let {
+      value,
+      onChange,
+      name,
+      hasConnection
+    } = this.props;
     let color = tinycolor.fromRatio(value);
+
+    if(hasConnection) {
+      return (
+        <span>{name}</span>
+      );
+    }
+
     if(this.state.selected) {
-      element = (
+      return (
         <div className="color-input">
           <ColorSelector value={value} onChange={onChange} />
           <button onClick={this.onClick}>OK</button>
         </div>
       );
-    } else {
-      element = (
-        <div className="color-input">
-          <div className="display" onClick={this.onClick} style={{ backgroundColor: color.toHexString() }} />
-          <span>{name}</span>
-        </div>
-      );
     }
-    return element;
+
+    return (
+      <div className="color-input">
+        <div className="display" onClick={this.onClick} style={{ backgroundColor: color.toHexString() }} />
+        <span>{name}</span>
+      </div>
+    );
   }
 }
 
