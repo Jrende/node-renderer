@@ -35,7 +35,7 @@ class MenuItems extends React.Component {
     let src = { nodes: this.props.nodes, connections: this.props.connections };
     this.props.saveImage(id, src, img, (newId) => {
       // Possibly the wrong place to mess around with history
-      history.replaceState({}, '?', `/${newId}`);
+      history.replaceState({}, '?', `./${newId}`);
     });
   }
 
