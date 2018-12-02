@@ -177,7 +177,7 @@ class SvgRenderer extends React.Component {
         }
         parent = parent.parentElement;
       }
-      if(nodeId !== -1 && nodeId !== this.state.grabbedNode) {
+      if(nodeId !== -1 && nodeId !== this.state.grabbedNode && this.state.grabbedNode !== -1) {
         let from = {
           id: this.state.grabbedNode,
           name: this.state.connectorName
@@ -373,7 +373,7 @@ class SvgRenderer extends React.Component {
         onWheel={this.onWheel}
         ref={this.setHtmlNodeCanvas}
         key="html-node-canvas"
-        className="html-node-canvas"
+        className={`html-node-canvas ${(this.state.grabMode !== undefined ? 'grabbing' : 'grab')}`}
       >
         <div
           style={{
