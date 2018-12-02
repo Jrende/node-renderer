@@ -44,7 +44,6 @@ class NodeInputs extends React.Component {
                 </div>
                 <NumberInput
                   hasConnection={hasConnection}
-                  name={key}
                   type={nodeValue}
                   value={parseFloat(node.values[key])}
                   onChange={(value) => this.onValueChange(key, value)}

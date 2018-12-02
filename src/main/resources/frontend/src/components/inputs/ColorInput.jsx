@@ -23,15 +23,18 @@ class ColorInput extends React.Component {
   render() {
     let {
       value,
+      type,
       onChange,
-      name,
       hasConnection
     } = this.props;
     let color = tinycolor.fromRatio(value);
+    let name = type.name;
 
     if(hasConnection) {
       return (
-        <span>{name}</span>
+        <div className="color-input has-connection">
+          <span>{name}</span>
+        </div>
       );
     }
 
@@ -55,7 +58,7 @@ class ColorInput extends React.Component {
 
 ColorInput.propTypes = {
   value: PropTypes.object,
-  name: PropTypes.string,
+  type: PropTypes.object,
   onChange: PropTypes.func
 };
 
