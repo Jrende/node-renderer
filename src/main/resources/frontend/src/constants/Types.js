@@ -82,22 +82,6 @@ export default {
       },
     }
   },
-  solidColor: {
-    id: 3,
-    name: 'Solid Color',
-    values: {
-      color: {
-        type: 'color',
-        name: 'Color'
-      }
-    },
-    output: {
-      out: {
-        type: 'color',
-        name: 'Output'
-      },
-    }
-  },
   hueSaturation: {
     id: 4,
     name: 'Hue/Saturation',
@@ -126,36 +110,6 @@ export default {
         default: 0,
         max: 1,
         min: 0
-      }
-    },
-    output: {
-      out: {
-        type: 'color',
-        name: 'Output'
-      },
-    }
-  },
-  brightnessContrast: {
-    id: 5,
-    name: 'Brightness/Contrast',
-    values: {
-      brightness: {
-        name: 'Brightness',
-        type: 'number',
-        default: 0,
-        max: 1,
-        min: -1
-      },
-      contrast: {
-        name: 'Contrast',
-        type: 'number',
-        default: 0,
-        max: 1,
-        min: -1
-      },
-      inputTexture: {
-        type: 'color',
-        name: 'Input'
       }
     },
     output: {
