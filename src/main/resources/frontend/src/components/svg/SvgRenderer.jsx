@@ -72,7 +72,9 @@ class SvgRenderer extends React.Component {
     if(event.key === 'Delete') {
       if(document.activeElement !== undefined) {
         let activeNodeId = document.activeElement.getAttribute('data-node-id') | 0;
-        this.props.removeNode(activeNodeId);
+        if(activeNodeId !== 0) {
+          this.props.removeNode(activeNodeId);
+        }
       }
     }
   }
