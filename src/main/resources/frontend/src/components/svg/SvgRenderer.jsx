@@ -120,6 +120,7 @@ class SvgRenderer extends React.Component {
   }
 
   onElementMouseDown(event, id) {
+    event.preventDefault();
     this.setState({
       lastPos: [event.clientX, event.clientY],
       grabbedNode: id,
@@ -234,6 +235,7 @@ class SvgRenderer extends React.Component {
   onCanvasMouseDown(event) {
     if(event.target === this.htmlNodeCanvas) {
       event.stopPropagation();
+      event.preventDefault();
       this.props.selectNode(-1);
       this.setState({
         lastPos: [event.clientX, event.clientY],
@@ -366,6 +368,7 @@ class SvgRenderer extends React.Component {
           removeNode={this.props.removeNode}
         />);
       });
+
     return [
       <div
         onMouseDown={this.onCanvasMouseDown}
