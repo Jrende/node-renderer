@@ -161,7 +161,7 @@ class GradientInput extends React.Component {
   }
 
   render() {
-    let { value } = this.props;
+    let { value, type } = this.props;
     let { selected } = this.state;
     let gradientString = '';
     let markers = [];
@@ -213,6 +213,7 @@ class GradientInput extends React.Component {
     };
     return (
       <div className="gradient-editor" ref={this.setGradientEditor}>
+        <span>{type.name}</span>
         <div className="display" style={gradientStyle} onClick={this.onClickDisplay} />
         <div className="markers">
           {markers}
@@ -233,6 +234,7 @@ class GradientInput extends React.Component {
 }
 
 GradientInput.propTypes = {
+  type: PropTypes.object.isRequired,
   value: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired
 };

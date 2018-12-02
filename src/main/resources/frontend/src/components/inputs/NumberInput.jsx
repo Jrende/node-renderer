@@ -15,10 +15,6 @@ class NumberInput extends React.Component {
 
   render() {
     let { name, type, value } = this.props;
-    let typeName = name;
-    if(type.name !== undefined) {
-      typeName = name;
-    }
     let validValue = value;
     if(Number.isNaN(value)) {
       validValue = 0;
@@ -40,7 +36,7 @@ class NumberInput extends React.Component {
 
     return (
       <fieldset className="number-input">
-        <label htmlFor={name}>{typeName}
+        <label htmlFor={name}>{type.name}
           <input type="number" name={name} value={validValue} onChange={this.onChange} />
           {range}
         </label>
