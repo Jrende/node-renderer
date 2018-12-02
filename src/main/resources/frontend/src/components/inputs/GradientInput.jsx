@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import tinycolor from 'tinycolor2';
 import './GradientInput.less';
-import ColorInput from './ColorInput';
+import ColorSelector from './ColorSelector';
 
 let root = document.querySelector('#root');
 class GradientInput extends React.Component {
@@ -91,21 +91,26 @@ class GradientInput extends React.Component {
   onClickDisplay(event) {
     let rect = this.gradientDisplay.getBoundingClientRect();
     let pos = (event.pageX - rect.x);
-    let index = -1;
     pos /= rect.width;
     let grad = this.props.value;
-    for(let i = 1; i < grad.length; i++) {
-      if(grad[i - 1].position < pos && grad[i].position > pos) {
-        let newStop = {
-          position: pos,
-          color: this.getColorAtPos(pos)
-        };
-        grad.splice(i, 0, newStop);
-        index = i;
-        break;
+    let index = -1;
+    if(pos < grad[0].position) {
+      index = 0;
+    } else if(pos > grad[grad.length - 1].position) {
+      index = grad.length;
+    } else {
+      for(let i = 1; i < grad.length; i++) {
+        if(grad[i - 1].position < pos && grad[i].position > pos) {
+          index = i;
+          break;
+        }
       }
     }
 
+    grad.splice(index, 0, {
+      position: pos,
+      color: this.getColorAtPos(pos)
+    });
     this.onChange(grad);
     this.setState({ selected: index });
   }
@@ -114,6 +119,12 @@ class GradientInput extends React.Component {
     let from;
     let to;
     let grad = this.props.value;
+    if(position < grad[0].position) {
+      return grad[0].color;
+    } else if(position > grad[grad.length - 1].position) {
+      return grad[grad.length - 1].color;
+    }
+
     for(let i = 1; i < grad.length; i++) {
       if(grad[i - 1].position < position && grad[i].position > position) {
         from = grad[i - 1];
@@ -210,7 +221,7 @@ class GradientInput extends React.Component {
           <div>
             {(selected !== 0 && selected !== this.props.value.length - 1) &&
               <button onClick={() => this.onDeleteStopClick(selected)}>Delete stop</button>}
-            <ColorInput
+            <ColorSelector
               value={value[selected].color}
               onChange={(newValue) => this.colorChange(newValue, selected)}
             />
