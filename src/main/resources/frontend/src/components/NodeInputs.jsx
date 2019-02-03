@@ -16,6 +16,10 @@ class NodeInputs extends React.Component {
     this.props.changeValue(this.props.id, { [name]: value });
   }
 
+  isValidForInput(input) {
+    return (input.min === 0.0 && input.max === 1.0);
+  }
+
   render() {
     let { node, onConnectorMouseDown, connections } = this.props;
 
@@ -35,13 +39,15 @@ class NodeInputs extends React.Component {
           case 'number':
             return (
               <div className="node-input" key={key}>
-                <div>
-                  <span
-                    className="io-grab-input"
-                    onMouseDown={onConnectorMouseDown}
-                    data-input-name={key}
-                  />
-                </div>
+                {this.isValidForInput(nodeValue) &&
+                  <div>
+                    <span
+                      className="io-grab-input"
+                      onMouseDown={onConnectorMouseDown}
+                      data-input-name={key}
+                    />
+                  </div>
+                }
                 <NumberInput
                   hasConnection={hasConnection}
                   type={nodeValue}

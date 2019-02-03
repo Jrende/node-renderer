@@ -27,7 +27,11 @@ class Editor extends React.Component {
     root.addEventListener('keydown', this.keyDownEvent);
     let id = +window.location.pathname.substr(window.location.pathname.lastIndexOf('/') + 1);
     if(!Number.isNaN(id) && id !== 0) {
-      this.props.setGraph(window.initialGraph);
+      if(window.initialGraph !== undefined) {
+        this.props.setGraph(window.initialGraph);
+      } else {
+        this.props.fetchGraph(id);
+      }
     } else {
       this.props.loadEmptyGraph();
     }
@@ -77,6 +81,7 @@ class Editor extends React.Component {
 
 
 Editor.propTypes = {
+  fetchGraph: PropTypes.func.isRequired,
   setGraph: PropTypes.func.isRequired,
   loadEmptyGraph: PropTypes.func.isRequired,
   selectedNode: PropTypes.number.isRequired,

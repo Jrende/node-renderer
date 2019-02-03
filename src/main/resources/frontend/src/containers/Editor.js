@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import Editor from '../components/Editor';
 import * as actions from '../actions';
+import * as api from '../actions/api';
 
 const mapStateToProps = state => (
   {
@@ -20,6 +21,9 @@ const mapDispatchToProps = dispatch => (
     },
     selectNode: (nodeId) => {
       dispatch(actions.selectNode(nodeId));
+    },
+    fetchGraph: (graphId) => {
+      dispatch(api.fetchSource(graphId));
     },
     setToolBoxVisibility: (show) => {
       dispatch(actions.showToolBox(show));
