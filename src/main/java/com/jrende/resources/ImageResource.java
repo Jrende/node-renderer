@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.Response.Status;
 
-@Path("api/images")
+@Path("pattern/api/images")
 public class ImageResource {
 
     private ImageDAO imageDAO;
