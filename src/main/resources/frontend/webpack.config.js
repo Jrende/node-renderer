@@ -2,7 +2,6 @@ let path = require('path');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-let WebpackShellPlugin = require('webpack-shell-plugin');
 
 let dist = path.join(__dirname, '../static/editor');
 let entry = path.join(__dirname, 'src/main.jsx');
