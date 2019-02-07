@@ -95,6 +95,7 @@ class SvgRenderer extends React.Component {
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
+    event.target.setPointerCapture(event.pointerId);
     let t = event.target;
 
     let connectorName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
@@ -289,6 +290,7 @@ class SvgRenderer extends React.Component {
     if(event.target === this.htmlNodeCanvas) {
       event.stopPropagation();
       event.preventDefault();
+      event.target.setPointerCapture(event.pointerId);
       this.grabCanvas([event.clientX, event.clientY]);
     }
   }
@@ -429,9 +431,9 @@ class SvgRenderer extends React.Component {
         onTouchStart={this.handleTouchStart}
         onTouchMove={this.handleTouchMove}
         onTouchEnd={this.handleTouchEnd}
-        onMouseDown={this.handleMouseDown}
-        onMouseMove={this.handleMouseMove}
-        onMouseUp={this.handleMouseUp}
+        onPointerDown={this.handleMouseDown}
+        onPointerMove={this.handleMouseMove}
+        onPointerUp={this.handleMouseUp}
         onKeyDown={this.onKeyDown}
         onWheel={this.onWheel}
         ref={this.setHtmlNodeCanvas}
@@ -452,23 +454,21 @@ class SvgRenderer extends React.Component {
         ref={this.setSvg}
         key="svg-canvas"
       >
-        <g>
-          {
-            domConnections.map((connection) => (
-              <ConnectorLine
-                key={connection.key}
-                from={connection.from}
-                to={connection.to}
-              />
-            ))
-          }
-          {(grabMode === 'connector') &&
+        {
+          domConnections.map((connection) => (
             <ConnectorLine
-              from={grabFrom}
-              to={grabTo}
+              key={connection.key}
+              from={connection.from}
+              to={connection.to}
             />
-          }
-        </g>
+          ))
+        }
+        {(grabMode === 'connector') &&
+          <ConnectorLine
+            from={grabFrom}
+            to={grabTo}
+          />
+        }
       </svg>
     ];
   }

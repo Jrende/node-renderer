@@ -43,7 +43,7 @@ class NodeInputs extends React.Component {
                   <div>
                     <span
                       className="io-grab-input"
-                      onMouseDown={onConnectorMouseDown}
+                      onPointerDown={onConnectorMouseDown}
                       data-input-name={key}
                     />
                   </div>
@@ -63,7 +63,7 @@ class NodeInputs extends React.Component {
                 <div>
                   <span
                     className="io-grab-input"
-                    onMouseDown={onConnectorMouseDown}
+                    onPointerDown={onConnectorMouseDown}
                     data-input-name={key}
                   />
                 </div>

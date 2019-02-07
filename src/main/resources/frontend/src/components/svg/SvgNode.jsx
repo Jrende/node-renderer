@@ -26,7 +26,7 @@ export default function SvgNode(props) {
           <span className="io">{name}</span>
           <span
             className="io-grab-output"
-            onMouseDown={onConnectorMouseDown}
+            onPointerDown={onConnectorMouseDown}
             data-output-name={key}
           />
         </div>
@@ -47,8 +47,8 @@ export default function SvgNode(props) {
     >
       <div
         className="drag-bar"
-        onMouseDown={onElementMouseDown}
-        onMouseUp={onMouseUp}
+        onPointerDown={onElementMouseDown}
+        onPointerUp={onMouseUp}
       >
         {node.type.id !== 0 &&
         <button
