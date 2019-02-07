@@ -12,6 +12,28 @@ function getCenter(r) {
   ];
 }
 
+function getNodeFromTarget(target, htmlNodeCanvas) {
+  let parent = target;
+  while(parent !== htmlNodeCanvas) {
+    if(parent.hasAttribute('data-node-id')) {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+  return undefined;
+}
+
+function findConnectorNode(nodeList) {
+  for(let i = 0; i < nodeList.length; i++) {
+    let e = nodeList[i];
+    if(e.classList.contains('io-grab-input') || e.classList.contains('io-grab-output')) {
+      return e;
+    }
+  }
+  return null;
+}
+
+
 /* globals SVGSVGElement, document */
 class SvgRenderer extends React.Component {
   constructor(props) {
@@ -19,10 +41,10 @@ class SvgRenderer extends React.Component {
     this.state = {
       grabFrom: [0, 0],
       grabConnectorType: undefined,
+      grabMode: undefined,
       grabTo: [0, 0],
       lastPos: [0, 0],
       grabMoved: false,
-      grabMode: undefined,
       grabbedNode: -1,
       domConnections: [],
       shouldGenerateConnectionsAfterMount: false
@@ -32,29 +54,20 @@ class SvgRenderer extends React.Component {
       'handleDrop',
       'setSvg',
       'onElementMouseDown',
-      'onMouseMove',
-      'onMouseUp',
+      'handleTouchMove',
+      'handleTouchEnd',
+      'handleTouchStart',
+      'handleMouseMove',
+      'handleMouseUp',
+      'handleMouseDown',
       'onConnectorMouseUp',
       'onConnectorMouseDown',
       'onKeyDown',
-      'onCanvasMouseDown',
       'onWheel',
       'setHtmlNodeCanvas'
     ].forEach(name => { this[name] = this[name].bind(this); });
   }
-
-  getNodeFromTarget(target) {
-    let parent = target;
-    while(parent !== this.htmlNodeCanvas) {
-      if(parent.hasAttribute('data-node-id')) {
-        return parent;
-      }
-      parent = parent.parentElement;
-    }
-    return undefined;
-  }
-
-
+  //
   // TODO: Fix zoom
   onWheel(event) {
     let deltaY = event.deltaY;
@@ -85,7 +98,7 @@ class SvgRenderer extends React.Component {
     let t = event.target;
 
     let connectorName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
-    let svgNode = this.getNodeFromTarget(event.target);
+    let svgNode = getNodeFromTarget(event.target, this.htmlNodeCanvas);
     let grabbedNode = Number(svgNode.getAttribute('data-node-id'));
     let connectorCenter = getCenter(t.getBoundingClientRect());
     let grabFrom = transformPointToSvgSpace(connectorCenter, this.svg, this.point);
@@ -128,7 +141,7 @@ class SvgRenderer extends React.Component {
     });
   }
 
-  onMouseMove(event) {
+  handleTouchMove(event) {
     if(this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) {
       if(event.buttons === 0) {
         this.setState({
@@ -138,16 +151,32 @@ class SvgRenderer extends React.Component {
         return;
       }
       event.preventDefault();
-      let delta = [
-        (event.clientX - this.state.lastPos[0]),
-        (event.clientY - this.state.lastPos[1])
-      ];
-      this.setState({
-        grabMoved: true,
-        lastPos: [event.clientX, event.clientY]
-      });
+      let touch = event.touches[0];
+      this.onMove([touch.clientX, touch.clientY]);
+    }
+  }
 
-      if(this.state.grabMode === 'element') {
+  handleMouseMove(event) {
+    if(this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) {
+      if(event.buttons === 0) {
+        this.setState({
+          grabbedNode: -1,
+          grabMode: undefined
+        });
+        return;
+      }
+      event.preventDefault();
+      this.onMove([event.clientX, event.clientY]);
+    }
+  }
+
+  onMove(pos) {
+    let delta = [
+      (pos[0] - this.state.lastPos[0]),
+      (pos[1] - this.state.lastPos[1])
+    ];
+    switch(this.state.grabMode) {
+      case 'element': {
         let nodeId = this.state.grabbedNode;
         let node = this.props.nodes[nodeId];
         let newPos = [
@@ -155,17 +184,28 @@ class SvgRenderer extends React.Component {
           node.pos[1] + delta[1] / this.props.zoom
         ];
         this.props.setNodeLocation(nodeId, newPos);
-      } else if (this.state.grabMode === 'connector') {
-        let grabTo = addInSvgSpace(this.state.grabTo, delta, this.svg, this.point);
-        this.setState({ grabTo });
-      } else if (this.state.grabMode === 'canvas') {
+      }
+        break;
+      case 'canvas': {
         let pan = [
           this.props.pan[0] + delta[0] / this.props.zoom,
           this.props.pan[1] + delta[1] / this.props.zoom
         ];
         this.props.setNodeEditorView(pan, this.props.zoom);
       }
+        break;
+      default:
+        break;
     }
+    let newState = {
+      grabMoved: true,
+      lastPos: pos
+    };
+    if(this.state.grabMode === 'connector') {
+      let grabTo = addInSvgSpace(this.state.grabTo, delta, this.svg, this.point);
+      newState.grabTo = grabTo;
+    }
+    this.setState(newState);
   }
 
   onConnectorMouseUp(target) {
@@ -204,25 +244,29 @@ class SvgRenderer extends React.Component {
     }
   }
 
-  onMouseUp(event) {
-    let elms = document.elementsFromPoint(event.clientX, event.clientY);
+  handleMouseUp(event) {
+    this.onRelease([event.clientX, event.clientY], event);
+  }
 
-    for(let i = 0; i < elms.length; i++) {
-      let e = elms[i];
-      if(e.classList.contains('io-grab-input') || e.classList.contains('io-grab-output')) {
-        this.onConnectorMouseUp(e);
-        break;
-      }
+  handleTouchEnd(event) {
+    let touch = event.changedTouches[0];
+    this.onRelease([touch.clientX, touch.clientY], event);
+  }
+
+  onRelease(pos, event) {
+    let connectorNode = findConnectorNode(document.elementsFromPoint(pos[0], pos[1]));
+    if(connectorNode !== null) {
+      this.onConnectorMouseUp(connectorNode);
     }
-
     if(this.props.grabbedNodeType !== null) {
-      this.handleDrop(event);
+      event.preventDefault();
+      let canvasRect = event.target.getBoundingClientRect();
+      this.handleDrop(pos, canvasRect);
     }
-    /*
-    if(!this.state.grabMoved && this.state.grabbedNode !== -1) {
-      this.props.selectNode(this.state.grabbedNode);
-    }
-    */
+    this.cancelGrab();
+  }
+
+  cancelGrab() {
     this.setState({
       grabbedNode: -1
     });
@@ -232,16 +276,29 @@ class SvgRenderer extends React.Component {
     });
   }
 
-  onCanvasMouseDown(event) {
+  handleTouchStart(event) {
     if(event.target === this.htmlNodeCanvas) {
       event.stopPropagation();
       event.preventDefault();
-      this.props.selectNode(-1);
-      this.setState({
-        lastPos: [event.clientX, event.clientY],
-        grabMode: 'canvas'
-      });
+      let touch = event.touches[0];
+      this.grabCanvas([touch.clientX, touch.clientY]);
     }
+  }
+
+  handleMouseDown(event) {
+    if(event.target === this.htmlNodeCanvas) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.grabCanvas([event.clientX, event.clientY]);
+    }
+  }
+
+  grabCanvas(pos) {
+    this.props.selectNode(-1);
+    this.setState({
+      lastPos: pos,
+      grabMode: 'canvas'
+    });
   }
 
   setSvg(svg) {
@@ -252,13 +309,11 @@ class SvgRenderer extends React.Component {
     }
   }
 
-  handleDrop(event) {
-    event.preventDefault();
+  handleDrop(pos, canvasRect) {
     let type = this.props.grabbedNodeType;
-    let canvasRect = event.target.getBoundingClientRect();
     let zoom = this.props.zoom;
-    let x = (event.clientX - canvasRect.left - (canvasRect.width / 2) - this.props.pan[0]) / zoom;
-    let y = (event.clientY - canvasRect.top - (canvasRect.height / 2) - this.props.pan[1]) / zoom;
+    let x = (pos[0] - canvasRect.left - (canvasRect.width / 2) - this.props.pan[0]) / zoom;
+    let y = (pos[1] - canvasRect.top - (canvasRect.height / 2) - this.props.pan[1]) / zoom;
     let newNode = {
       type: type.id,
       pos: [x, y]
@@ -371,9 +426,12 @@ class SvgRenderer extends React.Component {
 
     return [
       <div
-        onMouseDown={this.onCanvasMouseDown}
-        onMouseMove={this.onMouseMove}
-        onMouseUp={this.onMouseUp}
+        onTouchStart={this.handleTouchStart}
+        onTouchMove={this.handleTouchMove}
+        onTouchEnd={this.handleTouchEnd}
+        onMouseDown={this.handleMouseDown}
+        onMouseMove={this.handleMouseMove}
+        onMouseUp={this.handleMouseUp}
         onKeyDown={this.onKeyDown}
         onWheel={this.onWheel}
         ref={this.setHtmlNodeCanvas}

@@ -35,9 +35,6 @@ const Component = connect(
       setNodeEditorView: (pan, zoom) => {
         dispatch(actions.setNodeEditorView(pan, zoom));
       },
-      grabNode: (grabNodeId) => {
-        dispatch(actions.grabNode(grabNodeId));
-      },
       grabNodePlaceholder: (nodeType) => {
         dispatch(actions.grabNodePlaceholder(nodeType));
       },
