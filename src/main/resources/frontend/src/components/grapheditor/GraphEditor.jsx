@@ -96,7 +96,7 @@ class GraphEditor extends React.Component {
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
-    if(event.pointerId) {
+    if(event.pointerId !== undefined) {
       event.target.setPointerCapture(event.pointerId);
     }
     let t = event.target;
@@ -138,8 +138,9 @@ class GraphEditor extends React.Component {
     });
   }
 
-  onElementMouseDown(event, id) {
+  onElementMouseDown(event) {
     event.preventDefault();
+    let id = event.target.parentElement.getAttribute('data-node-id');
     this.setState({
       lastPos: [event.clientX, event.clientY],
       grabbedNode: id,
@@ -295,7 +296,7 @@ class GraphEditor extends React.Component {
     if(event.target === this.htmlNodeCanvas) {
       event.stopPropagation();
       event.preventDefault();
-      if(event.pointerId) {
+      if(event.pointerId !== undefined) {
         event.target.setPointerCapture(event.pointerId);
       }
       this.grabCanvas([event.clientX, event.clientY]);
@@ -410,8 +411,8 @@ class GraphEditor extends React.Component {
         let x = node.pos[0];
         let y = node.pos[1];
         if(this.htmlNodeCanvas !== undefined) {
-          x = node.pos[0] + width / 2;
-          y = node.pos[1] + height / 2;
+          x += width / 2;
+          y += height / 2;
         }
         x += pan[0];
         y += pan[1];
@@ -424,7 +425,7 @@ class GraphEditor extends React.Component {
           selected={selectedNode === id}
           onConnectorMouseUp={this.onConnectorMouseUp}
           onConnectorMouseDown={this.onConnectorMouseDown}
-          onElementMouseDown={event => this.onElementMouseDown(event, id)}
+          onElementMouseDown={this.onElementMouseDown}
           removeNode={this.props.removeNode}
         />);
       });
