@@ -1,10 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import * as actions from '../../actions';
 import './GraphEditor.less';
 import SvgNode from './SvgNode';
-import ConnectorLine from './ConnectorLine';
+import SvgLineDisplay from './SvgLineDisplay';
 import { transformPointToSvgSpace, addInSvgSpace } from '../../utils/SvgUtils';
 
 function getCenter(r) {
@@ -347,31 +346,27 @@ class GraphEditor extends React.Component {
       || this.state.shouldGenerateConnectionsAfterMount
     ) {
       this.setState({
-        domConnections: this.generateConnectionLines(),
+        elementRects: this.getElementRects(),
         shouldGenerateConnectionsAfterMount: false
       });
     }
   }
 
-  generateConnectionLines() {
-    if(this.svg === undefined || this.htmlNodeCanvas === undefined) {
+  getElementRects() {
+    if(this.htmlNodeCanvas === undefined) {
       return [];
     }
     let lines = this.props.connections.map((connection) => {
       let fromElm = this.htmlNodeCanvas
         .querySelector(`div[data-node-id="${connection.from.id}"] span[data-output-name="${connection.from.name}"]`);
-      let from = transformPointToSvgSpace(
-        getCenter(fromElm.getBoundingClientRect()),
-        this.svg, this.point);
+      let fromRect = fromElm.getBoundingClientRect();
 
       let toElm = this.htmlNodeCanvas
         .querySelector(`div[data-node-id="${connection.to.id}"] span[data-input-name="${connection.to.name}"]`);
-      let to = transformPointToSvgSpace(
-        getCenter(toElm.getBoundingClientRect()),
-        this.svg, this.point);
+      let toRect = toElm.getBoundingClientRect();
       return {
-        from,
-        to,
+        fromRect,
+        toRect,
         key: `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`
       };
     });
@@ -390,7 +385,7 @@ class GraphEditor extends React.Component {
       grabTo,
       grabFrom,
       grabMode,
-      domConnections
+      elementRects
     } = this.state;
     let width = 0;
     let height = 0;
@@ -451,49 +446,17 @@ class GraphEditor extends React.Component {
           {nodeElements}
         </div>
       </div>,
-      <svg
-        className="node-svg"
-        ref={this.setSvg}
-        key="svg-canvas"
-      >
-        {
-          domConnections.map((connection) => (
-            <ConnectorLine
-              key={connection.key}
-              from={connection.from}
-              to={connection.to}
-            />
-          ))
-        }
-        {(grabMode === 'connector') &&
-          <ConnectorLine
-            from={grabFrom}
-            to={grabTo}
-          />
-        }
-      </svg>
+      <SvgLineDisplay
+        key="SvgLineDisplay"
+        setSvg={this.setSvg}
+        elementRects={elementRects}
+        grabTo={grabTo}
+        grabFrom={grabFrom}
+        grabMode={grabMode}
+      />
     ];
   }
 }
-
-
-GraphEditor.propTypes = {
-  createNewNode: PropTypes.func.isRequired,
-  nodes: PropTypes.any.isRequired,
-  connections: PropTypes.array.isRequired,
-  removeConnection: PropTypes.func.isRequired,
-  removeNode: PropTypes.func.isRequired,
-  setNodeLocation: PropTypes.func.isRequired,
-  connectNodes: PropTypes.func.isRequired,
-  selectNode: PropTypes.func.isRequired,
-  selectedNode: PropTypes.number.isRequired,
-  pan: PropTypes.array.isRequired,
-  setNodeEditorView: PropTypes.func.isRequired,
-  grabbedNodeType: PropTypes.object,
-  grabNodePlaceholder: PropTypes.func.isRequired,
-  showToolBox: PropTypes.func.isRequired
-};
-
 
 export default connect(
   state => (
