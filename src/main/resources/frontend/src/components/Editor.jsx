@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import SvgRenderer from '../containers/SvgRenderer';
+import GraphEditor from '../components/grapheditor/GraphEditor';
 import ToolBox from '../components/ToolBox';
 import MenuItems from '../containers/MenuItems';
 import RenderCanvas from '../containers/RenderCanvas';
@@ -60,7 +60,7 @@ class Editor extends React.Component {
       input = (
         <div key="svg-control" className="svg-control">
           <button key="btn" style={{ zIndex: 2 }} onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>
-          <SvgRenderer key="input" />
+          <GraphEditor key="input" />
         </div>
       );
     }

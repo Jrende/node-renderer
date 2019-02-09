@@ -1,6 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import './SvgRenderer.less';
+import * as actions from '../../actions';
+import './GraphEditor.less';
 import SvgNode from './SvgNode';
 import ConnectorLine from './ConnectorLine';
 import { transformPointToSvgSpace, addInSvgSpace } from '../../utils/SvgUtils';
@@ -35,7 +37,7 @@ function findConnectorNode(nodeList) {
 
 
 /* globals SVGSVGElement, document */
-class SvgRenderer extends React.Component {
+class GraphEditor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -475,7 +477,7 @@ class SvgRenderer extends React.Component {
 }
 
 
-SvgRenderer.propTypes = {
+GraphEditor.propTypes = {
   createNewNode: PropTypes.func.isRequired,
   nodes: PropTypes.any.isRequired,
   connections: PropTypes.array.isRequired,
@@ -492,4 +494,46 @@ SvgRenderer.propTypes = {
   showToolBox: PropTypes.func.isRequired
 };
 
-export default SvgRenderer;
+
+export default connect(
+  state => (
+    {
+      connections: state.graph.connections,
+      nodes: state.graph.nodes,
+      selectedNode: state.editor.selectedNode,
+      grabbedNodeType: state.editor.grabbedNodeType,
+      pan: state.nodeEditor.pan,
+      zoom: state.nodeEditor.zoom
+    }),
+  dispatch => (
+    {
+      createNewNode: node => {
+        dispatch(actions.createNewNode(node));
+      },
+      setNodeLocation: (id, pos) => {
+        dispatch(actions.moveNode(id, pos));
+      },
+      connectNodes: (from, to) => {
+        dispatch(actions.connectNodes(from, to));
+      },
+      removeConnection: (nodeId, connectionName) => {
+        dispatch(actions.removeConnection(nodeId, connectionName));
+      },
+      removeNode: (nodeId) => {
+        dispatch(actions.removeNode(nodeId));
+      },
+      selectNode: (nodeId) => {
+        dispatch(actions.selectNode(nodeId));
+      },
+      setNodeEditorView: (pan, zoom) => {
+        dispatch(actions.setNodeEditorView(pan, zoom));
+      },
+      grabNodePlaceholder: (nodeType) => {
+        dispatch(actions.grabNodePlaceholder(nodeType));
+      },
+      showToolBox: (show) => {
+        dispatch(actions.showToolBox(show));
+      }
+    }
+  )
+)(GraphEditor);
