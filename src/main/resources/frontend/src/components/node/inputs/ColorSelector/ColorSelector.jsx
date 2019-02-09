@@ -8,9 +8,9 @@ import satValVert from './satVal.vert';
 import satValFrag from './satVal.frag';
 import solidFrag from './solid.frag';
 import solidVert from './solid.vert';
-import VertexArray from '../../../gfx/VertexArray';
-import Shader from '../../../gfx/shader/Shader';
-import Ring from '../../../gfx/geometry/Ring';
+import VertexArray from '../../../../gfx/VertexArray';
+import Shader from '../../../../gfx/shader/Shader';
+import Ring from '../../../../gfx/geometry/Ring';
 import './style.less';
 
 function isHex(h) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../actions';
 import './GraphEditor.less';
-import SvgNode from './SvgNode';
+import Node from '../node/Node';
 import SvgLineDisplay from './SvgLineDisplay';
 import { transformPointToSvgSpace, addInSvgSpace } from '../../utils/SvgUtils';
 
@@ -96,14 +96,18 @@ class GraphEditor extends React.Component {
   onConnectorMouseDown(event) {
     event.preventDefault();
     event.stopPropagation();
-    event.target.setPointerCapture(event.pointerId);
+    if(event.pointerId) {
+      event.target.setPointerCapture(event.pointerId);
+    }
     let t = event.target;
 
     let connectorName = event.target.getAttribute('data-output-name') || event.target.getAttribute('data-input-name');
     let svgNode = getNodeFromTarget(event.target, this.htmlNodeCanvas);
     let grabbedNode = Number(svgNode.getAttribute('data-node-id'));
-    let connectorCenter = getCenter(t.getBoundingClientRect());
-    let grabFrom = transformPointToSvgSpace(connectorCenter, this.svg, this.point);
+    let grabFrom = transformPointToSvgSpace(
+      getCenter(t.getBoundingClientRect()),
+      this.svg,
+      this.point);
     let grabTo = grabFrom;
 
     let grabConnectorType = event.target.hasAttribute('data-output-name') ? 'output' : 'input';
@@ -291,7 +295,9 @@ class GraphEditor extends React.Component {
     if(event.target === this.htmlNodeCanvas) {
       event.stopPropagation();
       event.preventDefault();
-      event.target.setPointerCapture(event.pointerId);
+      if(event.pointerId) {
+        event.target.setPointerCapture(event.pointerId);
+      }
       this.grabCanvas([event.clientX, event.clientY]);
     }
   }
@@ -409,7 +415,7 @@ class GraphEditor extends React.Component {
         }
         x += pan[0];
         y += pan[1];
-        return (<SvgNode
+        return (<Node
           key={id}
           id={id}
           node={node}

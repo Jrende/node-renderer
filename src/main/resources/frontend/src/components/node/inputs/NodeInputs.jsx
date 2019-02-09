@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import NumberInput from './inputs/NumberInput';
-import ColorInput from './inputs/ColorInput';
-import EnumInput from './inputs/EnumInput';
-import GradientInput from './inputs/GradientInput';
-import VectorInput from './inputs/VectorInput';
-import * as actions from '../actions';
+import NumberInput from './NumberInput';
+import ColorInput from './ColorInput';
+import EnumInput from './EnumInput';
+import GradientInput from './GradientInput';
+import VectorInput from './VectorInput';
+import * as actions from '../../../actions';
 
 import './NodeInputs.less';
 

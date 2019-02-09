@@ -16,21 +16,21 @@ class SvgLineDisplay extends React.Component {
   }
 
   generateConnectionLines() {
-    if(this.svg === undefined || this.htmlNodeCanvas === undefined) {
+    if(this.svg === undefined || this.props.elementRects === undefined) {
       return [];
     }
     let lines = this.props.elementRects.map((connection) => {
       let from = transformPointToSvgSpace(
-        getCenter(connection.fromRect.getBoundingClientRect()),
+        getCenter(connection.fromRect),
         this.svg, this.point);
 
       let to = transformPointToSvgSpace(
-        getCenter(connection.toRect.getBoundingClientRect()),
+        getCenter(connection.toRect),
         this.svg, this.point);
       return {
         from,
         to,
-        key: `${connection.from.id}.${connection.from.name}->${connection.to.id}.${connection.to.name}`
+        key: connection.key
       };
     });
     return lines;

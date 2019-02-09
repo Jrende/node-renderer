@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './SvgNode.less';
-import NodeInputs from '../NodeInputs';
+import './Node.less';
+import NodeInputs from './inputs/NodeInputs';
 
 export default function SvgNode(props) {
   let {
