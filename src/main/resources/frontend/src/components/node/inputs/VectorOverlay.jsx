@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { vec2 } from 'gl-matrix';
 import './VectorOverlay.less';
-import { getSvgSize, addInSvgSpace } from '../../utils/SvgUtils';
+import { getSvgSize, addInSvgSpace } from '../../../utils/SvgUtils';
 
 let root = document.querySelector('#root');
 class VectorOverlay extends React.Component {

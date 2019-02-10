@@ -8,13 +8,16 @@ export default function SvgNode(props) {
     id,
     node,
     pos,
-    onElementMouseDown,
+    onDragbarMouseDown,
     onConnectorMouseDown,
+    onNodeTouchStart,
     onMouseUp,
     onFocus,
     selected,
     removeNode,
-    connections
+    connections,
+    handleNodeTouchMove,
+    handleTouchEnd
   } = props;
 
   let outputs = [];
@@ -44,10 +47,13 @@ export default function SvgNode(props) {
       }}
       data-node-id={id}
       className={classes}
+      onTouchStart={onNodeTouchStart}
+      onTouchMove={handleNodeTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <div
         className="drag-bar"
-        onPointerDown={onElementMouseDown}
+        onPointerDown={onDragbarMouseDown}
         onPointerUp={onMouseUp}
       >
         {node.type.id !== 0 &&
@@ -81,7 +87,8 @@ SvgNode.propTypes = {
   node: PropTypes.object.isRequired,
   removeNode: PropTypes.func.isRequired,
   selected: PropTypes.bool.isRequired,
-  onElementMouseDown: PropTypes.func.isRequired,
+  onDragbarMouseDown: PropTypes.func.isRequired,
+  onNodeTouchStart: PropTypes.func.isRequired,
   onConnectorMouseDown: PropTypes.func.isRequired,
   onMouseUp: PropTypes.func,
   onFocus: PropTypes.func,

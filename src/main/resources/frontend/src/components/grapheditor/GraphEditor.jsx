@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { vec2, mat2d } from 'gl-matrix';
 import * as actions from '../../actions';
 import './GraphEditor.less';
 import Node from '../node/Node';
@@ -44,17 +45,19 @@ class GraphEditor extends React.Component {
       grabConnectorType: undefined,
       grabMode: undefined,
       grabTo: [0, 0],
-      lastPos: [0, 0],
       grabMoved: false,
       grabbedNode: -1,
       domConnections: [],
-      shouldGenerateConnectionsAfterMount: false
+      // Maybe shouldn't be in state
+      shouldGenerateConnectionsAfterMount: false,
+      lastPos: [0, 0],
     };
+    this.lastTouchPos = [];
 
     [
       'handleDrop',
       'setSvg',
-      'onElementMouseDown',
+      'onDragbarMouseDown',
       'handleTouchMove',
       'handleTouchEnd',
       'handleTouchStart',
@@ -65,7 +68,9 @@ class GraphEditor extends React.Component {
       'onConnectorMouseDown',
       'onKeyDown',
       'onWheel',
-      'setHtmlNodeCanvas'
+      'setHtmlNodeCanvas',
+      'handleNodeTouchStart',
+      'handleNodeTouchMove'
     ].forEach(name => { this[name] = this[name].bind(this); });
   }
   //
@@ -92,6 +97,49 @@ class GraphEditor extends React.Component {
       }
     }
   }
+
+  handleTouchStart(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    let mid = [0, 0];
+    let touches = [];
+    for(let i = 0; i < event.touches.length; i++) {
+      let t = event.touches[i];
+      touches.push([t.clientX, t.clientY]);
+      mid[0] += t.clientX;
+      mid[1] += t.clientY;
+    }
+    mid[0] /= event.touches.length;
+    mid[1] /= event.touches.length;
+    this.lastTouchPos = touches;
+    this.grabCanvas(mid);
+  }
+
+  handleNodeTouchStart(event) {
+    if(event.touches.length === 2) {
+      this.handleTouchStart(event);
+    }
+  }
+
+  handleMouseDown(event) {
+    if(event.target === this.htmlNodeCanvas) {
+      event.stopPropagation();
+      event.preventDefault();
+      if(event.pointerId !== undefined) {
+        event.target.setPointerCapture(event.pointerId);
+      }
+      this.grabCanvas([event.clientX, event.clientY]);
+    }
+  }
+
+  grabCanvas(pos) {
+    this.props.selectNode(-1);
+    this.setState({
+      lastPos: pos,
+      grabMode: 'canvas'
+    });
+  }
+
 
   onConnectorMouseDown(event) {
     event.preventDefault();
@@ -138,7 +186,7 @@ class GraphEditor extends React.Component {
     });
   }
 
-  onElementMouseDown(event) {
+  onDragbarMouseDown(event) {
     event.preventDefault();
     let id = event.target.parentElement.getAttribute('data-node-id');
     this.setState({
@@ -148,19 +196,35 @@ class GraphEditor extends React.Component {
     });
   }
 
-  handleTouchMove(event) {
-    if(this.state.grabbedNode !== -1 || this.state.grabMode !== undefined) {
-      if(event.buttons === 0) {
-        this.setState({
-          grabbedNode: -1,
-          grabMode: undefined
-        });
-        return;
-      }
-      event.preventDefault();
-      let touch = event.touches[0];
-      this.onMove([touch.clientX, touch.clientY]);
+  handleNodeTouchMove(event) {
+    if(event.touches.length === 2) {
+      this.handleTouchMove(event);
     }
+  }
+
+  handleTouchMove(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    let mid = [0, 0];
+    let touches = [];
+    for(let i = 0; i < event.touches.length; i++) {
+      let t = event.touches[i];
+      touches.push([t.clientX, t.clientY]);
+      mid[0] += t.clientX;
+      mid[1] += t.clientY;
+    }
+    mid[0] /= event.touches.length;
+    mid[1] /= event.touches.length;
+
+    let zoom = this.props.zoom;
+    if(touches.length === 2) {
+      let preScale = vec2.distance(this.lastTouchPos[0], this.lastTouchPos[1]);
+      let postScale = vec2.distance(touches[0], touches[1]);
+      zoom *= (postScale / preScale);
+    }
+
+    this.onMove(mid, zoom);
+    this.lastTouchPos = touches;
   }
 
   handleMouseMove(event) {
@@ -173,11 +237,11 @@ class GraphEditor extends React.Component {
         return;
       }
       event.preventDefault();
-      this.onMove([event.clientX, event.clientY]);
+      this.onMove([event.clientX, event.clientY], this.props.zoom);
     }
   }
 
-  onMove(pos) {
+  onMove(pos, zoom) {
     let delta = [
       (pos[0] - this.state.lastPos[0]),
       (pos[1] - this.state.lastPos[1])
@@ -187,18 +251,18 @@ class GraphEditor extends React.Component {
         let nodeId = this.state.grabbedNode;
         let node = this.props.nodes[nodeId];
         let newPos = [
-          node.pos[0] + delta[0] / this.props.zoom,
-          node.pos[1] + delta[1] / this.props.zoom
+          node.pos[0] + delta[0] / zoom,
+          node.pos[1] + delta[1] / zoom
         ];
         this.props.setNodeLocation(nodeId, newPos);
       }
         break;
       case 'canvas': {
         let pan = [
-          this.props.pan[0] + delta[0] / this.props.zoom,
-          this.props.pan[1] + delta[1] / this.props.zoom
+          this.props.pan[0] + delta[0] / zoom,
+          this.props.pan[1] + delta[1] / zoom
         ];
-        this.props.setNodeEditorView(pan, this.props.zoom);
+        this.props.setNodeEditorView(pan, zoom);
       }
         break;
       default:
@@ -282,35 +346,6 @@ class GraphEditor extends React.Component {
       grabMode: undefined
     });
   }
-
-  handleTouchStart(event) {
-    if(event.target === this.htmlNodeCanvas) {
-      event.stopPropagation();
-      event.preventDefault();
-      let touch = event.touches[0];
-      this.grabCanvas([touch.clientX, touch.clientY]);
-    }
-  }
-
-  handleMouseDown(event) {
-    if(event.target === this.htmlNodeCanvas) {
-      event.stopPropagation();
-      event.preventDefault();
-      if(event.pointerId !== undefined) {
-        event.target.setPointerCapture(event.pointerId);
-      }
-      this.grabCanvas([event.clientX, event.clientY]);
-    }
-  }
-
-  grabCanvas(pos) {
-    this.props.selectNode(-1);
-    this.setState({
-      lastPos: pos,
-      grabMode: 'canvas'
-    });
-  }
-
   setSvg(svg) {
     if(svg !== undefined && svg !== null) {
       this.svg = svg;
@@ -414,8 +449,6 @@ class GraphEditor extends React.Component {
           x += width / 2;
           y += height / 2;
         }
-        x += pan[0];
-        y += pan[1];
         return (<Node
           key={id}
           id={id}
@@ -425,11 +458,13 @@ class GraphEditor extends React.Component {
           selected={selectedNode === id}
           onConnectorMouseUp={this.onConnectorMouseUp}
           onConnectorMouseDown={this.onConnectorMouseDown}
-          onElementMouseDown={this.onElementMouseDown}
+          onDragbarMouseDown={this.onDragbarMouseDown}
+          onNodeTouchStart={this.handleNodeTouchStart}
+          onNodeTouchMove={this.handleNodeTouchMove}
+          onNodeTouchEnd={this.handleTouchEnd}
           removeNode={this.props.removeNode}
         />);
       });
-
     return [
       <div
         onTouchStart={this.handleTouchStart}
@@ -446,8 +481,9 @@ class GraphEditor extends React.Component {
       >
         <div
           style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: `center ${height / 3}px`
+            transform: `scale(${zoom}) translate(${pan[0]}px, ${pan[1]}px)`,
+            transformOrigin: `center ${height / 3}px`,
+            willChange: 'transform'
           }}
         >
           {nodeElements}

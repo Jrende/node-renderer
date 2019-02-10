@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Renderer from '../gfx/Renderer';
-import VectorOverlay from './inputs/VectorOverlay';
+import VectorOverlay from './node/inputs/VectorOverlay';
 import './RenderCanvas.less';
 
 

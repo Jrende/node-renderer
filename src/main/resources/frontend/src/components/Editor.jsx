@@ -59,7 +59,7 @@ class Editor extends React.Component {
     } else {
       input = (
         <div key="svg-control" className="svg-control">
-          <button key="btn" style={{ zIndex: 2 }} onClick={() => this.props.setToolBoxVisibility(true)}>Add new node</button>
+          <button key="btn" className="add-new-node" onClick={() => this.props.setToolBoxVisibility(true)}>+</button>
           <GraphEditor key="input" />
         </div>
       );
