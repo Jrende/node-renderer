@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Path("/pattern/")
+@Path("/")
 @Produces(MediaType.TEXT_HTML)
 public class OverviewResource {
     private ImageDAO imageDAO;

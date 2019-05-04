@@ -38,7 +38,7 @@ public class MainApplication extends Application<MainConfiguration> {
             }
         });
         bootstrap.addBundle(new MultiPartBundle());
-        bootstrap.addBundle(new AssetsBundle("/static", "/pattern/static"));
+        bootstrap.addBundle(new AssetsBundle("/static", "/static"));
         bootstrap.addBundle(new ViewBundle<>());
     }
 
