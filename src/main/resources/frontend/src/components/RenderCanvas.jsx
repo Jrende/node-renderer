@@ -14,10 +14,10 @@ class RenderCanvas extends React.Component {
   componentDidMount() {
     if(this.canvas !== undefined) {
       this.renderer = new Renderer(this.canvas);
-      this.renderer.render(this.props.graph, true);
+      this.renderer.render(this.props.nodes, this.props.connections, true);
       window.onresize = () => {
         this.renderer.resizeCanvas();
-        this.renderer.render(this.props.graph, true);
+        this.renderer.render(this.props.nodes, this.props.connections, true);
       };
     }
   }
@@ -39,7 +39,7 @@ class RenderCanvas extends React.Component {
   render() {
     let { selectedNode } = this.props;
     if(this.renderer) {
-      this.renderer.render(this.props.graph);
+      this.renderer.render(this.props.nodes, this.props.connections);
     }
     let canvasOverlayInputs;
     if(selectedNode !== undefined && selectedNode.type.values !== undefined) {
@@ -77,7 +77,8 @@ class RenderCanvas extends React.Component {
 }
 
 RenderCanvas.propTypes = {
-  graph: PropTypes.object.isRequired,
+  nodes: PropTypes.object.isRequired,
+  connections: PropTypes.array.isRequired,
   id: PropTypes.number.isRequired,
   selectedNode: PropTypes.object,
   changeValue: PropTypes.func.isRequired,

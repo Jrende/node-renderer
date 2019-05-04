@@ -1,7 +1,7 @@
 export default {
   solidColor: {
     id: 0,
-    name: 'Solid Color',
+    name: 'Color',
     values: {
       color: {
         type: 'color',

@@ -3,23 +3,25 @@ import VertexArray from './VertexArray';
 import getRenderer from './noderenderers';
 import Framebuffer from './Framebuffer';
 
-/*eslint-disable */
-function hashCode(string) {
-  var hash = 0, i, chr;
-  if (string.length === 0) return hash;
-  for (i = 0; i < string.length; i++) {
-    chr   = string.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-};
-/ *eslint-enable */
+function createGraph(nodes, connections, id = 0) {
+  let graph = {
+    node: nodes[id],
+    input: {},
+    id
+  };
+  connections
+    .filter(c => c.to.id === id)
+    .forEach(c => {
+      // TODO: Fix for multiple outputs
+      graph.input[c.to.name] = createGraph(nodes, connections, c.from.id);
+      graph.input[c.to.name].name = c.from.name;
+    });
+  return graph;
+}
 
-let lastRootNode;
-let rootElement = document.querySelector('#root');
+let lastNodes;
+let lastConnections;
 
-/* global performance */
 export default class Renderer {
   constructor(canvas) {
     this.gl = canvas.getContext('webgl', {
@@ -64,14 +66,15 @@ export default class Renderer {
   }
 
   renderLastFrame() {
-    if(lastRootNode !== undefined) {
-      this.render(lastRootNode, true);
+    if(lastNodes !== undefined && lastConnections !== undefined) {
+      this.render(lastNodes, lastConnections, true);
     }
   }
 
-  render(rootNode, forceUpdate = false) {
-    console.log("render!");
-    lastRootNode = rootNode;
+  render(nodes, connections, forceUpdate = false) {
+    lastNodes = nodes;
+    lastConnections = connections;
+    let rootNode = createGraph(nodes, connections);
     this.prerender(rootNode, forceUpdate);
     let { out } = this.renderRecursive(rootNode);
     this.present(out);
@@ -134,12 +137,9 @@ export default class Renderer {
       }
     }
     let inputs = Object.keys(graphNode.input);
-    for(let i = 0; i < inputs.length; i++) {
-      let key = inputs[i];
-      if(graphNode.input[key] !== cache.input[key]) {
-        cache.isDirty = true;
-        return true;
-      }
+    if(inputs.length !== Object.keys(cache.input).length) {
+      cache.isDirty = true;
+      return true;
     }
     return this.renderCache[graphNode.id].isDirty;
   }
@@ -159,6 +159,7 @@ export default class Renderer {
     });
     let cache = this.renderCache[graphNode.id];
     if(cache.isDirty) {
+      console.log('Rerender node ', graphNode.id);
       cache.output = this.renderCache[graphNode.id].render(node.values, input);
       cache.values = node.values;
       cache.input = graphNode.input;

@@ -2,26 +2,11 @@ import { connect } from 'react-redux';
 import RenderCanvas from '../components/RenderCanvas';
 import * as actions from '../actions';
 
-function createGraph(nodes, connections, id) {
-  let graph = {
-    node: nodes[id],
-    input: {},
-    id
-  };
-  connections
-    .filter(c => c.to.id === id)
-    .forEach(c => {
-      // TODO: Fix for multiple outputs
-      graph.input[c.to.name] = createGraph(nodes, connections, c.from.id);
-      graph.input[c.to.name].name = c.from.name;
-    });
-  return graph;
-}
-
 const mapStateToProps = state => (
   {
     id: state.editor.selectedNode,
-    graph: createGraph(state.graph.nodes, state.graph.connections, 0),
+    nodes: state.graph.nodes,
+    connections: state.graph.connections,
     selectedNode: state.graph.nodes[state.editor.selectedNode],
     pan: state.nodeEditor.pan
   }
