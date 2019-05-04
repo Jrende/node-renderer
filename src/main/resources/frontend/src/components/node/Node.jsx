@@ -21,7 +21,7 @@ export default function SvgNode(props) {
   } = props;
 
   let outputs = [];
-  if(node.type.output != null) {
+  if(node.id !== 0) {
     outputs = Object.keys(node.type.output).map(key => {
       let name = node.type.output[key].name;
       return (
@@ -56,7 +56,7 @@ export default function SvgNode(props) {
         onPointerDown={onDragbarMouseDown}
         onPointerUp={onMouseUp}
       >
-        {node.type.id !== 0 &&
+        {node.id !== 0 &&
         <button
           className="delete"
           onClick={() => removeNode(id)}

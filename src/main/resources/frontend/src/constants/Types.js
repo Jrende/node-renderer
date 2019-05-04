@@ -1,14 +1,19 @@
 export default {
-  finalOutput: {
+  solidColor: {
     id: 0,
-    name: 'Output',
+    name: 'Solid Color',
     values: {
-      finalResult: {
+      color: {
         type: 'color',
-        name: 'Final result'
+        name: 'Color'
       },
     },
-    output: {}
+    output: {
+      out: {
+        type: 'color',
+        name: 'Output'
+      }
+    }
   },
   clouds: {
     id: 1,
@@ -43,7 +48,7 @@ export default {
       out: {
         type: 'color',
         name: 'Output'
-      },
+      }
     }
   },
   blend: {
@@ -79,7 +84,7 @@ export default {
       out: {
         type: 'color',
         name: 'Output'
-      },
+      }
     }
   },
   hueSaturation: {
@@ -116,7 +121,7 @@ export default {
       out: {
         type: 'color',
         name: 'Output'
-      },
+      }
     }
   },
   gradient: {
@@ -146,7 +151,7 @@ export default {
       out: {
         type: 'color',
         name: 'Output'
-      },
+      }
     }
   },
   colorMap: {
@@ -166,7 +171,7 @@ export default {
       out: {
         type: 'color',
         name: 'Output'
-      },
+      }
     }
   }
 };

@@ -14,7 +14,7 @@ class RenderCanvas extends React.Component {
   componentDidMount() {
     if(this.canvas !== undefined) {
       this.renderer = new Renderer(this.canvas);
-      this.renderer.render(this.props.graph);
+      this.renderer.render(this.props.graph, true);
       window.onresize = () => {
         this.renderer.resizeCanvas();
         this.renderer.render(this.props.graph, true);

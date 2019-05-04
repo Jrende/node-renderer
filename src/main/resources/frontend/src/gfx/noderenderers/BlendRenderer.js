@@ -11,9 +11,9 @@ export default class BlendRenderer extends Renderer {
   }
 
   render(values, framebuffers) {
-    let left = this.getValue('left', values, framebuffers, this.leftTexture);
-    let right = this.getValue('right', values, framebuffers, this.rightTexture);
-    let factor = this.getValue('factor', values, framebuffers, this.factorTexture);
+    let left = this.getValue('left', values, framebuffers);
+    let right = this.getValue('right', values, framebuffers);
+    let factor = this.getValue('factor', values, framebuffers);
     switch(values.mode) {
       case 'Normal':
         this.renderNormal(left, right, factor);

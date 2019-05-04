@@ -70,13 +70,11 @@ export default class Renderer {
   }
 
   render(rootNode, forceUpdate = false) {
-    if(Object.keys(rootNode.input).length > 0) {
-      //console.log("render!");
-      lastRootNode = rootNode;
-      this.prerender(rootNode, forceUpdate);
-      let { finalResult } = this.renderRecursive(rootNode);
-      this.present(finalResult);
-    }
+    console.log("render!");
+    lastRootNode = rootNode;
+    this.prerender(rootNode, forceUpdate);
+    let { out } = this.renderRecursive(rootNode);
+    this.present(out);
   }
 
   prerender(rootNode, forceUpdate) {
@@ -106,14 +104,12 @@ export default class Renderer {
         input: {},
         output: undefined
       };
-      if(graphNode.id !== 0) {
-        if(this.renderFunctions[graphNode.id] === undefined) {
-          let Ctor = getRenderer(node.type);
-          let renderer = new Ctor(this.gl, this.shaders);
-          renderer.setSize(this.size);
-          this.renderFunctions[graphNode.id] = renderer.render.bind(renderer);
-          this.renderFunctions[graphNode.id].setSize = renderer.setSize.bind(renderer);
-        }
+      if(this.renderFunctions[graphNode.id] === undefined) {
+        let Ctor = getRenderer(node.type);
+        let renderer = new Ctor(this.gl, this.shaders);
+        renderer.setSize(this.size);
+        this.renderFunctions[graphNode.id] = renderer.render.bind(renderer);
+        this.renderFunctions[graphNode.id].setSize = renderer.setSize.bind(renderer);
         cache.render = this.renderFunctions[graphNode.id];
       }
       this.renderCache[graphNode.id] = cache;
@@ -161,9 +157,6 @@ export default class Renderer {
       input[key] = output[graphNode.input[key].name];
       // Object.assign(input[key], output[node.input[key].name]);
     });
-    if(graphNode.id === 0) {
-      return input;
-    }
     let cache = this.renderCache[graphNode.id];
     if(cache.isDirty) {
       cache.output = this.renderCache[graphNode.id].render(node.values, input);

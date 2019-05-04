@@ -8,8 +8,12 @@ let initialState = {
     0: {
       id: 0,
       pos: [0, 0],
-      values: {},
-      type: Types.finalOutput
+      values: {
+        color: {
+          r: 1, g: 1, b: 1, a: 1
+        }
+      },
+      type: Types.solidColor
     }
   }
 };

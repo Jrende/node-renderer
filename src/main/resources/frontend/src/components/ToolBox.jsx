@@ -29,7 +29,6 @@ class ToolBox extends React.Component {
   render() {
     let nodes = Object.keys(Types)
       .map(key => Types[key])
-      .filter(type => type.id !== 0)
       .map(type =>
         (
           <div className="type" key={type.id} onMouseDown={() => this.grabNodePlaceholder(type)}>
