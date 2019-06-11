@@ -1,8 +1,12 @@
 .editor {
-  display: grid;
-  grid-template-rows: auto 1fr 0.5fr;
-  height: 110vh;
+  display: flex;
   touch-action: none;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .editor > * {
@@ -27,13 +31,12 @@
 
 .svg-control {
   overflow: hidden;
+  background-color: #a4a8b0;
 }
 
-.menu-bar {
-  nav {
-    display: flex;
-    flex-direction: row;
-  }
+.menu-bar nav {
+  display: flex;
+  flex-direction: row;
 }
 
 .node-grab-overlay {
@@ -52,19 +55,26 @@
   position: absolute;
   right: 0;
   bottom: 0;
+
   border-radius: 100%;
   height: 3rem;
   width: 3rem;
   margin: 1rem;
   background-color: #3dbc47;
-  color: white;
   border: none;
   box-shadow: 5px 5px 5px #0000004d;
+
   font-size: 30pt;
   color: white;
   font-weight: bolder;
   text-align: center;
+
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.resize-dragger {
+  height: 1em;
+  background-color: gray;
 }

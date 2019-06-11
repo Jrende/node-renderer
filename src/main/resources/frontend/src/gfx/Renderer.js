@@ -141,6 +141,13 @@ export default class Renderer {
       cache.isDirty = true;
       return true;
     }
+    for(let i = 0; i < inputs.length; i++) {
+      let key = inputs[i];
+      if(graphNode.input[key].id !== cache.input[key].id) {
+        cache.isDirty = true;
+        return true;
+      }
+    }
     return this.renderCache[graphNode.id].isDirty;
   }
 

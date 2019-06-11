@@ -13,6 +13,12 @@ class Editor extends React.Component {
     super();
     this.back = this.back.bind(this);
     this.keyDownEvent = this.keyDownEvent.bind(this);
+    this.state = {
+      lastPos: 0,
+      pos: 50
+    };
+    this.onResizeMouseDown = this.onResizeMouseDown.bind(this);
+    this.onResizeMouseMove = this.onResizeMouseMove.bind(this);
   }
 
   back() {
@@ -22,6 +28,29 @@ class Editor extends React.Component {
       this.props.setToolBoxVisibility(false);
     }
   }
+
+  onResizeMouseDown(event) {
+    event.preventDefault();
+    console.log('strt drag');
+    root.addEventListener('mousemove', this.onResizeMouseMove);
+    root.addEventListener('mouseup', this.onResizeMouseMove);
+  }
+
+  onResizeMouseMove(event) {
+    if(event.buttons === 0) {
+      console.log('stop drag');
+      root.removeEventListener('mousemove', this.onResizeMouseMove);
+      return;
+    }
+
+    let deltaX = this.state.lastPos - event.clientX;
+    console.log('deltaX: ' + deltaX);
+    console.log('x: ' + event.clientX);
+    this.setState({
+      lastPos: event.clientX
+    });
+  }
+
 
   componentDidMount() {
     root.addEventListener('keydown', this.keyDownEvent);
@@ -48,19 +77,19 @@ class Editor extends React.Component {
   }
 
   render() {
-    let input;
+    let graphOrNodepicker;
     if(this.props.showToolBox && this.props.grabbedNodeType == null) {
-      input = (
+      graphOrNodepicker = (
         <div key="toolbox-control" className="toolbox-control">
           <button key="btn" className="back" onClick={this.back}>Back</button>
-          <ToolBox key="input" />
+          <ToolBox key="graphOrNodepicker" />
         </div>
       );
     } else {
-      input = (
+      graphOrNodepicker = (
         <div key="svg-control" className="svg-control">
           <button key="btn" className="add-new-node" onClick={() => this.props.setToolBoxVisibility(true)}>+</button>
-          <GraphEditor key="input" />
+          <GraphEditor key="graphOrNodepicker" />
         </div>
       );
     }
@@ -74,7 +103,8 @@ class Editor extends React.Component {
         <RenderCanvas />
         {(this.props.grabbedNodeType !== null) && <div className="node-grab-overlay" />}
       </div>,
-      input
+      <div key="resize-dragger" onMouseDown={this.onResizeMouseDown} className="resize-dragger">···</div>,
+      graphOrNodepicker
     ];
   }
 }
