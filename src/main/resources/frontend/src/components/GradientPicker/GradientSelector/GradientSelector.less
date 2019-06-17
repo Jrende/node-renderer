@@ -1,0 +1,68 @@
+.gradient-editor {
+  @markerWidth: 20px;
+  @markerHeight: 20px;
+  padding-bottom: 4em;
+  width: 100%;
+
+  .display {
+    background-color: gray;
+    height: 4em;
+    border: 1px solid black;
+
+    &:hover {
+      cursor: crosshair;
+    }
+  }
+
+  .markers {
+    height: 4em;
+    position: relative;
+  }
+  .marker {
+    position: absolute;
+    width: @markerWidth;
+
+    &.grabbing:hover {
+      cursor: grabbing;
+    }
+
+    &:hover {
+      cursor: grab;
+    }
+
+    .marker-inner {
+      position: relative;
+      top: -10px;
+      left: -10px;
+    }
+
+
+    .triangle {
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid black;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+    }
+  }
+
+
+  .color-display > div {
+    border: 3px solid #000;
+    height: 15px;
+  }
+}
+
+.marker.selected {
+  height: 4em;
+  .marker-inner {
+    top: -1em;
+  }
+
+  .triangle {
+    border-top: 1em solid transparent;
+    border-bottom: 1em solid black;
+  }
+  .color-display > div {
+    height: 2em;
+  }
+}
