@@ -1,65 +1,42 @@
 import React from 'react';
-import tinycolor from 'tinycolor2';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import './ColorInput.less';
-import ColorSelector from './ColorSelector';
+import tinycolor from 'tinycolor2';
 
-
+let root = document.querySelector('#root');
 class ColorInput extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      selected: false
-    };
-    this.onClick = this.onClick.bind(this);
+		this.state = {
+			element: undefined
+		};
+		this.onClick = this.onClick.bind(this);
   }
 
   onClick(event) {
-    this.setState({
-      selected: !this.state.selected
-    });
+		let pos = [event.clientX, event.clientY];
+		this.props.showColorPicker(this.props.nodeId, this.props.name, this.props.value, pos);
   }
 
   render() {
-    let {
-      value,
-      type,
-      onChange,
-      hasConnection
-    } = this.props;
-    let color = tinycolor.fromRatio(value);
-    let name = type.name;
-
-    if(hasConnection) {
-      return (
-        <div className="color-input has-connection">
-          <span>{name}</span>
-        </div>
-      );
-    }
-
-    if(this.state.selected) {
-      return (
-        <div className="color-input">
-          <ColorSelector value={value} onChange={onChange} />
-          <button onClick={this.onClick}>OK</button>
-        </div>
-      );
-    }
-
+		let color = tinycolor.fromRatio(this.props.value);
+		let style = {
+			backgroundColor: color.toHexString()
+		}
     return (
-      <div className="color-input">
-        <div className="display" onClick={this.onClick} style={{ backgroundColor: color.toHexString() }} />
-        <span>{name}</span>
-      </div>
+			<button onClick={this.onClick} style={style} className="color-input"></button>
     );
   }
 }
 
 ColorInput.propTypes = {
+	hasConnection: PropTypes.bool,
+	name: PropTypes.string,
   value: PropTypes.object,
   type: PropTypes.object,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+	showGradientPicker: PropTypes.func.isRequired
 };
 
 export default ColorInput;

@@ -166,7 +166,6 @@ export default class Renderer {
     });
     let cache = this.renderCache[graphNode.id];
     if(cache.isDirty) {
-      console.log('Rerender node ', graphNode.id);
       cache.output = this.renderCache[graphNode.id].render(node.values, input);
       cache.values = node.values;
       cache.input = graphNode.input;

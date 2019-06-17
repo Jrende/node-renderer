@@ -421,7 +421,8 @@ class GraphEditor extends React.Component {
       selectedNode,
       pan,
       zoom,
-      connections
+      connections,
+			colorpicker
     } = this.props;
     let {
       grabTo,

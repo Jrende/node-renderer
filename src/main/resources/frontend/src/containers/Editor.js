@@ -7,7 +7,9 @@ const mapStateToProps = state => (
   {
     selectedNode: state.editor.selectedNode,
     grabbedNodeType: state.editor.grabbedNodeType,
-    showToolBox: state.editor.showToolBox
+    showToolBox: state.editor.showToolBox,
+		colorpicker: state.editor.colorpicker,
+		gradientPicker: state.editor.gradientPicker
   }
 );
 

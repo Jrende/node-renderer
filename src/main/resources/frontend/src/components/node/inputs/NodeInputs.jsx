@@ -21,7 +21,7 @@ class NodeInputs extends React.Component {
   }
 
   render() {
-    let { node, onConnectorMouseDown, connections } = this.props;
+    let { node, onConnectorMouseDown, connections, showColorpicker } = this.props;
 
     let inputs = [];
     if(node !== undefined && node.type.values !== undefined) {
@@ -69,10 +69,11 @@ class NodeInputs extends React.Component {
                 </div>
                 <ColorInput
                   hasConnection={hasConnection}
+									nodeId={node.id}
                   name={key}
                   type={nodeValue}
                   value={node.values[key]}
-                  onChange={(value) => this.onValueChange(key, value)}
+									showColorpicker={showColorpicker}
                 />
               </div>
             );
@@ -91,10 +92,12 @@ class NodeInputs extends React.Component {
             return (
               <div className="node-input" key={key}>
                 <GradientInput
+                  hasConnection={hasConnection}
+									nodeId={node.id}
                   name={key}
                   type={nodeValue}
                   value={node.values[key]}
-                  onChange={(value) => this.onValueChange(key, value)}
+									showGradientPicker={showGradientPicker}
                 />
               </div>
             );
@@ -128,15 +131,20 @@ NodeInputs.propTypes = {
   id: PropTypes.number.isRequired,
   changeValue: PropTypes.func.isRequired,
   onConnectorMouseDown: PropTypes.func.isRequired,
-  connections: PropTypes.array.isRequired
+  connections: PropTypes.array.isRequired,
 };
-
 
 export default connect(
   undefined,
   (dispatch) => ({
     changeValue: (nodeId, value) => {
       dispatch(actions.changeValue(nodeId, value));
+    },
+    showColorpicker: (nodeId, name, value, pos) => {
+      dispatch(actions.showColorpicker(nodeId, name, value, pos));
+    },
+    showGradientPicker: (nodeId, name, value, pos) => {
+      dispatch(actions.showGradientPicker(nodeId, name, value, pos));
     }
   })
 )(NodeInputs);

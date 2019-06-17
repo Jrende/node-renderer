@@ -5,6 +5,8 @@ import GraphEditor from '../components/grapheditor/GraphEditor';
 import ToolBox from '../components/ToolBox';
 import MenuItems from '../containers/MenuItems';
 import RenderCanvas from '../containers/RenderCanvas';
+import ColorPicker from '../components/ColorPicker';
+import GradientPicker from '../components/GradientPicker';
 import './Editor.less';
 
 let root = document.querySelector('#root');
@@ -104,7 +106,9 @@ class Editor extends React.Component {
         {(this.props.grabbedNodeType !== null) && <div className="node-grab-overlay" />}
       </div>,
       <div key="resize-dragger" onMouseDown={this.onResizeMouseDown} className="resize-dragger">···</div>,
-      graphOrNodepicker
+      graphOrNodepicker,
+			this.props.colorpicker.isVisible && <ColorPicker />,
+			this.props.gradientPicker.isVisible && <GradientPicker />
     ];
   }
 }
@@ -118,6 +122,8 @@ Editor.propTypes = {
   selectNode: PropTypes.func.isRequired,
   grabbedNodeType: PropTypes.object,
   setToolBoxVisibility: PropTypes.func.isRequired,
-  showToolBox: PropTypes.bool.isRequired
+	showToolBox: PropTypes.bool.isRequired,
+	colorpicker: PropTypes.object.isRequired,
+	gradientPicker: PropTypes.object.isRequired
 };
 export default Editor;

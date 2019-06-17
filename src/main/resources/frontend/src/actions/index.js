@@ -86,3 +86,38 @@ export function showToolBox(show) {
   };
 }
 
+export function showColorpicker(nodeId, fieldName, value, pos) {
+  return {
+    type: 'SHOW_COLORPICKER',
+		value,
+    pos,
+		editingNode: {
+			id: nodeId,
+			fieldName: fieldName
+		}
+  };
+}
+
+export function hideColorpicker() {
+  return {
+    type: 'HIDE_COLORPICKER',
+	}
+}
+
+export function showGradientPicker(nodeId, fieldName, value, pos) {
+  return {
+    type: 'SHOW_GRADIENTPICKER',
+		value,
+    pos,
+		editingNode: {
+			id: nodeId,
+			fieldName: fieldName
+		}
+  };
+}
+
+export function hideGradientPicker() {
+  return {
+    type: 'HIDE_GRADIENTPICKER',
+	}
+}

@@ -1,8 +1,8 @@
 database:
   driverClass: org.postgresql.Driver
-  user: ${db_user}
-  password: ${db_password}
-  url: ${db_url}
+  user: nru
+  password: test1234
+  url: jdbc:postgresql:nrdb
 logging:
   level: INFO
   appenders:
